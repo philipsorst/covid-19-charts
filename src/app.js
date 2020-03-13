@@ -15,7 +15,7 @@ data.set('World', new Map());
 const dateParse = d3.timeParse('%m/%d/%y');
 const dateFormat = d3.timeFormat('%Y-%m-%d');
 const growthDeathRateHeight = 150;
-const plotMargin = {top: 10, right: 1, bottom: 30, left: 60};
+const plotMargin = {top: 5, right: 1, bottom: 30, left: 60};
 const country = 'World';
 let xScale = null;
 
@@ -122,7 +122,7 @@ function drawPlotMain(entries) {
     svg.append("path")
         .datum(entries)
         .attr("fill", "none")
-        .attr("stroke", "#dedede")
+        .attr("stroke", "#808080")
         .attr("stroke-width", 1.5)
         .attr("d", d3.line()
             .x(d => xScale(d.date))
@@ -132,7 +132,7 @@ function drawPlotMain(entries) {
     svg.append("path")
         .datum(entries)
         .attr("fill", "none")
-        .attr("stroke", "#80ff80")
+        .attr("stroke", "#388E3C")
         .attr("stroke-width", 1.5)
         .attr("d", d3.line()
             .x(d => xScale(d.date))
@@ -142,7 +142,7 @@ function drawPlotMain(entries) {
     svg.append("path")
         .datum(entries)
         .attr("fill", "none")
-        .attr("stroke", "#ff8080")
+        .attr("stroke", "#D32F2F")
         .attr("stroke-width", 1.5)
         .attr("d", d3.line()
             .x(d => xScale(d.date))
@@ -152,7 +152,7 @@ function drawPlotMain(entries) {
     svg.append("path")
         .datum(entries)
         .attr("fill", "none")
-        .attr("stroke", "#0080ff")
+        .attr("stroke", "#1976D2")
         .attr("stroke-width", 1.5)
         .attr("d", d3.line()
             .x(d => xScale(d.date))
@@ -206,7 +206,7 @@ function drawPlotGrowthRate(entries) {
     svg.append("path")
         .datum(entries)
         .attr("fill", "none")
-        .attr("stroke", "#0080ff")
+        .attr("stroke", "#808080")
         .attr("stroke-width", 1.5)
         .attr("d", d3.line()
             .x(d => xScale(d.date))
@@ -249,7 +249,7 @@ function drawPlotDeathRate(entries) {
     svg.append("path")
         .datum(entries)
         .attr("fill", "none")
-        .attr("stroke", "#0080ff")
+        .attr("stroke", "#808080")
         .attr("stroke-width", 1.5)
         .attr("d", d3.line()
             .x(d => xScale(d.date))
