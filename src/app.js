@@ -16,7 +16,7 @@ const dateParse = d3.timeParse('%m/%d/%y');
 const dateFormat = d3.timeFormat('%Y-%m-%d');
 const growthDeathRateHeight = 150;
 const plotMargin = {top: 5, right: 1, bottom: 30, left: 60};
-const country = 'World';
+let currentCountry = 'World';
 let xScale = null;
 
 function deathRate(d) {
@@ -266,6 +266,7 @@ function drawInfo(entry) {
 }
 
 function selectCountry(country) {
+    currentCountry = country;
     let countryMap = data.get(country);
     if (null == countryMap) {
         throw new Error('Could not find country');
@@ -321,7 +322,20 @@ Promise.all([d3.csv(urls.confirmed), d3.csv(urls.recovered), d3.csv(urls.deaths)
                 .on('click', selectCountry)
                 .html(d => d);
 
-            selectCountry(country);
+            selectCountry(currentCountry);
         }
     );
 
+function debounce(fn, timeout) {
+    var timeoutID = -1;
+    return function () {
+        if (timeoutID > -1) {
+            window.clearTimeout(timeoutID);
+        }
+        timeoutID = window.setTimeout(fn, timeout);
+    }
+}
+
+d3.select(window).on('resize', debounce(function () {
+    selectCountry(currentCountry)
+}, 250));
