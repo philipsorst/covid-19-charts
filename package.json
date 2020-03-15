@@ -7,14 +7,18 @@
     "devDependencies": {
         "@symfony/webpack-encore": "^0.28.3",
         "@types/d3": "^5.7.2",
+        "@types/topojson-client": "^3.0.0",
         "bootstrap": "^4.4.1",
         "core-js": "^3",
+        "country-json": "^1.1.0",
         "d3": "^5.15.0",
         "jquery": "^3.4.1",
         "node-sass": "^4.13.1",
         "popper.js": "^1.16.1",
         "sass-loader": "^7.0.1",
+        "topojson-client": "^3.1.0",
         "ts-loader": "^5.3.0",
-        "typescript": "^3.8.3"
+        "typescript": "^3.8.3",
+        "world-atlas": "^2.0.2"
     }
 }

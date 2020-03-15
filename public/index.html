@@ -3,7 +3,8 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <link rel="stylesheet" href="./build/app.css"/>
+    <link rel="stylesheet" href="./build/style.css"/>
+    <link rel="stylesheet" href="./build/charts.css"/>
     <title>Covid 19 Charts</title>
 </head>
 <body>
@@ -21,6 +22,10 @@
         <div class="d-lg-flex flex-lg-row flex-lg-grow-1">
             <div id="info" class="pl-4 pr-4">
                 <section class="text-center">
+                    <div class="mb-4" id="info-population">
+                        <h3>Population</h3>
+                        <p class="display-4" id="info-num-population"></p>
+                    </div>
                     <div class="mb-4">
                         <h3>Confirmed</h3>
                         <p class="display-4" id="info-num-confirmed"></p>
@@ -52,17 +57,18 @@
                     <div id="plot-main" class="flex-lg-grow-1"></div>
                 </section>
                 <section class="mb-4">
-                    <h2 class="text-center mb-0">Growth Rate</h2>
+                    <h2 class="text-center">Growth Rate</h2>
                     <div id="plot-growth-rate"></div>
                 </section>
                 <section>
-                    <h2 class="text-center mb-0">Death Rate</h2>
+                    <h2 class="text-center">Death Rate</h2>
                     <div id="plot-death-rate"></div>
                 </section>
             </div>
         </div>
     </div>
 </div>
-<script src="./build/app.js" type="text/javascript"></script>
+<script src="./build/runtime.js" type="text/javascript"></script>
+<script src="./build/charts.js" type="text/javascript"></script>
 </body>
 </html>

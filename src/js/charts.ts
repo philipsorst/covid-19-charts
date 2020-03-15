@@ -1,92 +1,44 @@
-require('./app.scss');
-var $ = require('jquery');
-require('bootstrap');
+import {CountryData} from "./country-data";
 import * as d3 from 'd3';
+import './load.coviddata';
+import {loadCovidData, WORLD_ABBR} from "./load.coviddata";
+import {Utils} from "./utils";
+import {DayData} from "./day-data";
 
-const urls = {
-    confirmed: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv',
-    recovered: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv',
-    deaths: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv'
-};
+require('../scss/charts.scss');
+require('bootstrap');
 
-const data = new Map();
-data.set('World', new Map());
-
-const dateParse = d3.timeParse('%m/%d/%y');
-const dateFormat = d3.timeFormat('%Y-%m-%d');
 const growthDeathRateHeight = 150;
 const plotMargin = {top: 5, right: 1, bottom: 30, left: 60};
-let currentCountry = 'World';
-let xScale = null;
+let currentCountry = WORLD_ABBR;
+let xScale: d3.ScaleTime<number, number>;
+let data: Map<string, Map<string, DayData>>;
+let countryData: CountryData;
 
-function deathRate(d) {
+function deathRate(d: DayData)
+{
     if (d.deaths + d.recovered === 0) {
         return 0;
     }
     return d.deaths / (d.deaths + d.recovered);
 }
 
-function pending(d) {
+function pending(d: DayData)
+{
     return d.confirmed - d.deaths - d.recovered;
 }
 
-function addEntry(data, entry, type) {
-    const country = entry['Country/Region'];
-    delete entry['Country/Region'];
-    delete entry['Province/State'];
-    delete entry['Lat'];
-    delete entry['Long'];
-
-    let countryMap = data.get(country);
-    if (null == countryMap) {
-        countryMap = new Map();
-        data.set(country, countryMap);
-    }
-
-    let worldMap = data.get('World');
-    if (null == worldMap) {
-        worldMap = new Map();
-        data.set(country, worldMap);
-    }
-
-    for (let dateString in entry) {
-        if (entry.hasOwnProperty(dateString)) {
-            const date = dateParse(dateString);
-            const transformedDateString = dateFormat(date);
-            const value = +entry[dateString];
-
-            let countryDayData = countryMap.get(transformedDateString);
-            if (null == countryDayData) {
-                countryDayData = {date: date, confirmed: 0, recovered: 0, deaths: 0, growthRate: 0};
-                countryMap.set(transformedDateString, countryDayData);
-            }
-
-            let worldDayData = worldMap.get(transformedDateString);
-            if (null == worldDayData) {
-                worldDayData = {date: date, confirmed: 0, recovered: 0, deaths: 0, growthRate: 0};
-                worldMap.set(transformedDateString, worldDayData);
-            }
-
-            countryDayData[type] += value;
-            worldDayData[type] += value;
-
-            // console.log(dateString, date, dateFormat(date), entry[dateString]);
-        }
-    }
-    // console.log(country, type, entry);
-}
-
-function drawPlotMain(entries) {
+function drawPlotMain(entries: DayData[])
+{
     let plotContainer = d3.select('#plot-main');
+    const boundingClientRect = Utils.getBoundingClientRect(plotContainer);
 
-    const totalWidth = plotContainer.node().getBoundingClientRect().width;
-    const containerHeight = plotContainer.node().getBoundingClientRect().height;
-    const width = totalWidth - plotMargin.left - plotMargin.right;
+    const width = boundingClientRect.width - plotMargin.left - plotMargin.right;
     let height = 150;
-    if (containerHeight < 150) {
+    if (boundingClientRect.height < 150) {
         height = 150 - plotMargin.top - plotMargin.bottom;
     } else {
-        height = containerHeight - (2 * growthDeathRateHeight) - plotMargin.top - plotMargin.bottom;
+        height = boundingClientRect.height - (2 * growthDeathRateHeight) - plotMargin.top - plotMargin.bottom;
     }
 
     let svg = plotContainer
@@ -99,17 +51,17 @@ function drawPlotMain(entries) {
 
 
     xScale = d3.scaleTime()
-        .domain(d3.extent(entries, d => d.date))
+        .domain(d3.extent(entries, d => d.date) as [Date, Date])
         .range([0, width]);
-    svg.append("g")
-        .attr("transform", "translate(0," + height + ")")
+    svg.append('g')
+        .attr('transform', `translate(0,${height})`)
         .call(d3.axisBottom(xScale));
 
     // Add Y axis
-    var y = d3
+    const y = d3
         .scaleLinear()
         // .scaleSymlog().constant(1000)
-        .domain([0, d3.max(entries, d => d.confirmed)])
+        .domain([0, d3.max(entries, d => d.confirmed) as number])
         .range([height, 0]);
 
     svg.append("g")
@@ -124,7 +76,7 @@ function drawPlotMain(entries) {
         .attr("fill", "none")
         .attr("stroke", "#808080")
         .attr("stroke-width", 1.5)
-        .attr("d", d3.line()
+        .attr("d", d3.line<DayData>()
             .x(d => xScale(d.date))
             .y(d => y(d.confirmed))
         );
@@ -134,7 +86,7 @@ function drawPlotMain(entries) {
         .attr("fill", "none")
         .attr("stroke", "#388E3C")
         .attr("stroke-width", 1.5)
-        .attr("d", d3.line()
+        .attr("d", d3.line<DayData>()
             .x(d => xScale(d.date))
             .y(d => y(d.recovered))
         );
@@ -144,7 +96,7 @@ function drawPlotMain(entries) {
         .attr("fill", "none")
         .attr("stroke", "#D32F2F")
         .attr("stroke-width", 1.5)
-        .attr("d", d3.line()
+        .attr("d", d3.line<DayData>()
             .x(d => xScale(d.date))
             .y(d => y(d.deaths))
         );
@@ -154,19 +106,20 @@ function drawPlotMain(entries) {
         .attr("fill", "none")
         .attr("stroke", "#1976D2")
         .attr("stroke-width", 1.5)
-        .attr("d", d3.line()
+        .attr("d", d3.line<DayData>()
             .x(d => xScale(d.date))
             .y(d => y(pending(d)))
         );
 }
 
-function drawPlotGrowthRate(entries) {
+function drawPlotGrowthRate(entries: DayData[])
+{
     let plotContainer = d3.select('#plot-growth-rate');
+    const boundingClientRect = Utils.getBoundingClientRect(plotContainer);
 
-    const totalWidth = plotContainer.node().getBoundingClientRect().width;
     // const totalHeight = plotContainer.node().getBoundingClientRect().height;
     const totalHeight = growthDeathRateHeight;
-    const width = totalWidth - plotMargin.left - plotMargin.right;
+    const width = boundingClientRect.width - plotMargin.left - plotMargin.right;
     const height = totalHeight - plotMargin.top - plotMargin.bottom;
 
     let svg = plotContainer
@@ -179,7 +132,7 @@ function drawPlotGrowthRate(entries) {
 
     // Add Y axis
     var y = d3.scaleLinear()
-        .domain(d3.extent(entries, d => d.growthRate))
+        .domain(d3.extent(entries, d => d.growthRate) as [number, number])
         .range([height, 0]);
 
     svg.append("g")
@@ -208,19 +161,20 @@ function drawPlotGrowthRate(entries) {
         .attr("fill", "none")
         .attr("stroke", "#808080")
         .attr("stroke-width", 1.5)
-        .attr("d", d3.line()
+        .attr("d", d3.line<DayData>()
             .x(d => xScale(d.date))
             .y(d => y(d.growthRate))
         );
 }
 
-function drawPlotDeathRate(entries) {
+function drawPlotDeathRate(entries: DayData[])
+{
     let plotContainer = d3.select('#plot-death-rate');
+    const boundingClientRect = Utils.getBoundingClientRect(plotContainer);
 
-    const totalWidth = plotContainer.node().getBoundingClientRect().width;
     // const totalHeight = plotContainer.node().getBoundingClientRect().height;
     const totalHeight = growthDeathRateHeight;
-    const width = totalWidth - plotMargin.left - plotMargin.right;
+    const width = boundingClientRect.width - plotMargin.left - plotMargin.right;
     const height = totalHeight - plotMargin.top - plotMargin.bottom;
 
     let svg = plotContainer
@@ -238,7 +192,7 @@ function drawPlotDeathRate(entries) {
 
     // Add Y axis
     var y = d3.scaleLinear()
-        .domain([0, d3.max(entries, deathRate)])
+        .domain([0, d3.max(entries, deathRate) as number])
         .range([height, 0]);
     svg.append("g")
         .call(d3.axisLeft(y))
@@ -251,13 +205,20 @@ function drawPlotDeathRate(entries) {
         .attr("fill", "none")
         .attr("stroke", "#808080")
         .attr("stroke-width", 1.5)
-        .attr("d", d3.line()
+        .attr("d", d3.line<DayData>()
             .x(d => xScale(d.date))
             .y(d => y(deathRate(d)))
         );
 }
 
-function drawInfo(entry) {
+function drawInfo(countryCode: string, entry: DayData)
+{
+    let population = countryData.getPopulation(countryCode);
+    console.log(countryCode, population);
+    d3.select('#info-population').classed('d-none', null == population);
+    if (null != population) {
+        d3.select('#info-num-population').html(d3.format(".2s")(population));
+    }
     d3.select('#info-num-confirmed').html(d3.format(",")(entry.confirmed));
     d3.select('#info-num-recovered').html(d3.format(",")(entry.recovered));
     d3.select('#info-num-deaths').html(d3.format(",")(entry.deaths));
@@ -265,18 +226,17 @@ function drawInfo(entry) {
     d3.select('#info-death-rate').html(d3.format(".2%")(deathRate(entry)));
 }
 
-function selectCountry(country) {
-    currentCountry = country;
-    let countryMap = data.get(country);
-    if (null == countryMap) {
-        throw new Error('Could not find country');
-    }
+function selectCountry(countryCode: string)
+{
+    currentCountry = countryCode;
+    let countryMap = data.get(countryCode);
+    if (null == countryMap) throw 'Could not find countryCode';
     let entries = Array.from(countryMap.values());
 
     let lastEntry = entries[entries.length - 1];
-    drawInfo(lastEntry);
+    drawInfo(countryCode, lastEntry);
 
-    d3.select('#heading').html(country);
+    d3.select('#heading').html(countryData.getName(countryCode));
 
     d3.select('#plot-main').selectAll('*').remove();
     d3.select('#plot-growth-rate').selectAll('*').remove();
@@ -287,55 +247,37 @@ function selectCountry(country) {
     drawPlotDeathRate(entries);
 }
 
-Promise.all([d3.csv(urls.confirmed), d3.csv(urls.recovered), d3.csv(urls.deaths)])
-    .then(([confirmed, recovered, deaths]) => {
-            confirmed.forEach(entry => addEntry(data, entry, 'confirmed'));
-            recovered.forEach(entry => addEntry(data, entry, 'recovered'));
-            deaths.forEach(entry => addEntry(data, entry, 'deaths'));
+CountryData.load().then(resultCountryData => {
+    countryData = resultCountryData;
+    loadCovidData(countryData)
+        .then(result => {
+                data = result.data;
+                d3.select('.country-select .row')
+                    .selectAll('div')
+                    .data(result.countries)
+                    .enter()
+                    .append('div')
+                    .classed('col-md-4 col-lg-3', true)
+                    .append('a')
+                    .attr('href', '#')
+                    .classed('dropdown-item', true)
+                    .on('click', selectCountry)
+                    .html(d => countryData.getName(d));
 
-            data.forEach(entries => {
-                let lastValue = null;
-                entries.forEach(entry => {
-                    let numPending = entry.confirmed - entry.recovered - entry.deaths;
-                    if (null != lastValue && 0 !== lastValue) {
-                        // entry.growthRate = numPending / lastValue;
-                        entry.growthRate = (numPending - lastValue) / lastValue;
-                    }
-                    lastValue = numPending;
-                });
-            });
+                selectCountry(currentCountry);
+            }
+        );
+});
 
-            const countries = Array.from(data.keys());
-            countries.shift();
-            countries.sort();
-            countries.unshift('World');
-
-            d3.select('.country-select .row')
-                .selectAll("div")
-                .data(countries)
-                .enter()
-                .append("div")
-                .classed("col-md-4 col-lg-3", true)
-                .append("a")
-                .attr('href', '#')
-                .classed("dropdown-item", true)
-                .on('click', selectCountry)
-                .html(d => d);
-
-            selectCountry(currentCountry);
-        }
-    );
-
-function debounce(fn, timeout) {
-    var timeoutID = -1;
-    return function () {
+function debounce(timerHandler: TimerHandler, timeout: number)
+{
+    let timeoutID = -1;
+    return () => {
         if (timeoutID > -1) {
             window.clearTimeout(timeoutID);
         }
-        timeoutID = window.setTimeout(fn, timeout);
+        timeoutID = window.setTimeout(timerHandler, timeout);
     }
 }
 
-d3.select(window).on('resize', debounce(function () {
-    selectCountry(currentCountry)
-}, 250));
+d3.select(window).on('resize', debounce(() => selectCountry(currentCountry), 250));
