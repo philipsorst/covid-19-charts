@@ -29,6 +29,7 @@ export class CountryData
         this.nameReplacementMap.set('W. Sahara', 'Western Sahara');
         this.nameReplacementMap.set('United States of America', 'United States');
         this.nameReplacementMap.set('Dem. Rep. Congo', 'The Democratic Republic of Congo');
+        this.nameReplacementMap.set('Congo (Brazzaville)', 'The Democratic Republic of Congo');
         this.nameReplacementMap.set('Dominican Rep.', 'Dominican Republic');
         this.nameReplacementMap.set('Falkland Is.', 'Falkland Islands');
         this.nameReplacementMap.set('Fr. S. Antarctic Lands', 'French Southern territories');
