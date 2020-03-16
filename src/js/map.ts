@@ -99,7 +99,7 @@ function plotMap(
         .selectAll('path')
         .data(features)
         .transition()
-        .duration(500)
+        .duration(0)
         .attr('fill', d => {
             const countryName = (d.properties as { name: string }).name;
             const countryCode = countryData.getCountryCode(countryName);
@@ -115,6 +115,12 @@ function plotMap(
 CountryData.load().then((countryData) => {
     CovidData.load(countryData).then(covidData => {
         d3.json('./build/world-atlas/countries-110m.json').then(worldData => {
+
+            d3.select('#dateSlider').on('change', function () {
+                // @ts-ignore
+                console.log(this.value)
+            });
+
             let features = TopoJsonClient.feature(worldData, worldData.objects.countries as GeometryCollection).features;
             svg
                 .selectAll('path')
