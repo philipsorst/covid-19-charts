@@ -62,7 +62,7 @@ export class CountryData
                 });
 
                 countryData.addCountryToAbbreviation('Taiwan', 'TW');
-                countryData.addCountryToAbbreviation('TW', 'Taiwan');
+                countryData.addAbbreviationToCountry('TW', 'Taiwan');
 
                 countryByPopulation.forEach(entry => {
                     if (null != entry.population) {

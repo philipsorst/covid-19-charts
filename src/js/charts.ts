@@ -1,32 +1,21 @@
 import {CountryData} from "./country-data";
 import * as d3 from 'd3';
 import './load.coviddata';
-import {loadCovidData, WORLD_ABBR} from "./load.coviddata";
 import {Utils} from "./utils";
 import {DayData} from "./day-data";
+import {CovidData} from "./covid-data";
+import {Country} from "./country";
 
 require('../scss/charts.scss');
 require('bootstrap');
 
 const growthDeathRateHeight = 150;
 const plotMargin = {top: 5, right: 1, bottom: 30, left: 60};
-let currentCountry = WORLD_ABBR;
 let xScale: d3.ScaleTime<number, number>;
-let data: Map<string, Map<string, DayData>>;
+let data: CovidData;
 let countryData: CountryData;
-
-function deathRate(d: DayData)
-{
-    if (d.deaths + d.recovered === 0) {
-        return 0;
-    }
-    return d.deaths / (d.deaths + d.recovered);
-}
-
-function pending(d: DayData)
-{
-    return d.confirmed - d.deaths - d.recovered;
-}
+const COUNTRY_CODE_GLOBAL = 'GLOBAL';
+let currentCountry: Country;
 
 function drawPlotMain(entries: DayData[])
 {
@@ -108,7 +97,7 @@ function drawPlotMain(entries: DayData[])
         .attr("stroke-width", 1.5)
         .attr("d", d3.line<DayData>()
             .x(d => xScale(d.date))
-            .y(d => y(pending(d)))
+            .y(d => y(d.getPending()))
         );
 }
 
@@ -192,7 +181,7 @@ function drawPlotDeathRate(entries: DayData[])
 
     // Add Y axis
     var y = d3.scaleLinear()
-        .domain([0, d3.max(entries, deathRate) as number])
+        .domain([0, d3.max(entries, d => d.getDeathRate()) as number])
         .range([height, 0]);
     svg.append("g")
         .call(d3.axisLeft(y))
@@ -207,14 +196,13 @@ function drawPlotDeathRate(entries: DayData[])
         .attr("stroke-width", 1.5)
         .attr("d", d3.line<DayData>()
             .x(d => xScale(d.date))
-            .y(d => y(deathRate(d)))
+            .y(d => y(d.getDeathRate()))
         );
 }
 
-function drawInfo(countryCode: string, entry: DayData)
+function drawInfo(country: Country, entry: DayData)
 {
-    let population = countryData.getPopulation(countryCode);
-    console.log(countryCode, population);
+    let population = countryData.getPopulation(country.code);
     d3.select('#info-population').classed('d-none', null == population);
     if (null != population) {
         d3.select('#info-num-population').html(d3.format(".2s")(population));
@@ -222,21 +210,24 @@ function drawInfo(countryCode: string, entry: DayData)
     d3.select('#info-num-confirmed').html(d3.format(",")(entry.confirmed));
     d3.select('#info-num-recovered').html(d3.format(",")(entry.recovered));
     d3.select('#info-num-deaths').html(d3.format(",")(entry.deaths));
-    d3.select('#info-num-pending').html(d3.format(",")(pending(entry)));
-    d3.select('#info-death-rate').html(d3.format(".2%")(deathRate(entry)));
+    d3.select('#info-num-pending').html(d3.format(",")(entry.getPending()));
+    d3.select('#info-death-rate').html(d3.format(".2%")(entry.getDeathRate()));
 }
 
-function selectCountry(countryCode: string)
+function selectCountry(country: Country)
 {
-    currentCountry = countryCode;
-    let countryMap = data.get(countryCode);
-    if (null == countryMap) throw 'Could not find countryCode';
-    let entries = Array.from(countryMap.values());
+    let entries;
+    if (COUNTRY_CODE_GLOBAL === country.code) {
+        entries = data.getGlobalDayData();
+    } else {
+        entries = data.getDayData(country.code);
+    }
+    currentCountry = country;
 
     let lastEntry = entries[entries.length - 1];
-    drawInfo(countryCode, lastEntry);
+    drawInfo(country, lastEntry);
 
-    d3.select('#heading').html(countryData.getName(countryCode));
+    d3.select('#heading').html(country.name);
 
     d3.select('#plot-main').selectAll('*').remove();
     d3.select('#plot-growth-rate').selectAll('*').remove();
@@ -249,22 +240,31 @@ function selectCountry(countryCode: string)
 
 CountryData.load().then(resultCountryData => {
     countryData = resultCountryData;
-    loadCovidData(countryData)
+    CovidData.load(countryData)
         .then(result => {
-                data = result.data;
-                d3.select('.country-select .row')
-                    .selectAll('div')
-                    .data(result.countries)
-                    .enter()
-                    .append('div')
-                    .classed('col-md-4 col-lg-3', true)
-                    .append('a')
-                    .attr('href', '#')
-                    .classed('dropdown-item', true)
-                    .on('click', selectCountry)
-                    .html(d => countryData.getName(d));
+            data = result;
 
-                selectCountry(currentCountry);
+            const countries = new Array<Country>();
+            data.getCountryCodes().forEach(countryCode => {
+                countries.push(new Country(countryCode, countryData.getName(countryCode)));
+            });
+            countries.sort((a, b) => a.name.localeCompare(b.name));
+            const global = new Country(COUNTRY_CODE_GLOBAL, 'Global');
+            countries.unshift(global);
+
+            d3.select('.country-select .row')
+                .selectAll('div')
+                .data(countries)
+                .enter()
+                .append('div')
+                .classed('col-md-4 col-lg-3', true)
+                .append('a')
+                .attr('href', '#')
+                .classed('dropdown-item', true)
+                .on('click', selectCountry)
+                .html(d => d.name);
+
+            selectCountry(global);
             }
         );
 });

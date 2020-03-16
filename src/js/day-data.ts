@@ -8,4 +8,17 @@ export class DayData
     recovered: number = 0;
     confirmed: number = 0;
     growthRate: number = 0;
+
+    public getPending(): number
+    {
+        return this.confirmed - this.recovered - this.deaths;
+    }
+
+    public getDeathRate()
+    {
+        if (this.deaths + this.recovered === 0) {
+            return 0;
+        }
+        return this.deaths / (this.deaths + this.recovered);
+    }
 }
