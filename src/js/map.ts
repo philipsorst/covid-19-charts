@@ -23,7 +23,7 @@ interface MapPlot
 {
     name: string,
     range: ReadonlyArray<string>,
-    data: (countryCode: string, dayData: DayData, covidData: CovidData, countryData: CountryData) => number | null
+    data: (countryCode: string, dayData: DayData | null, covidData: CovidData, countryData: CountryData) => number | null
 }
 
 const pendingPercentagePlot: MapPlot = {
@@ -31,7 +31,7 @@ const pendingPercentagePlot: MapPlot = {
     range: ['#FFEBEE', '#B71C1C'],
     data: (countryCode: string, dayData, covidData, countryData) => {
         const population = countryData.getPopulation(countryCode);
-        if (null == population) {
+        if (null == population || null == dayData || 0 === dayData.getPending()) {
             return null;
         }
         return dayData.getPending() / population;
@@ -42,6 +42,9 @@ const deathRatePlot: MapPlot = {
     name: 'Death Rate',
     range: ['#FFEBEE', '#B71C1C'],
     data: (countryCode: string, dayData, covidData, countryData) => {
+        if (null == dayData) {
+            return null;
+        }
         return dayData.getDeathRate();
     }
 };
@@ -50,6 +53,9 @@ const growthRatePlot: MapPlot = {
     name: 'Growth Rate',
     range: ['#FFEBEE', '#B71C1C'],
     data: (countryCode: string, dayData, covidData, countryData) => {
+        if (null == dayData) {
+            return null;
+        }
         return dayData.growthRate;
     }
 };
@@ -58,6 +64,9 @@ const confirmedPlot: MapPlot = {
     name: 'Confirmed',
     range: ['#FFEBEE', '#B71C1C'],
     data: (countryCode: string, dayData, covidData, countryData) => {
+        if (null == dayData || 0 === dayData.confirmed) {
+            return null;
+        }
         return dayData.confirmed;
     }
 };
@@ -66,6 +75,9 @@ const recoveredPlot: MapPlot = {
     name: 'Recovered',
     range: ['#FFEBEE', '#80ff80'],
     data: (countryCode: string, dayData, covidData, countryData) => {
+        if (null == dayData) {
+            return null;
+        }
         return dayData.recovered;
     }
 };
@@ -74,6 +86,9 @@ const recoveredPercentagePlot: MapPlot = {
     name: 'Recovered',
     range: ['#FFEBEE', '#80ff80'],
     data: (countryCode: string, dayData, covidData, countryData) => {
+        if (null == dayData) {
+            return null;
+        }
         return dayData.recovered / dayData.confirmed;
     }
 };
@@ -82,7 +97,8 @@ function plotMap(
     covidData: CovidData,
     countryData: CountryData,
     features: Array<GeoJSON.Feature<GeoJSON.GeometryObject, {}>>,
-    mapPlot: MapPlot)
+    mapPlot: MapPlot,
+    dateString: string)
 {
     const extents = new Array<[number, number]>();
     features.forEach(feature => {
@@ -108,7 +124,7 @@ function plotMap(
                 return COLOR_UNKNOWN;
             }
 
-            const data = mapPlot.data(countryCode, covidData.getLastDayData(countryCode), covidData, countryData);
+            const data = mapPlot.data(countryCode, covidData.getDayDataByDateString(countryCode, dateString), covidData, countryData);
             if (null == data) {
                 return COLOR_UNKNOWN;
             }
@@ -122,10 +138,18 @@ CountryData.load().then((countryData) => {
     CovidData.load(countryData).then(covidData => {
         d3.json('./build/world-atlas/countries-110m.json').then(worldData => {
 
-            d3.select('#dateSlider').on('change', function () {
-                // @ts-ignore
-                console.log(this.value)
-            });
+            const mapPlot = growthRatePlot;
+
+            const dateStrings = covidData.getDateStrings();
+            d3.select('#dateSlider')
+                .attr('min', 0)
+                .attr('max', dateStrings.length - 1)
+                .attr('value', dateStrings.length - 1)
+                .on('change', function () {
+                    // @ts-ignore
+                    const dateString: string = dateStrings[this.value];
+                    plotMap(covidData, countryData, features, mapPlot, dateString);
+                });
 
             let features = TopoJsonClient.feature(worldData, worldData.objects.countries as GeometryCollection).features;
             svg
@@ -137,7 +161,7 @@ CountryData.load().then((countryData) => {
                 .attr('stroke', '#808080')
                 .attr('fill', '#FFEBEE');
 
-            plotMap(covidData, countryData, features, pendingPercentagePlot);
+            plotMap(covidData, countryData, features, mapPlot, dateStrings[dateStrings.length - 1]);
         });
     });
 });

@@ -4,8 +4,71 @@ import * as d3 from "d3";
 
 export class CovidData
 {
+    constructor(private data: Map<string, Map<string, DayData>>, private globalData: Map<string, DayData>, private dates: Date[], private dateStrings: string[])
+    {
+    }
+
+    public static load(countryData: CountryData): Promise<CovidData>
+    {
+        const covidDataLoader = new CovidDataLoader();
+        return covidDataLoader.load(countryData);
+    }
+
+    public hasCountryCode(countryCode: string): boolean
+    {
+        return this.data.has(countryCode);
+    }
+
+    public getCountryCodes(): string[]
+    {
+        return Array.from(this.data.keys());
+    }
+
+    public getDayData(countryCode: string): DayData[]
+    {
+        const countryData = this.data.get(countryCode);
+        if (null == countryData) throw 'No data found for ' + countryCode;
+        return Array.from(countryData.values());
+    }
+
+    public getDayDataByDateString(countryCode: string, dateString: string): DayData | null
+    {
+        const countryData = this.data.get(countryCode);
+        if (null == countryData) throw 'No data found for ' + countryCode;
+
+        const dayData = countryData.get(dateString);
+        if (null == dayData) return null;
+
+        return dayData;
+    }
+
+    public getGlobalDayData(): DayData[]
+    {
+        return Array.from(this.globalData.values());
+    }
+
+    public getLastDayData(countryCode: string): DayData
+    {
+        const allDayData = this.getDayData(countryCode);
+        return allDayData[allDayData.length - 1];
+    }
+
+    public getDates(): Date[]
+    {
+        return this.dates;
+    }
+
+    public getDateStrings(): string[]
+    {
+        return this.dateStrings;
+    }
+}
+
+class CovidDataLoader
+{
     private data = new Map<string, Map<string, DayData>>();
     private globalData = new Map<string, DayData>();
+    private dateStringSet = new Set<string>();
     private dateParse = d3.timeParse('%m/%d/%y');
     private dateFormat = d3.timeFormat('%Y-%m-%d');
 
@@ -29,6 +92,7 @@ export class CovidData
                 const date = this.dateParse(dateString);
                 if (null == date) throw 'Date could not be parsed';
                 const transformedDateString = this.dateFormat(date);
+                this.dateStringSet.add(transformedDateString);
                 const value = +entry[dateString];
 
                 let countryDayData = countryMap.get(transformedDateString);
@@ -64,7 +128,7 @@ export class CovidData
         });
     }
 
-    public static load(countryData: CountryData): Promise<CovidData>
+    public load(countryData: CountryData): Promise<CovidData>
     {
         const urls = {
             confirmed: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv',
@@ -75,44 +139,25 @@ export class CovidData
         return Promise.all([d3.csv(urls.confirmed), d3.csv(urls.recovered), d3.csv(urls.deaths)])
             .then(([confirmed, recovered, deaths]) => {
 
-                const covidData = new CovidData();
+                confirmed.forEach((entry: any) => this.addEntry(entry, 'confirmed', countryData));
+                recovered.forEach((entry: any) => this.addEntry(entry, 'recovered', countryData));
+                deaths.forEach((entry: any) => this.addEntry(entry, 'deaths', countryData));
 
-                confirmed.forEach((entry: any) => covidData.addEntry(entry, 'confirmed', countryData));
-                recovered.forEach((entry: any) => covidData.addEntry(entry, 'recovered', countryData));
-                deaths.forEach((entry: any) => covidData.addEntry(entry, 'deaths', countryData));
+                this.data.forEach(entries => this.computeGrowthRate(entries));
+                this.computeGrowthRate(this.globalData);
 
-                covidData.data.forEach(entries => covidData.computeGrowthRate(entries));
-                covidData.computeGrowthRate(covidData.globalData);
+                const dates = new Array<Date>();
+                const dateStrings = new Array<string>();
+                const parser = d3.timeParse('%Y-%m-%d');
+                this.dateStringSet.forEach(dateString => {
+                    dateStrings.push(dateString);
+                    const date = parser(dateString);
+                    if (null != date) {
+                        dates.push(date);
+                    }
+                });
 
-                return covidData;
+                return new CovidData(this.data, this.globalData, dates, dateStrings);
             });
-    }
-
-    public hasCountryCode(countryCode: string): boolean
-    {
-        return this.data.has(countryCode);
-    }
-
-    public getCountryCodes(): string[]
-    {
-        return Array.from(this.data.keys());
-    }
-
-    public getDayData(countryCode: string): DayData[]
-    {
-        const countryData = this.data.get(countryCode);
-        if (null == countryData) throw 'No data found for ' + countryCode;
-        return Array.from(countryData.values());
-    }
-
-    public getGlobalDayData(): DayData[]
-    {
-        return Array.from(this.globalData.values());
-    }
-
-    public getLastDayData(countryCode: string): DayData
-    {
-        const allDayData = this.getDayData(countryCode);
-        return allDayData[allDayData.length - 1];
     }
 }
