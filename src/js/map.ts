@@ -17,21 +17,22 @@ const projection = d3.geoNaturalEarth1();
 console.log(projection.scale());
 const path = d3.geoPath().projection(projection);
 let paths;
+const COLOR_UNKNOWN = '#f0f0f0';
 
 interface MapPlot
 {
     name: string,
     range: ReadonlyArray<string>,
-    data: (countryCode: string, dayData: DayData, covidData: CovidData, countryData: CountryData) => number
+    data: (countryCode: string, dayData: DayData, covidData: CovidData, countryData: CountryData) => number | null
 }
 
 const pendingPercentagePlot: MapPlot = {
     name: 'Pending Percentage',
-    range: ['#dedede', '#ff0000'],
+    range: ['#FFEBEE', '#B71C1C'],
     data: (countryCode: string, dayData, covidData, countryData) => {
         const population = countryData.getPopulation(countryCode);
         if (null == population) {
-            return 0;
+            return null;
         }
         return dayData.getPending() / population;
     }
@@ -39,7 +40,7 @@ const pendingPercentagePlot: MapPlot = {
 
 const deathRatePlot: MapPlot = {
     name: 'Death Rate',
-    range: ['#dedede', '#ff0000'],
+    range: ['#FFEBEE', '#B71C1C'],
     data: (countryCode: string, dayData, covidData, countryData) => {
         return dayData.getDeathRate();
     }
@@ -47,7 +48,7 @@ const deathRatePlot: MapPlot = {
 
 const growthRatePlot: MapPlot = {
     name: 'Growth Rate',
-    range: ['#dedede', '#ff0000'],
+    range: ['#FFEBEE', '#B71C1C'],
     data: (countryCode: string, dayData, covidData, countryData) => {
         return dayData.growthRate;
     }
@@ -55,7 +56,7 @@ const growthRatePlot: MapPlot = {
 
 const confirmedPlot: MapPlot = {
     name: 'Confirmed',
-    range: ['#dedede', '#ff0000'],
+    range: ['#FFEBEE', '#B71C1C'],
     data: (countryCode: string, dayData, covidData, countryData) => {
         return dayData.confirmed;
     }
@@ -63,7 +64,7 @@ const confirmedPlot: MapPlot = {
 
 const recoveredPlot: MapPlot = {
     name: 'Recovered',
-    range: ['#dedede', '#80ff80'],
+    range: ['#FFEBEE', '#80ff80'],
     data: (countryCode: string, dayData, covidData, countryData) => {
         return dayData.recovered;
     }
@@ -71,7 +72,7 @@ const recoveredPlot: MapPlot = {
 
 const recoveredPercentagePlot: MapPlot = {
     name: 'Recovered',
-    range: ['#dedede', '#80ff80'],
+    range: ['#FFEBEE', '#80ff80'],
     data: (countryCode: string, dayData, covidData, countryData) => {
         return dayData.recovered / dayData.confirmed;
     }
@@ -104,10 +105,15 @@ function plotMap(
             const countryName = (d.properties as { name: string }).name;
             const countryCode = countryData.getCountryCode(countryName);
             if (!covidData.hasCountryCode(countryCode)) {
-                return color(extent[0]);
+                return COLOR_UNKNOWN;
             }
 
-            return color(mapPlot.data(countryCode, covidData.getLastDayData(countryCode), covidData, countryData));
+            const data = mapPlot.data(countryCode, covidData.getLastDayData(countryCode), covidData, countryData);
+            if (null == data) {
+                return COLOR_UNKNOWN;
+            }
+
+            return color(data);
         });
 
 }
@@ -129,7 +135,7 @@ CountryData.load().then((countryData) => {
                 .append('path')
                 .attr('d', path)
                 .attr('stroke', '#808080')
-                .attr('fill', '#dedede');
+                .attr('fill', '#FFEBEE');
 
             plotMap(covidData, countryData, features, pendingPercentagePlot);
         });

@@ -18,7 +18,6 @@ export class CountryData
         this.nameReplacementMap.set('Czechia', 'Czech Republic');
         this.nameReplacementMap.set('Taiwan*', 'Taiwan');
         this.nameReplacementMap.set('Russia', 'Russian Federation');
-        this.nameReplacementMap.set('Congo (Kinshasa)', 'The Democratic Republic of Congo');
         this.nameReplacementMap.set('Cote d\'Ivoire', 'Ivory Coast');
         this.nameReplacementMap.set('Côte d\'Ivoire', 'Ivory Coast');
         this.nameReplacementMap.set('Curacao', 'Netherlands');
@@ -28,8 +27,6 @@ export class CountryData
         this.nameReplacementMap.set('Fiji', 'Fiji Islands');
         this.nameReplacementMap.set('W. Sahara', 'Western Sahara');
         this.nameReplacementMap.set('United States of America', 'United States');
-        this.nameReplacementMap.set('Dem. Rep. Congo', 'The Democratic Republic of Congo');
-        this.nameReplacementMap.set('Congo (Brazzaville)', 'The Democratic Republic of Congo');
         this.nameReplacementMap.set('Dominican Rep.', 'Dominican Republic');
         this.nameReplacementMap.set('Falkland Is.', 'Falkland Islands');
         this.nameReplacementMap.set('Fr. S. Antarctic Lands', 'French Southern territories');
@@ -61,8 +58,14 @@ export class CountryData
                     countryData.addAbbreviationToCountry(entry.abbreviation, entry.country);
                 });
 
-                countryData.addCountryToAbbreviation('Taiwan', 'TW');
                 countryData.addAbbreviationToCountry('TW', 'Taiwan');
+
+                countryData.addCountryToAbbreviation('Taiwan', 'TW');
+                countryData.addCountryToAbbreviation('Republic of the Congo', 'CG');
+                countryData.addCountryToAbbreviation('Dem. Rep. Congo', 'CG');
+                countryData.addCountryToAbbreviation('Congo (Brazzaville)', 'CG');
+                countryData.addCountryToAbbreviation('Congo (Kinshasa)', 'CG');
+                countryData.addCountryToAbbreviation('The Bahamas', 'BS');
 
                 countryByPopulation.forEach(entry => {
                     if (null != entry.population) {
