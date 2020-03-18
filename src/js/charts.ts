@@ -139,7 +139,7 @@ function drawPlotGrowthRate(entries: DayData[])
 
     // Add Y axis
     var y = d3.scaleLinear()
-        .domain(d3.extent(entries, d => d.growthRate) as [number, number])
+        .domain(d3.extent(entries, d => d.confirmedGrowthRate) as [number, number])
         .range([height, 0]);
 
     plotContainer.append('g')
@@ -170,7 +170,7 @@ function drawPlotGrowthRate(entries: DayData[])
         .attr('stroke-width', 1.5)
         .attr('d', d3.line<DayData>()
             .x(d => xScale(d.date))
-            .y(d => y(d.growthRate))
+            .y(d => y(d.confirmedGrowthRate))
         );
 }
 

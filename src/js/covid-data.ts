@@ -117,14 +117,17 @@ class CovidDataLoader
 
     private computeGrowthRate(entries: Map<string, DayData>)
     {
-        let lastValue: any = null;
-        entries.forEach((entry: any) => {
-            let numPending = entry.confirmed - entry.recovered - entry.deaths;
-            if (null != lastValue && 0 !== lastValue) {
-                // entry.growthRate = numPending / lastValue;
-                entry.growthRate = (numPending - lastValue) / lastValue;
+        let lastEntry: DayData;
+        entries.forEach((entry: DayData) => {
+            if (null != lastEntry) {
+                if (0 !== lastEntry.getPending()) {
+                    entry.pendingGrowthRate = (entry.getPending() - lastEntry.getPending()) / lastEntry.getPending();
+                }
+                if (0 !== lastEntry.confirmed) {
+                    entry.confirmedGrowthRate = (entry.confirmed - lastEntry.confirmed) / lastEntry.confirmed;
+                }
             }
-            lastValue = numPending;
+            lastEntry = entry;
         });
     }
 
