@@ -13,4 +13,23 @@ export class ChartUtils
             .attr('transform',
                 `translate(${margin.left},${margin.top})`);
     }
+
+    public static movingAverage(values: Array<number>, size: number)
+    {
+        let i = 0;
+        let sum = 0;
+        const means = new Float64Array(values.length).fill(NaN);
+
+        for (let n = Math.min(size - 1, values.length); i < n; ++i) {
+            sum += values[i];
+        }
+
+        for (let n = values.length; i < n; ++i) {
+            sum += values[i];
+            means[i] = sum / size;
+            sum -= values[i - size + 1];
+        }
+
+        return means;
+    }
 }

@@ -2,6 +2,7 @@ import {LineChart} from "./line-chart";
 import * as d3 from "d3";
 import {Margin} from "./margin";
 import {DayData} from "../day-data";
+import {Colors} from "./colors";
 
 export class MainChart extends LineChart
 {
@@ -29,38 +30,38 @@ export class MainChart extends LineChart
 
         this.confirmedPath = this.plotContainer.append('path')
             .attr('fill', "none")
-            .attr('stroke', "#E0E0E0")
+            .attr('stroke', Colors.gray["300"])
             .attr('stroke-width', 1.5);
         this.confirmedRollingPath = this.plotContainer.append('path')
             .attr('fill', "none")
-            .attr('stroke', "#616161")
+            .attr('stroke', Colors.gray["700"])
             .attr('stroke-width', 1.5);
 
         this.pendingPath = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', "#64B5F6")
+            .attr('stroke', Colors.blue["300"])
             .attr("stroke-width", 1.5);
         this.pendingRollingPath = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', "#1976D2")
+            .attr('stroke', Colors.blue["700"])
             .attr("stroke-width", 1.5);
 
         this.recoveredPath = this.plotContainer.append("path")
             .attr("fill", "none")
-            .attr("stroke", "#81C784")
+            .attr("stroke", Colors.green["300"])
             .attr("stroke-width", 1.5);
         this.recoveredRollingPath = this.plotContainer.append("path")
             .attr("fill", "none")
-            .attr("stroke", "#388E3C")
+            .attr("stroke", Colors.green["700"])
             .attr("stroke-width", 1.5);
 
         this.deathsPath = this.plotContainer.append("path")
             .attr("fill", "none")
-            .attr("stroke", "#E57373")
+            .attr("stroke", Colors.red["300"])
             .attr("stroke-width", 1.5);
         this.deathsRollingPath = this.plotContainer.append("path")
             .attr("fill", "none")
-            .attr("stroke", "#D32F2F")
+            .attr("stroke", Colors.red["700"])
             .attr("stroke-width", 1.5);
     }
 
@@ -76,11 +77,11 @@ export class MainChart extends LineChart
                 .y(d => this.yScale(d.confirmed))
             );
         this.confirmedRollingPath
-            .datum(entries.filter(entry => entry.previous != null && entry.next != null))
+            .datum(entries.filter(entry => entry.getRolling(entry.getConfirmed) != null))
             .transition(this.transition)
             .attr('d', d3.line<DayData>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getConfirmedRolling()))
+                .y(d => this.yScale(d.getRolling(d.getConfirmed) as number))
             );
 
         this.pendingPath
@@ -91,11 +92,11 @@ export class MainChart extends LineChart
                 .y(d => this.yScale(d.getPending()))
             );
         this.pendingRollingPath
-            .datum(entries.filter(entry => entry.previous != null && entry.next != null))
+            .datum(entries.filter(entry => entry.getRolling(entry.getPending) != null))
             .transition(this.transition)
             .attr('d', d3.line<DayData>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getPendingRolling()))
+                .y(d => this.yScale(d.getRolling(d.getPending) as number))
             );
 
         this.recoveredPath
@@ -106,11 +107,11 @@ export class MainChart extends LineChart
                 .y(d => this.yScale(d.recovered))
             );
         this.recoveredRollingPath
-            .datum(entries.filter(entry => entry.previous != null && entry.next != null))
+            .datum(entries.filter(entry => entry.getRolling(entry.getRecovered) != null))
             .transition(this.transition)
             .attr('d', d3.line<DayData>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getRecoveredRolling()))
+                .y(d => this.yScale(d.getRolling(d.getRecovered) as number))
             );
 
         this.deathsPath
@@ -122,11 +123,11 @@ export class MainChart extends LineChart
             );
 
         this.deathsRollingPath
-            .datum(entries.filter(entry => entry.previous != null && entry.next != null))
+            .datum(entries.filter(entry => entry.getRolling(entry.getDeaths) != null))
             .transition(this.transition)
             .attr('d', d3.line<DayData>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getDeathsRolling()))
+                .y(d => this.yScale(d.getRolling(d.getDeaths) as number))
             );
     }
 

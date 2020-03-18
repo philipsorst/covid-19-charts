@@ -10,6 +10,7 @@ import {Margin} from "./chart/margin";
 import {GrowthRateChart} from "./chart/growth-rate-chart";
 import {MainChart} from "./chart/main-chart";
 import {GrowthChart} from "./chart/growth-chart";
+import {Colors} from "./chart/colors";
 
 require('../scss/charts.scss');
 require('bootstrap');
@@ -35,9 +36,15 @@ function drawInfo(country: Country, entry: DayData)
         d3.select('#info-num-population').html(d3.format(".2s")(population));
     }
     d3.select('#info-num-confirmed').html(d3.format(",")(entry.confirmed));
-    d3.select('#info-num-recovered').html(d3.format(",")(entry.recovered));
-    d3.select('#info-num-deaths').html(d3.format(",")(entry.deaths));
-    d3.select('#info-num-pending').html(d3.format(",")(entry.getPending()));
+    d3.select('#info-num-recovered')
+        .style('color', Colors.green["700"])
+        .html(d3.format(",")(entry.recovered));
+    d3.select('#info-num-deaths')
+        .style('color', Colors.red["700"])
+        .html(d3.format(",")(entry.deaths));
+    d3.select('#info-num-pending')
+        .style('color', Colors.blue["700"])
+        .html(d3.format(",")(entry.getPending()));
     d3.select('#info-death-rate').html(d3.format(".2%")(entry.getDeathRate()));
 }
 
@@ -59,7 +66,7 @@ function selectCountry(country: Country)
     mainChart.update(entries);
     growthRateChart.update(entries);
     deathRateChart.update(entries);
-    growthChart.update(entries);
+    // growthChart.update(entries);
 }
 
 function createMainChart()
@@ -115,7 +122,7 @@ CountryData.load().then(resultCountryData => {
         .then(result => {
             data = result;
 
-            createGrowthChart();
+            // createGrowthChart();
             createDeathRateChart();
             createGrowthRateChart();
             createMainChart();
@@ -157,7 +164,7 @@ function debounce(timerHandler: TimerHandler, timeout: number)
 }
 
 d3.select(window).on('resize', debounce(() => {
-    createGrowthChart();
+    // createGrowthChart();
     createGrowthRateChart();
     createDeathRateChart();
     createMainChart();
