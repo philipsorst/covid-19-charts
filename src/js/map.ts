@@ -60,6 +60,18 @@ const growthRatePlot: MapPlot = {
     }
 };
 
+const growthChangeRagePlot: MapPlot = {
+    name: 'Growth Rate',
+    range: ['#FFEBEE', '#B71C1C'],
+    data: (countryCode: string, dayData, covidData, countryData) => {
+        if (null == dayData) {
+            return null;
+        }
+        return dayData.getGrowthChangeRate();
+    }
+};
+
+
 const confirmedPlot: MapPlot = {
     name: 'Confirmed',
     range: ['#FFEBEE', '#B71C1C'],
@@ -138,7 +150,7 @@ CountryData.load().then((countryData) => {
     CovidData.load(countryData).then(covidData => {
         d3.json('./build/world-atlas/countries-110m.json').then(worldData => {
 
-            const mapPlot = growthRatePlot;
+            const mapPlot = pendingPercentagePlot;
 
             const dateStrings = covidData.getDateStrings();
             d3.select('#dateSlider')
