@@ -5,17 +5,21 @@ import {Utils} from "./utils";
 import {DayData} from "./day-data";
 import {CovidData} from "./covid-data";
 import {Country} from "./country";
+import {DeathRateChart} from "./chart/death-rate-chart";
+import {Margin} from "./chart/margin";
 
 require('../scss/charts.scss');
 require('bootstrap');
 
 const growthDeathRateHeight = 150;
-const plotMargin = {top: 5, right: 1, bottom: 30, left: 60};
+const plotMargin = new Margin(5, 1, 30, 60);
 let xScale: d3.ScaleTime<number, number>;
 let data: CovidData;
 let countryData: CountryData;
 const COUNTRY_CODE_GLOBAL = 'GLOBAL';
 let currentCountry: Country;
+
+let deathRateChart: DeathRateChart;
 
 class PlotDefinition
 {
@@ -205,84 +209,23 @@ function selectCountry(country: Country)
     drawPlotMain(entries);
     drawPlotGrowthRate(entries);
     // drawPlotDeathRate(entries);
-    updatePlotDeathRate(entries);
+    // updatePlotDeathRate(entries);
+    deathRateChart.update(entries);
 }
 
-function createPlotDeathRate()
+function createDeathRateChart()
 {
     d3.select('#plot-death-rate').selectAll('*').remove();
 
     const parentDiv = d3.select('#plot-death-rate');
+    parentDiv.selectAll('*').remove();
     const boundingClientRect = Utils.getBoundingClientRect(parentDiv);
-
     // const totalHeight = plotContainer.node().getBoundingClientRect().height;
     const totalHeight = growthDeathRateHeight;
     const width = boundingClientRect.width - plotMargin.left - plotMargin.right;
     const height = totalHeight - plotMargin.top - plotMargin.bottom;
 
-    let plotContainer = createSvgAndPlotContainer(parentDiv, width, height);
-
-    const xScale = d3.scaleTime()
-        .range([0, width]);
-
-    const xAxisCall = d3.axisBottom(xScale) as d3.Axis<Date>;
-
-    const xAxis = plotContainer.append('g')
-        .attr('transform', `translate(0,${height})`)
-        .call(xAxisCall);
-
-    const yScale = d3.scaleLinear()
-        .range([height, 0]);
-
-    const yAxisCall = d3.axisLeft(yScale) as d3.Axis<number>;
-
-    const yAxis = plotContainer.append('g')
-        .call(yAxisCall);
-    // .call(g => g.selectAll('.tick line').clone() // grid lines
-    //     .attr('stroke-opacity', 0.05)
-    //     .attr('x2', width));
-
-    // plotContainer.append('path')
-    //     .datum([])
-    //     .attr('fill', "none")
-    //     .attr("stroke", "#808080")
-    //     .attr("stroke-width", 1.5)
-    //     .attr("d", d3.line<DayData>()
-    //         .x(d => plot.deathRate.xScale(d.date))
-    //         .y(d => plot.deathRate.yScale(d.getDeathRate()))
-    //     );
-
-    const path = plotContainer.append('path')
-        .attr('fill', "none")
-        .attr('stroke', "#808080")
-        .attr('stroke-width', 1.5);
-
-    plotDefinitions.set('deathRate', new PlotDefinition(xScale, xAxisCall, yScale, yAxisCall, xAxis, yAxis, path));
-}
-
-function updatePlotDeathRate(entries: DayData[])
-{
-    const plotDefinition = plotDefinitions.get('deathRate');
-    if (null == plotDefinition) throw 'No PlotDefinition found for deathRate';
-
-    plotDefinition.xScale.domain(d3.extent(entries, d => d.date) as [Date, Date]);
-    plotDefinition.xAxisCall.scale(plotDefinition.xScale);
-
-    plotDefinition.yScale.domain([0, d3.max(entries, d => d.getDeathRate()) as number]);
-    plotDefinition.yAxisCall.scale(plotDefinition.yScale);
-
-    const transition = d3.transition().duration(500);
-
-    plotDefinition.xAxis.transition(transition).call(plotDefinition.xAxisCall);
-    plotDefinition.yAxis.transition(transition).call(plotDefinition.yAxisCall);
-
-    plotDefinition.path
-        .datum(entries)
-        .transition(transition)
-        .attr('d', d3.line<DayData>()
-            .x(d => plotDefinition.xScale(d.date))
-            .y(d => plotDefinition.yScale(d.getDeathRate()))
-        );
+    deathRateChart = new DeathRateChart(parentDiv, boundingClientRect.width, growthDeathRateHeight, plotMargin);
 }
 
 CountryData.load().then(resultCountryData => {
@@ -291,7 +234,7 @@ CountryData.load().then(resultCountryData => {
         .then(result => {
                 data = result;
 
-                createPlotDeathRate();
+            createDeathRateChart();
 
                 const countries = new Array<Country>();
                 data.getCountryCodes().forEach(countryCode => {
@@ -330,6 +273,6 @@ function debounce(timerHandler: TimerHandler, timeout: number)
 }
 
 d3.select(window).on('resize', debounce(() => {
-    createPlotDeathRate();
+    createDeathRateChart();
     selectCountry(currentCountry);
 }, 250));
