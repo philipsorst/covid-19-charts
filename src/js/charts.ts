@@ -82,7 +82,7 @@ function createGrowthRateChart()
     // const totalHeight = plotContainer.node().getBoundingClientRect().height;
     growthRateChart = new GrowthRateChart(parentSelection, boundingClientRect.width, growthDeathRateHeight, plotMargin,
         d3.extent(data.getGlobalDayData(), d => d.date) as [Date, Date],
-        [0, d3.max(data.getGlobalDayData(), d => d.pendingGrowthRate) as number]);
+        [0, d3.max(data.getGlobalDayData(), d => d.getConfirmedGrowthRate()) as number]);
 }
 
 function createDeathRateChart()

@@ -25,13 +25,14 @@ export class GrowthRateChart extends LineChart
 
     public update(entries: DayData[])
     {
+        console.log(entries);
         super.update(entries);
         this.path
             .datum(entries)
             .transition(this.transition)
             .attr('d', d3.line<DayData>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.confirmedGrowthRate))
+                .y(d => this.yScale(d.getConfirmedGrowthRate()))
             );
     }
 
@@ -40,6 +41,6 @@ export class GrowthRateChart extends LineChart
      */
     protected getYDomain(entries: DayData[]): [number, number]
     {
-        return d3.extent(entries, d => d.confirmedGrowthRate) as [number, number]
+        return d3.extent(entries, d => d.getConfirmedGrowthRate()) as [number, number]
     }
 }

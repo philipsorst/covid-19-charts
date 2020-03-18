@@ -56,7 +56,7 @@ const growthRatePlot: MapPlot = {
         if (null == dayData) {
             return null;
         }
-        return dayData.pendingGrowthRate;
+        return dayData.getPendingGrowthRate();
     }
 };
 

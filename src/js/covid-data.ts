@@ -117,17 +117,13 @@ class CovidDataLoader
         }
     }
 
-    private computeGrowthRate(entries: Map<string, DayData>)
+    private postProcess(entries: Map<string, DayData>)
     {
         let lastEntry: DayData;
         entries.forEach((entry: DayData) => {
+            entry.previous = lastEntry;
             if (null != lastEntry) {
-                if (0 !== lastEntry.getPending()) {
-                    entry.pendingGrowthRate = (entry.getPending() - lastEntry.getPending()) / lastEntry.getPending();
-                }
-                if (0 !== lastEntry.confirmed) {
-                    entry.confirmedGrowthRate = (entry.confirmed - lastEntry.confirmed) / lastEntry.confirmed;
-                }
+                lastEntry.next = entry;
             }
             lastEntry = entry;
         });
@@ -148,8 +144,8 @@ class CovidDataLoader
                 recovered.forEach((entry: any) => this.addEntry(entry, 'recovered', countryData));
                 deaths.forEach((entry: any) => this.addEntry(entry, 'deaths', countryData));
 
-                this.data.forEach(entries => this.computeGrowthRate(entries));
-                this.computeGrowthRate(this.globalData);
+                this.data.forEach(entries => this.postProcess(entries));
+                this.postProcess(this.globalData);
 
                 const dates = new Array<Date>();
                 const dateStrings = new Array<string>();
