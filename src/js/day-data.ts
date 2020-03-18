@@ -87,23 +87,27 @@ export class DayData
         return (this.previous.deaths + this.deaths + this.next.deaths) / 3;
     }
 
-    public getGrowthChange(): number | null
+    public getGrowthChangeRate(): number | null
     {
-        if (this.previous == null || this.previous.previous == null) {
+        if (this.previous == null) {
             return null;
         }
 
-        const lastGrowth = this.previous.confirmed - this.previous.previous.confirmed;
+        const lastGrowth = this.previous.getGrowth();
+        if (null == lastGrowth) {
+            return null;
+        }
+
         if (0 === lastGrowth) {
-            return null;
+            return 0;
         }
 
-        const currentGrowth = this.confirmed - this.previous.confirmed;
+        const currentGrowth = this.getGrowth() as number;
 
         return currentGrowth / lastGrowth;
     }
 
-    public getGrowthChangeRolling(): number | null
+    public getGrowthChangeRateRolling(): number | null
     {
         if (
             this.next == null
@@ -122,5 +126,27 @@ export class DayData
         const currentGrowth = this.getConfirmedRolling() - this.previous.getConfirmedRolling();
 
         return currentGrowth / lastGrowth;
+    }
+
+    public getGrowth(): number | null
+    {
+        if (null == this.previous) {
+            return null;
+        }
+        return this.confirmed - this.previous.confirmed;
+    }
+
+    public getGrowthChange(): number | null
+    {
+        if (null == this.previous) {
+            return null;
+        }
+        const previousGrowth = this.getGrowth();
+        const currentGrowth = this.previous.getGrowth();
+        if (null == previousGrowth || null == currentGrowth) {
+            return null;
+        }
+
+        return currentGrowth - previousGrowth;
     }
 }

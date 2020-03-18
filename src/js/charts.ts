@@ -9,6 +9,7 @@ import {DeathRateChart} from "./chart/death-rate-chart";
 import {Margin} from "./chart/margin";
 import {GrowthRateChart} from "./chart/growth-rate-chart";
 import {MainChart} from "./chart/main-chart";
+import {GrowthChart} from "./chart/growth-chart";
 
 require('../scss/charts.scss');
 require('bootstrap');
@@ -24,6 +25,7 @@ let currentCountry: Country;
 let mainChart: MainChart;
 let growthRateChart: GrowthRateChart;
 let deathRateChart: DeathRateChart;
+let growthChart: GrowthChart;
 
 function drawInfo(country: Country, entry: DayData)
 {
@@ -57,6 +59,7 @@ function selectCountry(country: Country)
     mainChart.update(entries);
     growthRateChart.update(entries);
     deathRateChart.update(entries);
+    growthChart.update(entries);
 }
 
 function createMainChart()
@@ -96,12 +99,23 @@ function createDeathRateChart()
         [0, d3.max(data.getGlobalDayData(), d => d.getDeathRate()) as number]);
 }
 
+function createGrowthChart()
+{
+    const parentSelection = d3.select('#plot-growth');
+    parentSelection.selectAll('*').remove();
+    const boundingClientRect = Utils.getBoundingClientRect(parentSelection);
+    // const totalHeight = plotContainer.node().getBoundingClientRect().height;
+    growthChart = new GrowthChart(parentSelection, boundingClientRect.width, growthDeathRateHeight, plotMargin,
+        d3.extent(data.getGlobalDayData(), d => d.date) as [Date, Date]);
+}
+
 CountryData.load().then(resultCountryData => {
     countryData = resultCountryData;
     CovidData.load(countryData)
         .then(result => {
             data = result;
 
+            createGrowthChart();
             createDeathRateChart();
             createGrowthRateChart();
             createMainChart();
@@ -143,6 +157,7 @@ function debounce(timerHandler: TimerHandler, timeout: number)
 }
 
 d3.select(window).on('resize', debounce(() => {
+    createGrowthChart();
     createGrowthRateChart();
     createDeathRateChart();
     createMainChart();

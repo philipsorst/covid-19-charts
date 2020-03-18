@@ -32,11 +32,11 @@ export class GrowthRateChart extends LineChart
     {
         super.update(entries);
         this.path
-            .datum(entries.filter(entry => entry.getGrowthChange() != null))
+            .datum(entries.filter(entry => entry.getGrowthChangeRate() != null))
             .transition(this.transition)
             .attr('d', d3.line<DayData>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getGrowthChange() as number))
+                .y(d => this.yScale(d.getGrowthChangeRate() as number))
             );
         this.linearLine
             .transition(this.transition)
@@ -52,7 +52,9 @@ export class GrowthRateChart extends LineChart
     protected getYDomain(entries: DayData[]): [number, number]
     {
         return d3.extent(
-            entries.filter(entry => entry.getGrowthChange() != null), d => d.getGrowthChange()) as [number, number]
+            entries.filter(entry => entry.getGrowthChangeRate() != null),
+            d => d.getGrowthChangeRate()
+        ) as [number, number]
     }
 
     /**
