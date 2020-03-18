@@ -6,6 +6,7 @@ import {DayData} from "../day-data";
 export class GrowthRateChart extends LineChart
 {
     protected path: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    private linearLine: d3.Selection<SVGLineElement, unknown, HTMLElement, any>;
 
     constructor(
         parent: d3.Selection<any, any, any, any>,
@@ -17,9 +18,13 @@ export class GrowthRateChart extends LineChart
     {
         super(parent, width, height, margin, initialXDomain, initialYDomain);
 
+        this.linearLine = this.plotContainer.append('line')
+            .attr('stroke', '#BDBDBD');
+        // .attr('stroke-width', 0.5);
+        // .attr('stroke-dasharray', '5');
         this.path = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', '#808080')
+            .attr('stroke', '#616161')
             .attr('stroke-width', 1.5);
     }
 
@@ -27,12 +32,18 @@ export class GrowthRateChart extends LineChart
     {
         super.update(entries);
         this.path
-            .datum(entries)
+            .datum(entries.filter(entry => entry.getGrowthChange() != null))
             .transition(this.transition)
             .attr('d', d3.line<DayData>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getConfirmedGrowthRate()))
+                .y(d => this.yScale(d.getGrowthChange() as number))
             );
+        this.linearLine
+            .transition(this.transition)
+            .attr('x1', this.xScale.range()[0])
+            .attr('x2', this.xScale.range()[1])
+            .attr('y1', this.yScale(1))
+            .attr('y2', this.yScale(1));
     }
 
     /**
@@ -40,6 +51,17 @@ export class GrowthRateChart extends LineChart
      */
     protected getYDomain(entries: DayData[]): [number, number]
     {
-        return d3.extent(entries, d => d.getConfirmedGrowthRate()) as [number, number]
+        return d3.extent(
+            entries.filter(entry => entry.getGrowthChange() != null), d => d.getGrowthChange()) as [number, number]
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected createYScale(initialYDomain: [number, number]): d3.ScaleContinuousNumeric<number, number>
+    {
+        return d3.scaleSymlog()
+            .domain(initialYDomain)
+            .range([this.getInnerHeight(), 0]);
     }
 }

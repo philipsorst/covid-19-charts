@@ -11,7 +11,7 @@ export abstract class LineChart
     protected xScale: d3.ScaleTime<number, number>;
     protected xAxis: d3.Axis<Date>;
     protected xAxisSelection: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
-    protected yScale: d3.ScaleLinear<number, number>;
+    protected yScale: d3.ScaleContinuousNumeric<number, number>;
     protected yAxis: d3.Axis<number>;
     protected yAxisSelection: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
     protected plotContainer: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
@@ -41,9 +41,7 @@ export abstract class LineChart
             .attr('transform', `translate(0,${this.getInnerHeight()})`)
             .call(this.xAxis);
 
-        this.yScale = d3.scaleLinear()
-            .domain(initialYDomain)
-            .range([this.getInnerHeight(), 0]);
+        this.yScale = this.createYScale(initialYDomain);
 
         this.yAxis = d3.axisLeft(this.yScale) as d3.Axis<number>;
 
@@ -53,6 +51,13 @@ export abstract class LineChart
         //     .attr('stroke-opacity', 0.05)
         //     .attr('x2', width));
         this.transition = d3.transition().duration(500);
+    }
+
+    protected createYScale(initialYDomain: [number, number]): d3.ScaleContinuousNumeric<number, number>
+    {
+        return d3.scaleLinear()
+            .domain(initialYDomain)
+            .range([this.getInnerHeight(), 0]);
     }
 
     public update(entries: DayData[])

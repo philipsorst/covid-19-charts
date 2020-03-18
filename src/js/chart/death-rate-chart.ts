@@ -6,6 +6,7 @@ import {LineChart} from "./line-chart";
 export class DeathRateChart extends LineChart
 {
     protected path: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected pathRolling: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
 
     constructor(
         parent: d3.Selection<any, any, any, any>,
@@ -19,7 +20,11 @@ export class DeathRateChart extends LineChart
 
         this.path = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', '#808080')
+            .attr('stroke', '#E0E0E0')
+            .attr('stroke-width', 1.5);
+        this.pathRolling = this.plotContainer.append('path')
+            .attr('fill', 'none')
+            .attr('stroke', '#616161')
             .attr('stroke-width', 1.5);
     }
 
@@ -32,6 +37,13 @@ export class DeathRateChart extends LineChart
             .attr('d', d3.line<DayData>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.getDeathRate()))
+            );
+        this.pathRolling
+            .datum(entries.filter(entry => entry.previous != null && entry.next != null))
+            .transition(this.transition)
+            .attr('d', d3.line<DayData>()
+                .x(d => this.xScale(d.date))
+                .y(d => this.yScale(d.getDeathRateRolling()))
             );
     }
 

@@ -29,7 +29,7 @@ export class MainChart extends LineChart
 
         this.confirmedPath = this.plotContainer.append('path')
             .attr('fill', "none")
-            .attr('stroke', "#9E9E9E")
+            .attr('stroke', "#E0E0E0")
             .attr('stroke-width', 1.5);
         this.confirmedRollingPath = this.plotContainer.append('path')
             .attr('fill', "none")
@@ -38,7 +38,7 @@ export class MainChart extends LineChart
 
         this.pendingPath = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', "#2196F3")
+            .attr('stroke', "#64B5F6")
             .attr("stroke-width", 1.5);
         this.pendingRollingPath = this.plotContainer.append('path')
             .attr('fill', 'none')
@@ -47,7 +47,7 @@ export class MainChart extends LineChart
 
         this.recoveredPath = this.plotContainer.append("path")
             .attr("fill", "none")
-            .attr("stroke", "#4CAF50")
+            .attr("stroke", "#81C784")
             .attr("stroke-width", 1.5);
         this.recoveredRollingPath = this.plotContainer.append("path")
             .attr("fill", "none")
@@ -56,7 +56,7 @@ export class MainChart extends LineChart
 
         this.deathsPath = this.plotContainer.append("path")
             .attr("fill", "none")
-            .attr("stroke", "#F44336")
+            .attr("stroke", "#E57373")
             .attr("stroke-width", 1.5);
         this.deathsRollingPath = this.plotContainer.append("path")
             .attr("fill", "none")

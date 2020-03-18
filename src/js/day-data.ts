@@ -23,6 +23,16 @@ export class DayData
         return this.deaths / (this.deaths + this.recovered);
     }
 
+    public getDeathRateRolling(): number
+    {
+
+        if (this.next == null || this.previous == null) {
+            throw 'next or prev was null';
+        }
+
+        return (this.previous.getDeathRate() + this.getDeathRate() + this.next.getDeathRate()) / 3;
+    }
+
     public getConfirmedGrowthRate(): number
     {
         if (null == this.previous) {
@@ -75,5 +85,42 @@ export class DayData
         }
 
         return (this.previous.deaths + this.deaths + this.next.deaths) / 3;
+    }
+
+    public getGrowthChange(): number | null
+    {
+        if (this.previous == null || this.previous.previous == null) {
+            return null;
+        }
+
+        const lastGrowth = this.previous.confirmed - this.previous.previous.confirmed;
+        if (0 === lastGrowth) {
+            return null;
+        }
+
+        const currentGrowth = this.confirmed - this.previous.confirmed;
+
+        return currentGrowth / lastGrowth;
+    }
+
+    public getGrowthChangeRolling(): number | null
+    {
+        if (
+            this.next == null
+            || this.previous == null
+            || this.previous.previous == null
+            || this.previous.previous.previous == null
+        ) {
+            return null;
+        }
+
+        const lastGrowth = this.previous.getConfirmedRolling() - this.previous.previous.getConfirmedRolling();
+        if (0 === lastGrowth) {
+            return null;
+        }
+
+        const currentGrowth = this.getConfirmedRolling() - this.previous.getConfirmedRolling();
+
+        return currentGrowth / lastGrowth;
     }
 }
