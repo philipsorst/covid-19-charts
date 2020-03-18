@@ -10,9 +10,15 @@ export class MainChart extends LineChart
     protected recoveredPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected deathsPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
 
-    constructor(parent: d3.Selection<any, any, any, any>, width: number, height: number, margin: Margin)
+    constructor(
+        parent: d3.Selection<any, any, any, any>,
+        width: number,
+        height: number,
+        margin: Margin,
+        initialXDomain: [Date, Date] = [new Date(), new Date()],
+        initialYDomain: [number, number] = [0, 1])
     {
-        super(parent, width, height, margin);
+        super(parent, width, height, margin, initialXDomain, initialYDomain);
 
         this.confirmedPath = this.plotContainer.append('path')
             .attr('fill', "none")

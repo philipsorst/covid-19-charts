@@ -68,7 +68,9 @@ function createMainChart()
         parentSelection,
         boundingClientRect.width,
         boundingClientRect.height < 150 ? 150 : boundingClientRect.height,
-        plotMargin
+        plotMargin,
+        d3.extent(data.getGlobalDayData(), d => d.date) as [Date, Date],
+        [0, d3.max(data.getGlobalDayData(), d => d.confirmed) as number]
     );
 }
 
@@ -78,7 +80,9 @@ function createGrowthRateChart()
     parentSelection.selectAll('*').remove();
     const boundingClientRect = Utils.getBoundingClientRect(parentSelection);
     // const totalHeight = plotContainer.node().getBoundingClientRect().height;
-    growthRateChart = new GrowthRateChart(parentSelection, boundingClientRect.width, growthDeathRateHeight, plotMargin);
+    growthRateChart = new GrowthRateChart(parentSelection, boundingClientRect.width, growthDeathRateHeight, plotMargin,
+        d3.extent(data.getGlobalDayData(), d => d.date) as [Date, Date],
+        [0, d3.max(data.getGlobalDayData(), d => d.pendingGrowthRate) as number]);
 }
 
 function createDeathRateChart()
@@ -87,7 +91,9 @@ function createDeathRateChart()
     parentSelection.selectAll('*').remove();
     const boundingClientRect = Utils.getBoundingClientRect(parentSelection);
     // const totalHeight = plotContainer.node().getBoundingClientRect().height;
-    deathRateChart = new DeathRateChart(parentSelection, boundingClientRect.width, growthDeathRateHeight, plotMargin);
+    deathRateChart = new DeathRateChart(parentSelection, boundingClientRect.width, growthDeathRateHeight, plotMargin,
+        d3.extent(data.getGlobalDayData(), d => d.date) as [Date, Date],
+        [0, d3.max(data.getGlobalDayData(), d => d.getDeathRate()) as number]);
 }
 
 CountryData.load().then(resultCountryData => {
@@ -109,14 +115,14 @@ CountryData.load().then(resultCountryData => {
             countries.unshift(global);
 
             d3.select('.country-select .row')
-                    .selectAll('div')
-                    .data(countries)
-                    .enter()
-                    .append('div')
-                    .classed('col-md-4 col-lg-3', true)
-                    .append('a')
-                    .attr('href', '#')
-                    .classed('dropdown-item', true)
+                .selectAll('div')
+                .data(countries)
+                .enter()
+                .append('div')
+                .classed('col-md-4 col-lg-3', true)
+                .append('a')
+                .attr('href', '#')
+                .classed('dropdown-item', true)
                     .on('click', selectCountry)
                     .html(d => d.name);
 

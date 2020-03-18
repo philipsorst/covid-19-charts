@@ -89,28 +89,30 @@ class CovidDataLoader
 
         for (let dateString in entry) {
             if (entry.hasOwnProperty(dateString)) {
-                const date = this.dateParse(dateString);
-                if (null == date) throw 'Date could not be parsed';
-                const transformedDateString = this.dateFormat(date);
-                this.dateStringSet.add(transformedDateString);
                 const value = +entry[dateString];
+                if (value > 0) {
+                    const date = this.dateParse(dateString);
+                    if (null == date) throw 'Date could not be parsed';
+                    const transformedDateString = this.dateFormat(date);
+                    this.dateStringSet.add(transformedDateString);
 
-                let countryDayData = countryMap.get(transformedDateString);
-                if (null == countryDayData) {
-                    countryDayData = new DayData(date);
-                    countryMap.set(transformedDateString, countryDayData);
+                    let countryDayData = countryMap.get(transformedDateString);
+                    if (null == countryDayData) {
+                        countryDayData = new DayData(date);
+                        countryMap.set(transformedDateString, countryDayData);
+                    }
+
+                    let worldDayData = this.globalData.get(transformedDateString);
+                    if (null == worldDayData) {
+                        worldDayData = new DayData(date);
+                        this.globalData.set(transformedDateString, worldDayData);
+                    }
+
+                    // @ts-ignore
+                    countryDayData[type] += value;
+                    // @ts-ignore
+                    worldDayData[type] += value;
                 }
-
-                let worldDayData = this.globalData.get(transformedDateString);
-                if (null == worldDayData) {
-                    worldDayData = new DayData(date);
-                    this.globalData.set(transformedDateString, worldDayData);
-                }
-
-                // @ts-ignore
-                countryDayData[type] += value;
-                // @ts-ignore
-                worldDayData[type] += value;
             }
         }
     }
