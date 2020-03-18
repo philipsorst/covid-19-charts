@@ -7,6 +7,8 @@ import {CovidData} from "./covid-data";
 import {Country} from "./country";
 import {DeathRateChart} from "./chart/death-rate-chart";
 import {Margin} from "./chart/margin";
+import {GrowthRateChart} from "./chart/growth-rate-chart";
+import {MainChart} from "./chart/main-chart";
 
 require('../scss/charts.scss');
 require('bootstrap');
@@ -19,160 +21,9 @@ let countryData: CountryData;
 const COUNTRY_CODE_GLOBAL = 'GLOBAL';
 let currentCountry: Country;
 
+let mainChart: MainChart;
+let growthRateChart: GrowthRateChart;
 let deathRateChart: DeathRateChart;
-
-class PlotDefinition
-{
-    constructor(
-        public xScale: d3.ScaleTime<number, number>,
-        public xAxisCall: d3.Axis<Date>,
-        public yScale: d3.ScaleLinear<number, number>,
-        public yAxisCall: d3.Axis<number>,
-        public xAxis: d3.Selection<any, any, any, any>,
-        public yAxis: d3.Selection<any, any, any, any>,
-        public path: d3.Selection<any, any, any, any>)
-    {
-    }
-}
-
-const plotDefinitions = new Map<string, PlotDefinition>();
-
-function createSvgAndPlotContainer(parent: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, width: number, height: number)
-{
-    return parent
-        .append('svg')
-        .attr('width', width + plotMargin.left + plotMargin.right)
-        .attr('height', height + plotMargin.top + plotMargin.bottom)
-        .append('g')
-        .attr('transform',
-            `translate(${plotMargin.left},${plotMargin.top})`);
-}
-
-function drawPlotMain(entries: DayData[])
-{
-    let parentSelection = d3.select('#plot-main');
-    const boundingClientRect = Utils.getBoundingClientRect(parentSelection);
-
-    const width = boundingClientRect.width - plotMargin.left - plotMargin.right;
-    let height = 150;
-    if (boundingClientRect.height < 150) {
-        height = 150 - plotMargin.top - plotMargin.bottom;
-    } else {
-        height = boundingClientRect.height - (2 * growthDeathRateHeight) - plotMargin.top - plotMargin.bottom;
-    }
-
-    let plotSelection = createSvgAndPlotContainer(parentSelection, width, height);
-
-    xScale = d3.scaleTime()
-        .domain(d3.extent(entries, d => d.date) as [Date, Date])
-        .range([0, width]);
-    plotSelection.append('g')
-        .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(xScale));
-
-    // Add Y axis
-    const y = d3
-        .scaleLinear()
-        // .scaleSymlog().constant(1000)
-        .domain([0, d3.max(entries, d => d.confirmed) as number])
-        .range([height, 0]);
-
-    plotSelection.append('g')
-        .call(d3.axisLeft(y))
-        .call(g => g.selectAll(".tick line").clone() // grid lines
-            .attr("stroke-opacity", 0.05)
-            .attr("x2", width));
-
-    // Add the line
-    plotSelection.append('path')
-        .datum(entries)
-        .attr('fill', "none")
-        .attr('stroke', "#808080")
-        .attr('stroke-width', 1.5)
-        .attr('d', d3.line<DayData>()
-            .x(d => xScale(d.date))
-            .y(d => y(d.confirmed))
-        );
-
-    plotSelection.append('path')
-        .datum(entries)
-        .attr('fill', 'none')
-        .attr('stroke', "#388E3C")
-        .attr("stroke-width", 1.5)
-        .attr('d', d3.line<DayData>()
-            .x(d => xScale(d.date))
-            .y(d => y(d.recovered))
-        );
-
-    plotSelection.append("path")
-        .datum(entries)
-        .attr("fill", "none")
-        .attr("stroke", "#D32F2F")
-        .attr("stroke-width", 1.5)
-        .attr("d", d3.line<DayData>()
-            .x(d => xScale(d.date))
-            .y(d => y(d.deaths))
-        );
-
-    plotSelection.append("path")
-        .datum(entries)
-        .attr("fill", "none")
-        .attr("stroke", "#1976D2")
-        .attr("stroke-width", 1.5)
-        .attr("d", d3.line<DayData>()
-            .x(d => xScale(d.date))
-            .y(d => y(d.getPending()))
-        );
-}
-
-function drawPlotGrowthRate(entries: DayData[])
-{
-    let parentDiv = d3.select('#plot-growth-rate');
-    const boundingClientRect = Utils.getBoundingClientRect(parentDiv);
-
-    // const totalHeight = plotContainer.node().getBoundingClientRect().height;
-    const totalHeight = growthDeathRateHeight;
-    const width = boundingClientRect.width - plotMargin.left - plotMargin.right;
-    const height = totalHeight - plotMargin.top - plotMargin.bottom;
-
-    let plotContainer = createSvgAndPlotContainer(parentDiv, width, height);
-
-    // Add Y axis
-    var y = d3.scaleLinear()
-        .domain(d3.extent(entries, d => d.confirmedGrowthRate) as [number, number])
-        .range([height, 0]);
-
-    plotContainer.append('g')
-        .call(d3.axisLeft(y))
-        .call(g => g.selectAll('.tick line').clone() // grid lines
-            .attr('stroke-opacity', 0.05)
-            .attr('x2', width));
-
-    plotContainer.append('g').append('line')
-        .attr('transform', `translate(0,${y(0)})`)
-        .attr('x1', 0)
-        .attr('x2', width)
-        .attr('y1', 0)
-        .attr('y2', 0)
-        .attr('fill', "none")
-        .attr('stroke', "#bfbfbf")
-        .attr('stroke-dasharray', 5)
-        .attr('stroke-width', 1);
-
-    plotContainer.append('g')
-        .attr('transform', `translate(0,${height})`)
-        .call(d3.axisBottom(xScale));
-
-    plotContainer.append('path')
-        .datum(entries)
-        .attr('fill', 'none')
-        .attr('stroke', '#808080')
-        .attr('stroke-width', 1.5)
-        .attr('d', d3.line<DayData>()
-            .x(d => xScale(d.date))
-            .y(d => y(d.confirmedGrowthRate))
-        );
-}
 
 function drawInfo(country: Country, entry: DayData)
 {
@@ -203,48 +54,61 @@ function selectCountry(country: Country)
 
     d3.select('#heading').html(country.name);
 
-    d3.select('#plot-main').selectAll('*').remove();
-    d3.select('#plot-growth-rate').selectAll('*').remove();
-
-    drawPlotMain(entries);
-    drawPlotGrowthRate(entries);
-    // drawPlotDeathRate(entries);
-    // updatePlotDeathRate(entries);
+    mainChart.update(entries);
+    growthRateChart.update(entries);
     deathRateChart.update(entries);
+}
+
+function createMainChart()
+{
+    let parentSelection = d3.select('#plot-main');
+    parentSelection.selectAll('*').remove();
+    const boundingClientRect = Utils.getBoundingClientRect(parentSelection);
+    mainChart = new MainChart(
+        parentSelection,
+        boundingClientRect.width,
+        boundingClientRect.height < 150 ? 150 : boundingClientRect.height,
+        plotMargin
+    );
+}
+
+function createGrowthRateChart()
+{
+    let parentSelection = d3.select('#plot-growth-rate');
+    parentSelection.selectAll('*').remove();
+    const boundingClientRect = Utils.getBoundingClientRect(parentSelection);
+    // const totalHeight = plotContainer.node().getBoundingClientRect().height;
+    growthRateChart = new GrowthRateChart(parentSelection, boundingClientRect.width, growthDeathRateHeight, plotMargin);
 }
 
 function createDeathRateChart()
 {
-    d3.select('#plot-death-rate').selectAll('*').remove();
-
-    const parentDiv = d3.select('#plot-death-rate');
-    parentDiv.selectAll('*').remove();
-    const boundingClientRect = Utils.getBoundingClientRect(parentDiv);
+    const parentSelection = d3.select('#plot-death-rate');
+    parentSelection.selectAll('*').remove();
+    const boundingClientRect = Utils.getBoundingClientRect(parentSelection);
     // const totalHeight = plotContainer.node().getBoundingClientRect().height;
-    const totalHeight = growthDeathRateHeight;
-    const width = boundingClientRect.width - plotMargin.left - plotMargin.right;
-    const height = totalHeight - plotMargin.top - plotMargin.bottom;
-
-    deathRateChart = new DeathRateChart(parentDiv, boundingClientRect.width, growthDeathRateHeight, plotMargin);
+    deathRateChart = new DeathRateChart(parentSelection, boundingClientRect.width, growthDeathRateHeight, plotMargin);
 }
 
 CountryData.load().then(resultCountryData => {
     countryData = resultCountryData;
     CovidData.load(countryData)
         .then(result => {
-                data = result;
+            data = result;
 
             createDeathRateChart();
+            createGrowthRateChart();
+            createMainChart();
 
-                const countries = new Array<Country>();
-                data.getCountryCodes().forEach(countryCode => {
-                    countries.push(new Country(countryCode, countryData.getName(countryCode)));
-                });
-                countries.sort((a, b) => a.name.localeCompare(b.name));
-                const global = new Country(COUNTRY_CODE_GLOBAL, 'Global');
-                countries.unshift(global);
+            const countries = new Array<Country>();
+            data.getCountryCodes().forEach(countryCode => {
+                countries.push(new Country(countryCode, countryData.getName(countryCode)));
+            });
+            countries.sort((a, b) => a.name.localeCompare(b.name));
+            const global = new Country(COUNTRY_CODE_GLOBAL, 'Global');
+            countries.unshift(global);
 
-                d3.select('.country-select .row')
+            d3.select('.country-select .row')
                     .selectAll('div')
                     .data(countries)
                     .enter()
@@ -273,6 +137,8 @@ function debounce(timerHandler: TimerHandler, timeout: number)
 }
 
 d3.select(window).on('resize', debounce(() => {
+    createGrowthRateChart();
     createDeathRateChart();
+    createMainChart();
     selectCountry(currentCountry);
 }, 250));

@@ -3,7 +3,7 @@ import {Margin} from "./margin";
 
 export class ChartUtils
 {
-    public static createSvgAndPlotContainer(parent: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, width: number, height: number, margin: Margin)
+    public static createSvgAndPlotContainer(parent: d3.Selection<d3.BaseType, unknown, HTMLElement, any>, width: number, height: number, margin: Margin): d3.Selection<SVGGElement, unknown, HTMLElement, any>
     {
         return parent
             .append('svg')
