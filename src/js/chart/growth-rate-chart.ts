@@ -25,7 +25,6 @@ export class GrowthRateChart extends LineChart
 
     public update(entries: DayData[])
     {
-        console.log(entries);
         super.update(entries);
         this.path
             .datum(entries)

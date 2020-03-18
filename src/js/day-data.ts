@@ -40,4 +40,40 @@ export class DayData
 
         return (this.getPending() - this.previous.getPending()) / this.previous.getPending();
     }
+
+    public getConfirmedRolling(): number
+    {
+        if (this.next == null || this.previous == null) {
+            throw 'next or prev was null';
+        }
+
+        return (this.previous.confirmed + this.confirmed + this.next.confirmed) / 3;
+    }
+
+    public getPendingRolling(): number
+    {
+        if (this.next == null || this.previous == null) {
+            throw 'next or prev was null';
+        }
+
+        return (this.previous.getPending() + this.getPending() + this.next.getPending()) / 3;
+    }
+
+    public getRecoveredRolling(): number
+    {
+        if (this.next == null || this.previous == null) {
+            throw 'next or prev was null';
+        }
+
+        return (this.previous.recovered + this.recovered + this.next.recovered) / 3;
+    }
+
+    public getDeathsRolling(): number
+    {
+        if (this.next == null || this.previous == null) {
+            throw 'next or prev was null';
+        }
+
+        return (this.previous.deaths + this.deaths + this.next.deaths) / 3;
+    }
 }
