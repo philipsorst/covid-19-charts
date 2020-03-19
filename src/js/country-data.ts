@@ -29,7 +29,6 @@ export class CountryData
         ORDER BY ?iso3166alpha2`.trim();
         const url = "https://query.wikidata.org/sparql?format=json&query=" + encodeURIComponent(sparql);
         return d3.json(url).then(response => {
-            console.log(response);
             const countryData = new CountryData();
             const results = response.results.bindings as Array<any>;
             results.forEach(result => {

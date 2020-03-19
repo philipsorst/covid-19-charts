@@ -31,7 +31,10 @@ export class CovidData
     {
         const countryData = this.data.get(countryCode);
         if (null == countryData) throw 'No data found for ' + countryCode;
-        return Array.from(countryData.values());
+        const arr = Array.from(countryData.values());
+        arr.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+        return arr;
     }
 
     public getDayDataByDateString(countryCode: string, dateString: string): DayData | null
@@ -157,12 +160,14 @@ class CovidDataLoader
         return this.countryData.getCode(countryName);
     }
 
-    private postProcess(entries: Map<string, DayData>)
+    private postProcess(entries: Map<string, DayData>, countryCode: string | null = null)
     {
+        let arr = Array.from(entries.values());
+        arr.sort((a, b) => a.date.getTime() - b.date.getTime());
         let lastEntry: DayData;
-        entries.forEach((entry: DayData) => {
-            entry.previous = lastEntry;
+        arr.forEach((entry: DayData) => {
             if (null != lastEntry) {
+                entry.previous = lastEntry;
                 lastEntry.next = entry;
             }
             lastEntry = entry;
@@ -184,7 +189,7 @@ class CovidDataLoader
                 recovered.forEach((entry: any) => this.addEntry(entry, 'recovered'));
                 deaths.forEach((entry: any) => this.addEntry(entry, 'deaths'));
 
-                this.data.forEach(entries => this.postProcess(entries));
+                this.data.forEach((entries, countryCode) => this.postProcess(entries, countryCode));
                 this.postProcess(this.globalData);
 
                 const dates = new Array<Date>();

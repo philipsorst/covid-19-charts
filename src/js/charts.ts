@@ -147,13 +147,6 @@ CountryData.load().then(resultCountryData => {
 
 
                 let pathMatchEx = /.*\/(.*)$/;
-
-                console.log('/'.match(pathMatchEx));
-                console.log('/test'.match(pathMatchEx));
-                console.log('/test/zwo'.match(pathMatchEx));
-                console.log('/test/zwo/'.match(pathMatchEx));
-                console.log('/test/zwo/drei'.match(pathMatchEx));
-
                 let country = null;
                 let match = window.location.pathname.match(pathMatchEx);
                 if (null != match) {
