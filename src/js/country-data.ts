@@ -1,124 +1,82 @@
 import * as d3 from 'd3';
+import {Country} from "./country";
 
 export class CountryData
 {
-    private countryToAbbreviation = new Map<string, string>();
-    private abbreviationToCountry = new Map<string, string>();
-    private abbreviationToPopulation = new Map<string, number>();
-    private nameReplacementMap = new Map<string, string>();
+    private nameToCodeMap = new Map<string, string>();
+    private codeToCountryMap = new Map<string, Country>();
 
-    constructor()
+    private constructor()
     {
-        this.nameReplacementMap.set('SriLanka', 'Sri Lanka');
-        this.nameReplacementMap.set('US', 'United States');
-        this.nameReplacementMap.set('Holy See', 'Holy See (Vatican City State)');
-        this.nameReplacementMap.set('Korea, South', 'South Korea');
-        this.nameReplacementMap.set('Cruise Ship', 'Japan');
-        this.nameReplacementMap.set('Czechia', 'Czech Republic');
-        this.nameReplacementMap.set('Taiwan*', 'Taiwan');
-        this.nameReplacementMap.set('Russia', 'Russian Federation');
-        this.nameReplacementMap.set('Cote d\'Ivoire', 'Ivory Coast');
-        this.nameReplacementMap.set('Côte d\'Ivoire', 'Ivory Coast');
-        this.nameReplacementMap.set('Curacao', 'Netherlands');
-        this.nameReplacementMap.set('Eswatini', 'Swaziland');
-        this.nameReplacementMap.set('eSwatini', 'Swaziland');
-        this.nameReplacementMap.set('occupied Palestinian territory', 'Palestine');
-        this.nameReplacementMap.set('Fiji', 'Fiji Islands');
-        this.nameReplacementMap.set('W. Sahara', 'Western Sahara');
-        this.nameReplacementMap.set('United States of America', 'United States');
-        this.nameReplacementMap.set('Dominican Rep.', 'Dominican Republic');
-        this.nameReplacementMap.set('Falkland Is.', 'Falkland Islands');
-        this.nameReplacementMap.set('Fr. S. Antarctic Lands', 'French Southern territories');
-        this.nameReplacementMap.set('Central African Rep.', 'Central African Republic');
-        this.nameReplacementMap.set('Eq. Guinea', 'Equatorial Guinea');
-        this.nameReplacementMap.set('Solomon Is.', 'Solomon Islands');
-        this.nameReplacementMap.set('N. Cyprus', 'Turkey');
-        this.nameReplacementMap.set('Libya', 'Libyan Arab Jamahiriya');
-        this.nameReplacementMap.set('Somaliland', 'Somalia');
-        this.nameReplacementMap.set('Bosnia and Herz.', 'Bosnia and Herzegovina');
-        this.nameReplacementMap.set('Macedonia', 'North Macedonia');
-        this.nameReplacementMap.set('Kosovo', 'Serbia');
-        this.nameReplacementMap.set('S. Sudan', 'South Sudan');
     }
-
 
     static load(): Promise<CountryData>
     {
-        const countryByAbbreviationPromise = d3.json('./build/country-json/country-by-abbreviation.json') as Promise<Array<{ country: string, abbreviation: string }>>;
-        const countryByPopulationPromise = d3.json('./build/country-json/country-by-population.json') as Promise<Array<{ country: string, population: number }>>;
+        const sparql = ` 
+        SELECT DISTINCT ?countryLabel ?population ?iso3166alpha2
+        WHERE
+        {
+            ?country wdt:P31 wd:Q3624078 ;
+                     wdt:P1082 ?population ;
+                     wdt:P297 ?iso3166alpha2 .
+            #not a former country
+            FILTER NOT EXISTS {?country wdt:P31 wd:Q3024240}
+            #and no an ancient civilisation (needed to exclude ancient Egypt)
+            FILTER NOT EXISTS {?country wdt:P31 wd:Q28171280} .
 
-        return Promise.all([countryByAbbreviationPromise, countryByPopulationPromise])
-            .then(([countryByAbbreviation, countryByPopulation]) => {
-
-                const countryData = new CountryData();
-
-                countryByAbbreviation.forEach(entry => {
-                    countryData.addCountryToAbbreviation(entry.country, entry.abbreviation);
-                    countryData.addAbbreviationToCountry(entry.abbreviation, entry.country);
-                });
-
-                countryData.addAbbreviationToCountry('TW', 'Taiwan');
-
-                countryData.addCountryToAbbreviation('Taiwan', 'TW');
-                countryData.addCountryToAbbreviation('Republic of the Congo', 'CG');
-                countryData.addCountryToAbbreviation('Dem. Rep. Congo', 'CG');
-                countryData.addCountryToAbbreviation('Congo (Brazzaville)', 'CG');
-                countryData.addCountryToAbbreviation('Congo (Kinshasa)', 'CG');
-                countryData.addCountryToAbbreviation('The Bahamas', 'BS');
-                countryData.addCountryToAbbreviation('The Gambia', 'GM');
-                countryData.addCountryToAbbreviation('Gambia, The', 'GM');
-
-                countryByPopulation.forEach(entry => {
-                    if (null != entry.population) {
-                        const countryCode = countryData.getCountryCode(entry.country);
-                        if (null != countryCode) {
-                            countryData.abbreviationToPopulation.set(countryCode, entry.population);
-                        }
-                    }
-                });
-
-                countryData.abbreviationToPopulation.set('TW', 23780452);
-
-                return countryData;
+            SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+        }
+        ORDER BY ?iso3166alpha2`.trim();
+        const url = "https://query.wikidata.org/sparql?format=json&query=" + encodeURIComponent(sparql);
+        return d3.json(url).then(response => {
+            console.log(response);
+            const countryData = new CountryData();
+            const results = response.results.bindings as Array<any>;
+            results.forEach(result => {
+                const name = result.countryLabel.value;
+                const code = result.iso3166alpha2.value;
+                const population = +result.population.value;
+                const country = new Country(code, name, population);
+                countryData.addCodeToCountry(code, country);
+                countryData.addNameToCode(name, code);
             });
+            return countryData;
+        });
     }
 
-    private addCountryToAbbreviation(country: string, abbreviation: string)
+    private addNameToCode(country: string, abbreviation: string)
     {
-        this.countryToAbbreviation.set(country, abbreviation);
+        this.nameToCodeMap.set(country, abbreviation);
     }
 
-    private addAbbreviationToCountry(abbreviation: string, country: string)
+    private addCodeToCountry(code: string, country: Country)
     {
-        this.abbreviationToCountry.set(abbreviation, country);
+        this.codeToCountryMap.set(code, country);
     }
 
-    public getCountryCode(countryName: string): string | null
+    public getCountry(code: string): Country | null
     {
-        let lookup = this.nameReplacementMap.get(countryName);
-        if (null == lookup) {
-            lookup = countryName;
+        const country = this.codeToCountryMap.get(code);
+        if (null == country) {
+            return null;
         }
 
-        let abbreviation: string | null | undefined = this.countryToAbbreviation.get(lookup);
-        if (null == abbreviation) {
-            console.warn(`Abbreviation not found for ${countryName}`);
-            abbreviation = null;
+        return country;
+    }
+
+    public getCode(name: string): string | null
+    {
+        let code: string | null | undefined = this.nameToCodeMap.get(name);
+        if (null == code) {
+            console.warn(`Abbreviation not found for ${name}`);
+            code = null;
         }
 
-        return abbreviation;
+        return code;
     }
 
-    public getName(countryCode: string): string
+    public getCountries(): Country[]
     {
-        const name = this.abbreviationToCountry.get(countryCode);
-        if (null == name) throw `Name not found for ${countryCode}`;
-
-        return name;
-    }
-
-    public getPopulation(countryCode: string): number | undefined
-    {
-        return this.abbreviationToPopulation.get(countryCode);
+        return Array.from(this.codeToCountryMap.values());
     }
 }

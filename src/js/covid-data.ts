@@ -10,7 +10,7 @@ export class CovidData
 
     public static load(countryData: CountryData): Promise<CovidData>
     {
-        const covidDataLoader = new CovidDataLoader();
+        const covidDataLoader = new CovidDataLoader(countryData);
         return covidDataLoader.load(countryData);
     }
 
@@ -74,11 +74,36 @@ class CovidDataLoader
     private dateStringSet = new Set<string>();
     private dateParse = d3.timeParse('%m/%d/%y');
     private dateFormat = d3.timeFormat('%Y-%m-%d');
+    private countryNameToCountryCodeMap = new Map<string, string>();
 
-    private addEntry(entry: any, type: string, countryData: CountryData)
+    constructor(private countryData: CountryData)
     {
-        const countryAbbreviation = countryData.getCountryCode(entry['Country/Region']);
-        if (null == countryAbbreviation) {
+        this.countryNameToCountryCodeMap.set('Martinique', 'FR');
+        this.countryNameToCountryCodeMap.set('Taiwan*', 'TW');
+        this.countryNameToCountryCodeMap.set('Republic of the Congo', 'CG');
+        this.countryNameToCountryCodeMap.set('Dem. Rep. Congo', 'CG');
+        this.countryNameToCountryCodeMap.set('Congo (Brazzaville)', 'CG');
+        this.countryNameToCountryCodeMap.set('Congo (Kinshasa)', 'CG');
+        this.countryNameToCountryCodeMap.set('The Bahamas', 'BS');
+        this.countryNameToCountryCodeMap.set('The Gambia', 'GM');
+        this.countryNameToCountryCodeMap.set('Gambia, The', 'GM');
+        this.countryNameToCountryCodeMap.set('US', 'US');
+        this.countryNameToCountryCodeMap.set('China', 'CN');
+        this.countryNameToCountryCodeMap.set('Netherlands', 'NL');
+        this.countryNameToCountryCodeMap.set('Greenland', 'DK');
+        this.countryNameToCountryCodeMap.set('Czechia', 'CZ');
+        this.countryNameToCountryCodeMap.set('Cruise Ship', 'JP');
+        this.countryNameToCountryCodeMap.set('Cote d\'Ivoire', 'CI');
+        this.countryNameToCountryCodeMap.set('Cyprus', 'CY');
+        this.countryNameToCountryCodeMap.set('Holy See', 'VA');
+        this.countryNameToCountryCodeMap.set('Korea, South', 'KR');
+        this.countryNameToCountryCodeMap.set('Kosovo', 'RS');
+    }
+
+    private addEntry(entry: any, type: string)
+    {
+        const countryCode = this.getCountryCode(entry['Country/Region']);
+        if (null == countryCode) {
             return;
         }
 
@@ -87,10 +112,10 @@ class CovidDataLoader
         delete entry['Lat'];
         delete entry['Long'];
 
-        let countryMap = this.data.get(countryAbbreviation);
+        let countryMap = this.data.get(countryCode);
         if (null == countryMap) {
             countryMap = new Map<string, DayData>();
-            this.data.set(countryAbbreviation, countryMap);
+            this.data.set(countryCode, countryMap);
         }
 
         for (let dateString in entry) {
@@ -123,6 +148,15 @@ class CovidDataLoader
         }
     }
 
+    private getCountryCode(countryName: string): string | null
+    {
+        if (this.countryNameToCountryCodeMap.has(countryName)) {
+            return this.countryNameToCountryCodeMap.get(countryName) as string;
+        }
+
+        return this.countryData.getCode(countryName);
+    }
+
     private postProcess(entries: Map<string, DayData>)
     {
         let lastEntry: DayData;
@@ -146,9 +180,9 @@ class CovidDataLoader
         return Promise.all([d3.csv(urls.confirmed), d3.csv(urls.recovered), d3.csv(urls.deaths)])
             .then(([confirmed, recovered, deaths]) => {
 
-                confirmed.forEach((entry: any) => this.addEntry(entry, 'confirmed', countryData));
-                recovered.forEach((entry: any) => this.addEntry(entry, 'recovered', countryData));
-                deaths.forEach((entry: any) => this.addEntry(entry, 'deaths', countryData));
+                confirmed.forEach((entry: any) => this.addEntry(entry, 'confirmed'));
+                recovered.forEach((entry: any) => this.addEntry(entry, 'recovered'));
+                deaths.forEach((entry: any) => this.addEntry(entry, 'deaths'));
 
                 this.data.forEach(entries => this.postProcess(entries));
                 this.postProcess(this.globalData);

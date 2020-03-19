@@ -32,10 +32,6 @@ Encore
 
     .copyFiles([
         {
-            from: './node_modules/country-json/src/',
-            to: 'country-json/[name].[ext]'
-        },
-        {
             from: './node_modules/world-atlas/',
             to: 'world-atlas/[name].[ext]',
             pattern: /(countries|land).*\.(json)$/

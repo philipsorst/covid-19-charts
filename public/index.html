@@ -20,7 +20,7 @@
             </div>
         </div>
         <div class="d-lg-flex flex-lg-row flex-lg-grow-1">
-            <div id="info" class="pl-4 pr-4">
+            <div id="info" class="pl-4 pr-4" style="min-width: 200px;">
                 <section class="text-center">
                     <div class="mb-4" id="info-population">
                         <h3>Population</h3>
@@ -46,10 +46,6 @@
                         <h3>Death Rate</h3>
                         <p class="display-4" id="info-death-rate"></p>
                     </div>
-                    <p class="text-muted mb-0">Data Source: <a href="https://systems.jhu.edu/">Johns Hopkins CSSE</a>
-                    </p>
-                    <p class="text-muted mb-4">Visualization: <a href="https://sorst.net">Philip Washington Sorst</a>
-                    </p>
                 </section>
             </div>
             <div class="d-lg-flex flex-lg-column flex-lg-grow-1 pl-4 pr-4">
@@ -68,6 +64,21 @@
                     <h3 class="text-center">Death Rate</h3>
                     <div id="plot-death-rate"></div>
                 </section>
+            </div>
+        </div>
+        <div class="text-center text-muted pt-2 pb-2 mt-2 border-top">
+            <div class="d-lg-inline ml-lg-2 mr-lg-2">
+                <div class="d-lg-inline">Data Sources:</div>
+                <ul class="list-inline mb-0 d-lg-inline">
+                    <li class="list-inline-item"><a href="https://systems.jhu.edu/">Johns Hopkins CSSE</a></li>
+                    <li class="list-inline-item"><a href="https://www.wikidata.org">Wikidata</a></li>
+                </ul>
+            </div>
+            <div class="d-lg-inline ml-lg-2 mr-lg-2">
+                <div class="d-lg-inline">Visualization:</div>
+                <div class="d-lg-inline">
+                    <a href="https://sorst.net">Philip Washington Sorst</a>
+                </div>
             </div>
         </div>
     </div>

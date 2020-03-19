@@ -19,19 +19,18 @@ const plotMargin = new Margin(5, 1, 30, 60);
 let data: CovidData;
 let countryData: CountryData;
 const COUNTRY_CODE_GLOBAL = 'GLOBAL';
-let currentCountry: Country;
+let currentCountry: Country | null;
 
 let mainChart: MainChart;
 let growthRateChart: GrowthRateChart;
 let deathRateChart: DeathRateChart;
 let growthChart: GrowthChart;
 
-function drawInfo(country: Country, entry: DayData)
+function drawInfo(country: Country | null, entry: DayData)
 {
-    let population = countryData.getPopulation(country.code);
-    d3.select('#info-population').classed('d-none', null == population);
-    if (null != population) {
-        d3.select('#info-num-population').html(d3.format(".2s")(population));
+    d3.select('#info-population').classed('d-none', null == country);
+    if (null != country) {
+        d3.select('#info-num-population').html(d3.format(".2s")(country.population));
     }
     d3.select('#info-num-confirmed').html(d3.format(",")(entry.confirmed));
     d3.select('#info-num-recovered')
@@ -46,20 +45,26 @@ function drawInfo(country: Country, entry: DayData)
     d3.select('#info-death-rate').html(d3.format(".2%")(entry.getDeathRate()));
 }
 
-function selectCountry(country: Country)
+function selectCountry(country: Country | null)
 {
     let entries;
-    if (COUNTRY_CODE_GLOBAL === country.code) {
+    if (null === country) {
         entries = data.getGlobalDayData();
+        history.pushState({}, 'Global', './');
     } else {
         entries = data.getDayData(country.code);
+        history.pushState({}, country.name, './' + country.code);
     }
     currentCountry = country;
 
     let lastEntry = entries[entries.length - 1];
     drawInfo(country, lastEntry);
 
-    d3.select('#heading').html(country.name);
+    if (null != country) {
+        d3.select('#heading').html(country.name);
+    } else {
+        d3.select('#heading').html('Global');
+    }
 
     mainChart.update(entries);
     growthRateChart.update(entries);
@@ -118,34 +123,45 @@ CountryData.load().then(resultCountryData => {
     countryData = resultCountryData;
     CovidData.load(countryData)
         .then(result => {
-            data = result;
+                data = result;
 
-            // createGrowthChart();
-            createDeathRateChart();
-            createGrowthRateChart();
-            createMainChart();
+                // createGrowthChart();
+                createDeathRateChart();
+                createGrowthRateChart();
+                createMainChart();
 
-            const countries = new Array<Country>();
-            data.getCountryCodes().forEach(countryCode => {
-                countries.push(new Country(countryCode, countryData.getName(countryCode)));
-            });
-            countries.sort((a, b) => a.name.localeCompare(b.name));
-            const global = new Country(COUNTRY_CODE_GLOBAL, 'Global');
-            countries.unshift(global);
+                const countries = countryData.getCountries();
+                countries.sort((a, b) => a.name.localeCompare(b.name));
 
-            d3.select('.country-select .row')
-                .selectAll('div')
-                .data(countries)
-                .enter()
-                .append('div')
-                .classed('col-md-4 col-lg-3', true)
-                .append('a')
-                .attr('href', '#')
-                .classed('dropdown-item', true)
+                d3.select('.country-select .row')
+                    .selectAll('div')
+                    .data(countries)
+                    .enter()
+                    .append('div')
+                    .classed('col-md-4 col-lg-3', true)
+                    .append('a')
+                    .attr('href', '#')
+                    .classed('dropdown-item', true)
                     .on('click', selectCountry)
                     .html(d => d.name);
 
-                selectCountry(global);
+
+                let pathMatchEx = /.*\/(.*)$/;
+
+                console.log('/'.match(pathMatchEx));
+                console.log('/test'.match(pathMatchEx));
+                console.log('/test/zwo'.match(pathMatchEx));
+                console.log('/test/zwo/'.match(pathMatchEx));
+                console.log('/test/zwo/drei'.match(pathMatchEx));
+
+                let country = null;
+                let match = window.location.pathname.match(pathMatchEx);
+                if (null != match) {
+                    let countryCode = match[1];
+                    country = countryData.getCountry(countryCode);
+                }
+
+                selectCountry(country);
             }
         );
 });

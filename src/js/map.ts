@@ -30,11 +30,11 @@ const pendingPercentagePlot: MapPlot = {
     name: 'Pending Percentage',
     range: ['#FFEBEE', '#B71C1C'],
     data: (countryCode: string, dayData, covidData, countryData) => {
-        const population = countryData.getPopulation(countryCode);
-        if (null == population || null == dayData || 0 === dayData.getPending()) {
+        let country = countryData.getCountry(countryCode);
+        if (null == country || null == dayData || 0 === dayData.getPending()) {
             return null;
         }
-        return dayData.getPending() / population;
+        return dayData.getPending() / country.population;
     }
 };
 
@@ -115,7 +115,7 @@ function plotMap(
     const extents = new Array<[number, number]>();
     features.forEach(feature => {
         const countryName = (feature.properties as { name: string }).name;
-        const countryCode = countryData.getCountryCode(countryName);
+        const countryCode = countryData.getCode(countryName);
         if (covidData.hasCountryCode(countryCode) && null != countryCode) {
             const dayData = covidData.getDayData(countryCode);
             extents.push(d3.extent(dayData, d => mapPlot.data(countryCode, d, covidData, countryData)) as [number, number]);
@@ -131,7 +131,7 @@ function plotMap(
         .duration(0)
         .attr('fill', d => {
             const countryName = (d.properties as { name: string }).name;
-            const countryCode = countryData.getCountryCode(countryName);
+            const countryCode = countryData.getCode(countryName);
             if (!covidData.hasCountryCode(countryCode) || null == countryCode) {
                 return COLOR_UNKNOWN;
             }
