@@ -1,3 +1,5 @@
+import * as d3 from "d3";
+
 export class DayData
 {
     constructor(public date: Date)
@@ -61,21 +63,36 @@ export class DayData
         return currentGrowth / lastGrowth;
     }
 
-    public getRolling(accessor: () => (number | null))
+    public getMovingAverage(accessor: () => (number | null), size: number = 1): number | null
     {
-        if (null == this.previous || null == this.next) {
-            return null;
-        }
-
-        const previousValue = accessor.call(this.previous);
+        const values = new Array<number>();
         const currentValue = accessor.call(this);
-        const nextValue = accessor.call(this.next);
-
-        if (null == previousValue || null == currentValue || null == nextValue) {
+        if (null == currentValue) {
             return null;
         }
+        values.push(currentValue);
 
-        return (previousValue + currentValue + nextValue) / 3;
+        let currentPrevious: DayData = this;
+        let currentNext: DayData = this;
+        for (let i = 0; i < size; i++) {
+            if (null == currentPrevious.previous || null == currentNext.next) {
+                return null;
+            }
+
+            currentPrevious = currentPrevious.previous;
+            const previousValue = accessor.call(currentPrevious);
+            if (null != previousValue) {
+                values.push(previousValue)
+            }
+
+            currentNext = currentNext.next;
+            const nextValue = accessor.call(currentNext);
+            if (null != nextValue) {
+                values.push(nextValue)
+            }
+        }
+
+        return d3.mean(values) as number;
     }
 
     public getGrowth(): number | null

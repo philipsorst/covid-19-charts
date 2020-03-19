@@ -14,8 +14,11 @@ export class CovidData
         return covidDataLoader.load(countryData);
     }
 
-    public hasCountryCode(countryCode: string): boolean
+    public hasCountryCode(countryCode: string | null): boolean
     {
+        if (null == countryCode) {
+            return false;
+        }
         return this.data.has(countryCode);
     }
 

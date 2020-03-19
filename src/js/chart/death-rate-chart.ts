@@ -39,11 +39,11 @@ export class DeathRateChart extends LineChart
                 .y(d => this.yScale(d.getDeathRate()))
             );
         this.pathRolling
-            .datum(entries.filter(entry => entry.getRolling(entry.getDeathRate) != null))
+            .datum(entries.filter(entry => entry.getMovingAverage(entry.getDeathRate) != null))
             .transition(this.transition)
             .attr('d', d3.line<DayData>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getRolling(d.getDeathRate) as number))
+                .y(d => this.yScale(d.getMovingAverage(d.getDeathRate) as number))
             );
     }
 

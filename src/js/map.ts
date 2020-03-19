@@ -116,7 +116,7 @@ function plotMap(
     features.forEach(feature => {
         const countryName = (feature.properties as { name: string }).name;
         const countryCode = countryData.getCountryCode(countryName);
-        if (covidData.hasCountryCode(countryCode)) {
+        if (covidData.hasCountryCode(countryCode) && null != countryCode) {
             const dayData = covidData.getDayData(countryCode);
             extents.push(d3.extent(dayData, d => mapPlot.data(countryCode, d, covidData, countryData)) as [number, number]);
         }
@@ -132,7 +132,7 @@ function plotMap(
         .attr('fill', d => {
             const countryName = (d.properties as { name: string }).name;
             const countryCode = countryData.getCountryCode(countryName);
-            if (!covidData.hasCountryCode(countryCode)) {
+            if (!covidData.hasCountryCode(countryCode) || null == countryCode) {
                 return COLOR_UNKNOWN;
             }
 

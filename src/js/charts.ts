@@ -1,6 +1,5 @@
 import {CountryData} from "./country-data";
 import * as d3 from 'd3';
-import './load.coviddata';
 import {Utils} from "./utils";
 import {DayData} from "./day-data";
 import {CovidData} from "./covid-data";
@@ -17,7 +16,6 @@ require('bootstrap');
 
 const growthDeathRateHeight = 150;
 const plotMargin = new Margin(5, 1, 30, 60);
-let xScale: d3.ScaleTime<number, number>;
 let data: CovidData;
 let countryData: CountryData;
 const COUNTRY_CODE_GLOBAL = 'GLOBAL';

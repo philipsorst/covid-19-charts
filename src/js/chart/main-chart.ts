@@ -77,11 +77,11 @@ export class MainChart extends LineChart
                 .y(d => this.yScale(d.confirmed))
             );
         this.confirmedRollingPath
-            .datum(entries.filter(entry => entry.getRolling(entry.getConfirmed) != null))
+            .datum(entries.filter(entry => entry.getMovingAverage(entry.getConfirmed) != null))
             .transition(this.transition)
             .attr('d', d3.line<DayData>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getRolling(d.getConfirmed) as number))
+                .y(d => this.yScale(d.getMovingAverage(d.getConfirmed) as number))
             );
 
         this.pendingPath
@@ -92,11 +92,11 @@ export class MainChart extends LineChart
                 .y(d => this.yScale(d.getPending()))
             );
         this.pendingRollingPath
-            .datum(entries.filter(entry => entry.getRolling(entry.getPending) != null))
+            .datum(entries.filter(entry => entry.getMovingAverage(entry.getPending) != null))
             .transition(this.transition)
             .attr('d', d3.line<DayData>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getRolling(d.getPending) as number))
+                .y(d => this.yScale(d.getMovingAverage(d.getPending) as number))
             );
 
         this.recoveredPath
@@ -107,11 +107,11 @@ export class MainChart extends LineChart
                 .y(d => this.yScale(d.recovered))
             );
         this.recoveredRollingPath
-            .datum(entries.filter(entry => entry.getRolling(entry.getRecovered) != null))
+            .datum(entries.filter(entry => entry.getMovingAverage(entry.getRecovered) != null))
             .transition(this.transition)
             .attr('d', d3.line<DayData>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getRolling(d.getRecovered) as number))
+                .y(d => this.yScale(d.getMovingAverage(d.getRecovered) as number))
             );
 
         this.deathsPath
@@ -123,11 +123,11 @@ export class MainChart extends LineChart
             );
 
         this.deathsRollingPath
-            .datum(entries.filter(entry => entry.getRolling(entry.getDeaths) != null))
+            .datum(entries.filter(entry => entry.getMovingAverage(entry.getDeaths) != null))
             .transition(this.transition)
             .attr('d', d3.line<DayData>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getRolling(d.getDeaths) as number))
+                .y(d => this.yScale(d.getMovingAverage(d.getDeaths) as number))
             );
     }
 

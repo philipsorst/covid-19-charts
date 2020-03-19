@@ -46,12 +46,13 @@ export class GrowthRateChart extends LineChart
                 .y(d => this.yScale(d.getGrowthChangeRate() as number))
             );
 
+        const movingWindowSize = 7;
         this.movingPath
-            .datum(entries.filter(entry => entry.getRolling(entry.getGrowthChangeRate) != null))
+            .datum(entries.filter(entry => entry.getMovingAverage(entry.getGrowthChangeRate, movingWindowSize) != null))
             .transition(this.transition)
             .attr('d', d3.line<DayData>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getRolling(d.getGrowthChangeRate) as number))
+                .y(d => this.yScale(d.getMovingAverage(d.getGrowthChangeRate, movingWindowSize) as number))
             );
 
         this.linearLine

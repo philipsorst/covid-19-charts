@@ -1,5 +1,4 @@
 import * as d3 from 'd3';
-import {WORLD_ABBR} from "./load.coviddata";
 
 export class CountryData
 {
@@ -112,10 +111,6 @@ export class CountryData
 
     public getName(countryCode: string): string
     {
-        if (WORLD_ABBR === countryCode) {
-            return 'World';
-        }
-
         const name = this.abbreviationToCountry.get(countryCode);
         if (null == name) throw `Name not found for ${countryCode}`;
 
