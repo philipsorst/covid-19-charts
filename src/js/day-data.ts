@@ -67,10 +67,14 @@ export class DayData
     {
         const values = new Array<number>();
         const currentValue = accessor.call(this);
+        let weight = 0;
+        let weightSum = 0;
         if (null == currentValue) {
             return null;
         }
-        values.push(currentValue);
+        weight = size + 1;
+        weightSum += weight;
+        values.push(currentValue * weight);
 
         let currentPrevious: DayData = this;
         let currentNext: DayData = this;
@@ -81,18 +85,23 @@ export class DayData
 
             currentPrevious = currentPrevious.previous;
             const previousValue = accessor.call(currentPrevious);
+
+            weight = size - i;
+            weightSum += 2 * weight;
+
             if (null != previousValue) {
-                values.push(previousValue)
+
+                values.push(previousValue * weight)
             }
 
             currentNext = currentNext.next;
             const nextValue = accessor.call(currentNext);
             if (null != nextValue) {
-                values.push(nextValue)
+                values.push(nextValue * weight)
             }
         }
 
-        return d3.mean(values) as number;
+        return d3.sum(values) as number / weightSum;
     }
 
     public getGrowth(): number | null
