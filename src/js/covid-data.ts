@@ -75,6 +75,9 @@ class CovidDataLoader
     private addEntry(entry: any, type: string, countryData: CountryData)
     {
         const countryAbbreviation = countryData.getCountryCode(entry['Country/Region']);
+        if (null == countryAbbreviation) {
+            return;
+        }
 
         delete entry['Country/Region'];
         delete entry['Province/State'];

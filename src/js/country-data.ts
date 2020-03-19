@@ -71,7 +71,10 @@ export class CountryData
 
                 countryByPopulation.forEach(entry => {
                     if (null != entry.population) {
-                        countryData.abbreviationToPopulation.set(countryData.getCountryCode(entry.country), entry.population);
+                        const countryCode = countryData.getCountryCode(entry.country);
+                        if (null != countryCode) {
+                            countryData.abbreviationToPopulation.set(countryCode, entry.population);
+                        }
                     }
                 });
 
@@ -91,15 +94,19 @@ export class CountryData
         this.abbreviationToCountry.set(abbreviation, country);
     }
 
-    public getCountryCode(countryName: string): string
+    public getCountryCode(countryName: string): string | null
     {
         let lookup = this.nameReplacementMap.get(countryName);
         if (null == lookup) {
             lookup = countryName;
         }
 
-        const abbreviation = this.countryToAbbreviation.get(lookup);
-        if (null == abbreviation) throw `Abbreviation not found for ${countryName}`;
+        let abbreviation: string | null | undefined = this.countryToAbbreviation.get(lookup);
+        if (null == abbreviation) {
+            console.warn(`Abbreviation not found for ${countryName}`);
+            abbreviation = null;
+        }
+
         return abbreviation;
     }
 
