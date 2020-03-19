@@ -67,6 +67,7 @@ export class CountryData
                 countryData.addCountryToAbbreviation('Congo (Kinshasa)', 'CG');
                 countryData.addCountryToAbbreviation('The Bahamas', 'BS');
                 countryData.addCountryToAbbreviation('The Gambia', 'GM');
+                countryData.addCountryToAbbreviation('Gambia, The', 'GM');
 
                 countryByPopulation.forEach(entry => {
                     if (null != entry.population) {
