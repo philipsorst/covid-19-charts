@@ -48,7 +48,7 @@ function drawInfo(country: Country | null, entry: DayData)
 function selectCountry(country: Country | null)
 {
     let entries;
-    if (null === country) {
+    if (null == country) {
         entries = data.getGlobalDayData();
         history.pushState({}, 'Global', './');
     } else {
@@ -123,25 +123,35 @@ CountryData.load().then(resultCountryData => {
     countryData = resultCountryData;
     CovidData.load(countryData)
         .then(result => {
-                data = result;
+            data = result;
 
-                // createGrowthChart();
-                createDeathRateChart();
-                createGrowthRateChart();
-                createMainChart();
+            // createGrowthChart();
+            createDeathRateChart();
+            createGrowthRateChart();
+            createMainChart();
 
-                const countries = countryData.getCountries();
-                countries.sort((a, b) => a.name.localeCompare(b.name));
+            const countries = countryData.getCountries();
+            countries.sort((a, b) => a.name.localeCompare(b.name));
 
-                d3.select('.country-select .row')
-                    .selectAll('div')
-                    .data(countries)
-                    .enter()
-                    .append('div')
-                    .classed('col-md-4 col-lg-3', true)
-                    .append('a')
-                    .attr('href', '#')
-                    .classed('dropdown-item', true)
+            d3.select('.country-select .row')
+                .append('div')
+                .datum<Country | null>(null)
+                .classed('col-md-4 col-lg-3', true)
+                .append('a')
+                .attr('href', '#')
+                .classed('dropdown-item', true)
+                .on('click', selectCountry)
+                .html('Global');
+
+            d3.select('.country-select .row')
+                .selectAll('div')
+                .data(countries)
+                .enter()
+                .append('div')
+                .classed('col-md-4 col-lg-3', true)
+                .append('a')
+                .attr('href', '#')
+                .classed('dropdown-item', true)
                     .on('click', selectCountry)
                     .html(d => d.name);
 

@@ -81,6 +81,7 @@ class CovidDataLoader
 
     constructor(private countryData: CountryData)
     {
+        this.countryNameToCountryCodeMap.set('Bahamas, The', 'BS');
         this.countryNameToCountryCodeMap.set('Martinique', 'FR');
         this.countryNameToCountryCodeMap.set('Taiwan*', 'TW');
         this.countryNameToCountryCodeMap.set('Republic of the Congo', 'CG');
