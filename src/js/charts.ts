@@ -130,7 +130,10 @@ CountryData.load().then(resultCountryData => {
             createGrowthRateChart();
             createMainChart();
 
-            const countries = countryData.getCountries();
+            const countries =
+                data.getCountryCodes()
+                    .filter(countryCode => countryData.getCountry(countryCode) != null)
+                    .map((countryCode => countryData.getCountry(countryCode) as Country));
             countries.sort((a, b) => a.name.localeCompare(b.name));
 
             d3.select('.country-select .row')

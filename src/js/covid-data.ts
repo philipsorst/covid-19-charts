@@ -4,7 +4,11 @@ import * as d3 from "d3";
 
 export class CovidData
 {
-    constructor(private data: Map<string, Map<string, DayData>>, private globalData: Map<string, DayData>, private dates: Date[], private dateStrings: string[])
+    constructor(
+        private data: Map<string, Map<string, DayData>>,
+        private globalData: Map<string, DayData>,
+        private dates: Date[],
+        private dateStrings: string[])
     {
     }
 

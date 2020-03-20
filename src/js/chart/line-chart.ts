@@ -40,16 +40,14 @@ export abstract class LineChart
         this.xAxisSelection = this.plotContainer.append('g')
             .attr('transform', `translate(0,${this.getInnerHeight()})`)
             .call(this.xAxis);
+        this.xAxisSelection.selectAll('.domain').attr('stroke-opacity', 0.125);
 
         this.yScale = this.createYScale(initialYDomain);
 
         this.yAxis = d3.axisLeft(this.yScale) as d3.Axis<number>;
 
-        this.yAxisSelection = this.plotContainer.append('g')
-            .call(this.yAxis);
-        // .call(g => g.selectAll('.tick line').clone() // grid lines
-        //     .attr('stroke-opacity', 0.05)
-        //     .attr('x2', width));
+        this.yAxisSelection = this.plotContainer.append('g').call(this.yAxis);
+        this.yAxisSelection.selectAll('.domain').attr('stroke-opacity', 0.125);
         this.transition = d3.transition().duration(500);
     }
 
@@ -68,9 +66,28 @@ export abstract class LineChart
         this.yScale.domain(this.getYDomain(entries));
         this.yAxis.scale(this.yScale);
 
-        this.xAxisSelection.transition(this.transition).call(this.xAxis);
-        this.yAxisSelection.transition(this.transition)
-            .call(this.yAxis);
+        this.xAxisSelection.selectAll('line.grid').remove();
+        this.xAxisSelection.transition(this.transition).call(this.xAxis)
+            .on('end', () => {
+                this.xAxisSelection.call(g =>
+                    g.selectAll('.tick line').clone()
+                        .classed('grid', true)
+                        .attr('stroke-opacity', 0.05)
+                        .attr('y1', 0)
+                        .attr('y2', -this.getInnerHeight())
+                );
+            });
+
+        this.yAxisSelection.selectAll('line.grid').remove();
+        this.yAxisSelection.transition(this.transition).call(this.yAxis)
+            .on('end', () => {
+                this.yAxisSelection.call(g =>
+                    g.selectAll('.tick line').clone()
+                        .classed('grid', true)
+                        .attr('stroke-opacity', 0.05)
+                        .attr('x2', this.getInnerWidth())
+                );
+            });
     }
 
     protected getInnerWidth(): number
