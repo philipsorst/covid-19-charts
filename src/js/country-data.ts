@@ -67,7 +67,7 @@ export class CountryData
     {
         let code: string | null | undefined = this.nameToCodeMap.get(name);
         if (null == code) {
-            console.warn(`Abbreviation not found for ${name}`);
+            console.warn(`Code not found for ${name}`);
             code = null;
         }
 

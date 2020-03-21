@@ -27,6 +27,7 @@ Encore
     .addEntry('style', './src/scss/style.scss')
     .addEntry('charts', './src/js/charts.ts')
     .addEntry('map', './src/js/map.ts')
+    .addEntry('circlemap', './src/js/circlemap.ts')
     //.addEntry('page1', './assets/js/page1.js')
     //.addEntry('page2', './assets/js/page2.js')
 
