@@ -1,7 +1,7 @@
 import {CountryData} from "./country-data";
 import * as d3 from 'd3';
 import {Utils} from "./utils";
-import {DayData} from "./day-data";
+import {DayDatum} from "./day-datum";
 import {CovidData} from "./covid-data";
 import {Country} from "./country";
 import {DeathRateChart} from "./chart/death-rate-chart";
@@ -26,7 +26,7 @@ let growthRateChart: GrowthRateChart;
 let deathRateChart: DeathRateChart;
 let growthChart: GrowthChart;
 
-function drawInfo(country: Country | null, entry: DayData)
+function drawInfo(country: Country | null, entry: DayDatum)
 {
     d3.select('#info-population').classed('d-none', null == country);
     if (null != country) {

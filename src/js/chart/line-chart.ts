@@ -1,7 +1,7 @@
 import {Margin} from "./margin";
 import * as d3 from "d3";
 import {ChartUtils} from "./chart-utils";
-import {DayData} from "../day-data";
+import {DayDatum} from "../day-datum";
 
 export abstract class LineChart
 {
@@ -58,7 +58,7 @@ export abstract class LineChart
             .range([this.getInnerHeight(), 0]);
     }
 
-    public update(entries: DayData[])
+    public update(entries: DayDatum[])
     {
         this.xScale.domain(this.getXDomain(entries));
         this.xAxis.scale(this.xScale);
@@ -100,10 +100,10 @@ export abstract class LineChart
         return this.height - this.margin.top - this.margin.bottom;
     }
 
-    protected getXDomain(entries: DayData[]): [Date, Date]
+    protected getXDomain(entries: DayDatum[]): [Date, Date]
     {
         return d3.extent(entries, d => d.date) as [Date, Date];
     }
 
-    protected abstract getYDomain(entries: DayData[]): [number, number];
+    protected abstract getYDomain(entries: DayDatum[]): [number, number];
 }

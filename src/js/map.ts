@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import * as TopoJsonClient from 'topojson-client';
 import {CountryData} from "./country-data";
 import {CovidData} from "./covid-data";
-import {DayData} from "./day-data";
+import {DayDatum} from "./day-datum";
 
 require('../scss/map.scss');
 
@@ -23,7 +23,7 @@ interface MapPlot
 {
     name: string,
     range: ReadonlyArray<string>,
-    data: (countryCode: string, dayData: DayData | null, covidData: CovidData, countryData: CountryData) => number | null
+    data: (countryCode: string, dayData: DayDatum | null, covidData: CovidData, countryData: CountryData) => number | null
 }
 
 const pendingPercentagePlot: MapPlot = {

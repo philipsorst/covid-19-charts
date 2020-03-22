@@ -3,7 +3,7 @@ import * as d3 from 'd3';
 import * as TopoJsonClient from 'topojson-client';
 import {CountryData} from "./country-data";
 import {CovidData} from "./covid-data";
-import {DayData} from "./day-data";
+import {DayDatum} from "./day-datum";
 import {Location} from "./location";
 
 require('../scss/map.scss');
@@ -14,17 +14,25 @@ const containerWidth = 1000;
 const svg = container.append("svg")
     .attr('width', containerWidth)
     .attr('height', 500);
+let innerContainer: d3.Selection<SVGGElement, any, any, any>;
 const projection = d3.geoNaturalEarth1();
-console.log(projection.scale());
 const path = d3.geoPath().projection(projection);
 let paths;
 const COLOR_UNKNOWN = '#f0f0f0';
+const zoom = d3.zoom<SVGSVGElement, any>()
+    .scaleExtent([1, 8])
+    .on('zoom', zoomed);
+
+function zoomed()
+{
+    innerContainer.attr('transform', d3.event.transform);
+}
 
 interface MapPlot
 {
     name: string,
     range: ReadonlyArray<string>,
-    data: (countryCode: string, dayData: DayData | null, covidData: CovidData, countryData: CountryData) => number | null
+    data: (countryCode: string, dayData: DayDatum | null, covidData: CovidData, countryData: CountryData) => number | null
 }
 
 const pendingPercentagePlot: MapPlot = {
@@ -165,25 +173,35 @@ CountryData.load().then((countryData) => {
             //     });
 
             let features = TopoJsonClient.feature(worldData, worldData.objects.countries as GeometryCollection).features;
-            svg
+
+            innerContainer = svg.append('g');
+            svg.call(zoom);
+
+            innerContainer
                 .selectAll('path')
                 .data(features)
                 .enter()
                 .append('path')
                 .attr('d', path)
                 .attr('stroke', '#808080')
-                .attr('fill', '#f0f0f0');
+                .attr('fill', '#f0f0f0')
+                .attr('vector-effect', 'non-scaling-stroke');
 
-            let circleData = new Array<{ location: Location, dayData: DayData }>();
-            covidData.getLocationDayDataMap().forEach((value, key) => {
-                circleData.push({
-                    location: key,
-                    dayData: value[value.length - 1]
-                })
+            let circleData = new Array<{ location: Location, dayDatum: DayDatum }>();
+            covidData.getLocations().forEach(location => {
+                const dayData = covidData.fetchLocationDayData(location);
+                if (dayData.length > 0) {
+                    const lastEntry = dayData[dayData.length - 1];
+                    if (lastEntry.getPending() > 0) {
+                        circleData.push({
+                            location: location,
+                            dayDatum: lastEntry
+                        })
+                    }
+                }
             });
-            console.log(circleData);
 
-            svg
+            innerContainer
                 .selectAll('circle')
                 .data(circleData)
                 .enter()
@@ -191,10 +209,11 @@ CountryData.load().then((countryData) => {
                 .attr('cx', 0)
                 .attr('cy', 0)
                 .attr('transform', d => 'translate(' + projection([d.location.long, d.location.lat]) + ')')
-                .attr('r', d => Math.sqrt(d.dayData.getPending()) / 5)
+                .attr('r', d => Math.sqrt(d.dayDatum.getPending()) / 5)
                 // .attr('fill', 'rgba(255,255,255,0.125)')
-                .attr('fill', 'none')
-                .attr('stroke', 'rgba(0,128,255,0.125)');
+                .attr('fill', 'rgba(0,128,255,0.25)')
+                // .attr('stroke', 'rgba(0,128,255,0.125)');
+                .attr('stroke', 'none');
 
             // plotMap(covidData, countryData, features, mapPlot, dateStrings[dateStrings.length - 1]);
         });

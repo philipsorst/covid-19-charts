@@ -1,4 +1,4 @@
-import {DayData} from "../day-data";
+import {DayDatum} from "../day-datum";
 import {Margin} from "./margin";
 import * as d3 from "d3";
 import {LineChart} from "./line-chart";
@@ -28,20 +28,20 @@ export class DeathRateChart extends LineChart
             .attr('stroke-width', 1.5);
     }
 
-    public update(entries: DayData[])
+    public update(entries: DayDatum[])
     {
         super.update(entries);
         this.path
             .datum(entries)
             .transition(this.transition)
-            .attr('d', d3.line<DayData>()
+            .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.getDeathRate()))
             );
         this.pathRolling
             .datum(entries.filter(entry => entry.getMovingAverage(entry.getDeathRate) != null))
             .transition(this.transition)
-            .attr('d', d3.line<DayData>()
+            .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.getMovingAverage(d.getDeathRate) as number))
             );
@@ -50,7 +50,7 @@ export class DeathRateChart extends LineChart
     /**
      * @inheritDoc
      */
-    protected getYDomain(entries: DayData[]): [number, number]
+    protected getYDomain(entries: DayDatum[]): [number, number]
     {
         return [0, d3.max(entries, d => d.getDeathRate()) as number];
     }

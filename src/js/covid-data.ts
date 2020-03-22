@@ -1,6 +1,5 @@
 import {CountryData} from "./country-data";
-import {DayData} from "./day-data";
-// import * as d3 from "d3";
+import {DayDatum} from "./day-datum";
 import * as d3_time_format from "d3-time-format"
 import * as d3_fetch from "d3-fetch"
 import {Location} from "./location";
@@ -8,9 +7,10 @@ import {Location} from "./location";
 export class CovidData
 {
     constructor(
-        private locationDayDataMap: Map<Location, DayData[]>,
-        private countryMap: Map<string, Map<string, DayData>>,
-        private globalMap: Map<string, DayData>,
+        private locationNameLocationMap: Map<string, Location>,
+        private locationNameDayDataMap: Map<string, DayDatum[]>,
+        private countryMap: Map<string, Map<string, DayDatum>>,
+        private globalMap: Map<string, DayDatum>,
         private dates: Date[],
         private dateStrings: string[])
     {
@@ -37,15 +37,22 @@ export class CovidData
 
     public getLocations(): Location[]
     {
-        return Array.from(this.locationDayDataMap.keys());
+        return Array.from(this.locationNameLocationMap.values());
     }
 
-    public getLocationDayDataMap(): Map<Location, DayData[]>
+    public getLocationDayData(location: Location): DayDatum[] | undefined
     {
-        return this.locationDayDataMap;
+        return this.locationNameDayDataMap.get(location.getName());
     }
 
-    public getDayData(countryCode: string): DayData[]
+    public fetchLocationDayData(location: Location): DayDatum[]
+    {
+        const dayData = this.getLocationDayData(location);
+        if (null == dayData) throw 'Day data not found for ' + location.getName();
+        return dayData;
+    }
+
+    public getDayData(countryCode: string): DayDatum[]
     {
         const countryData = this.countryMap.get(countryCode);
         if (null == countryData) throw 'No data found for ' + countryCode;
@@ -55,7 +62,7 @@ export class CovidData
         return arr;
     }
 
-    public getDayDataByDateString(countryCode: string, dateString: string): DayData | null
+    public getDayDataByDateString(countryCode: string, dateString: string): DayDatum | null
     {
         const countryData = this.countryMap.get(countryCode);
         if (null == countryData) throw 'No data found for ' + countryCode;
@@ -66,12 +73,12 @@ export class CovidData
         return dayData;
     }
 
-    public getGlobalDayData(): DayData[]
+    public getGlobalDayData(): DayDatum[]
     {
         return Array.from(this.globalMap.values());
     }
 
-    public getLastDayData(countryCode: string): DayData
+    public getLastDayData(countryCode: string): DayDatum
     {
         const allDayData = this.getDayData(countryCode);
         return allDayData[allDayData.length - 1];
@@ -90,9 +97,10 @@ export class CovidData
 
 class CovidDataLoader
 {
-    private locationDayDataMap = new Map<Location, Map<string, DayData>>();
-    private countryMap = new Map<string, Map<string, DayData>>();
-    private globalMap = new Map<string, DayData>();
+    private locationNameLocationMap = new Map<string, Location>();
+    private locationNameDayDataMap = new Map<string, Map<string, DayDatum>>();
+    private countryMap = new Map<string, Map<string, DayDatum>>();
+    private globalMap = new Map<string, DayDatum>();
     private dateStringSet = new Set<string>();
     private dateParse = d3_time_format.timeParse('%m/%d/%y');
     private dateFormat = d3_time_format.timeFormat('%Y-%m-%d');
@@ -137,12 +145,15 @@ class CovidDataLoader
             return;
         }
 
-        let location: Location = {
-            country: country,
-            province: entry['Province/State'],
-            lat: +entry['Lat'],
-            long: +entry['Long']
-        };
+        let location = new Location(
+            country,
+            entry['Province/State'],
+            +entry['Lat'],
+            +entry['Long']
+        );
+        if (!this.locationNameLocationMap.has(location.getName())) {
+            this.locationNameLocationMap.set(location.getName(), location);
+        }
 
         delete entry['Country/Region'];
         delete entry['Province/State'];
@@ -151,14 +162,14 @@ class CovidDataLoader
 
         let countryMap = this.countryMap.get(countryCode);
         if (null == countryMap) {
-            countryMap = new Map<string, DayData>();
+            countryMap = new Map<string, DayDatum>();
             this.countryMap.set(countryCode, countryMap);
         }
 
-        let locationMap = this.locationDayDataMap.get(location);
-        if (null == locationMap) {
-            locationMap = new Map<string, DayData>();
-            this.locationDayDataMap.set(location, countryMap);
+        let locationDayData = this.locationNameDayDataMap.get(location.getName());
+        if (null == locationDayData) {
+            locationDayData = new Map<string, DayDatum>();
+            this.locationNameDayDataMap.set(location.getName(), locationDayData);
         }
 
         for (let dateString in entry) {
@@ -172,20 +183,20 @@ class CovidDataLoader
 
                     let countryDayData = countryMap.get(transformedDateString);
                     if (null == countryDayData) {
-                        countryDayData = new DayData(date);
+                        countryDayData = new DayDatum(date);
                         countryMap.set(transformedDateString, countryDayData);
                     }
 
                     let globalDayData = this.globalMap.get(transformedDateString);
                     if (null == globalDayData) {
-                        globalDayData = new DayData(date);
+                        globalDayData = new DayDatum(date);
                         this.globalMap.set(transformedDateString, globalDayData);
                     }
 
-                    let locationDayData = locationMap.get(transformedDateString);
-                    if (null == locationDayData) {
-                        locationDayData = new DayData(date);
-                        locationMap.set(transformedDateString, locationDayData);
+                    let locationDayDatum = locationDayData.get(transformedDateString);
+                    if (null == locationDayDatum) {
+                        locationDayDatum = new DayDatum(date);
+                        locationDayData.set(transformedDateString, locationDayDatum);
                     }
 
                     // @ts-ignore
@@ -193,7 +204,7 @@ class CovidDataLoader
                     // @ts-ignore
                     globalDayData[type] += value;
                     // @ts-ignore
-                    locationDayData[type] += value;
+                    locationDayDatum[type] += value;
                 }
             }
         }
@@ -208,16 +219,16 @@ class CovidDataLoader
         return this.countryData.getCode(countryName);
     }
 
-    private postProcess(entries: Map<string, DayData>)
+    private postProcess(entries: Map<string, DayDatum>)
     {
         this.linkEntries(Array.from(entries.values()));
     }
 
-    private linkEntries(arr: DayData[])
+    private linkEntries(arr: DayDatum[])
     {
         arr.sort((a, b) => a.date.getTime() - b.date.getTime());
-        let lastEntry: DayData;
-        arr.forEach((entry: DayData) => {
+        let lastEntry: DayDatum;
+        arr.forEach((entry: DayDatum) => {
             if (null != lastEntry) {
                 entry.previous = lastEntry;
                 lastEntry.next = entry;
@@ -257,12 +268,12 @@ class CovidDataLoader
                     }
                 });
 
-                const locationDayDataArrayMap = new Map<Location, DayData[]>();
-                this.locationDayDataMap.forEach((value, key) => {
-                    locationDayDataArrayMap.set(key, this.linkEntries(Array.from(value.values()) as DayData[]))
+                const locationNameDayDataArrayMap = new Map<string, DayDatum[]>();
+                this.locationNameDayDataMap.forEach((value, key) => {
+                    locationNameDayDataArrayMap.set(key, this.linkEntries(Array.from(value.values()) as DayDatum[]))
                 });
 
-                return new CovidData(locationDayDataArrayMap, this.countryMap, this.globalMap, dates, dateStrings);
+                return new CovidData(this.locationNameLocationMap, locationNameDayDataArrayMap, this.countryMap, this.globalMap, dates, dateStrings);
             });
     }
 }

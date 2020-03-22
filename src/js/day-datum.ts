@@ -1,6 +1,6 @@
 import * as d3 from "d3";
 
-export class DayData
+export class DayDatum
 {
     constructor(public date: Date)
     {
@@ -9,8 +9,8 @@ export class DayData
     deaths: number = 0;
     recovered: number = 0;
     confirmed: number = 0;
-    previous: DayData | null = null;
-    next: DayData | null = null;
+    previous: DayDatum | null = null;
+    next: DayDatum | null = null;
 
     public getPending(): number
     {
@@ -76,8 +76,8 @@ export class DayData
         weightSum += weight;
         values.push(currentValue * weight);
 
-        let currentPrevious: DayData = this;
-        let currentNext: DayData = this;
+        let currentPrevious: DayDatum = this;
+        let currentNext: DayDatum = this;
         for (let i = 0; i < size; i++) {
             if (null == currentPrevious.previous || null == currentNext.next) {
                 return null;

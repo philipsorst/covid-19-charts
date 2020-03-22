@@ -1,7 +1,7 @@
 import {LineChart} from "./line-chart";
 import * as d3 from "d3";
 import {Margin} from "./margin";
-import {DayData} from "../day-data";
+import {DayDatum} from "../day-datum";
 import {Colors} from "./colors";
 
 export class MainChart extends LineChart
@@ -65,21 +65,21 @@ export class MainChart extends LineChart
             .attr("stroke-width", 1.5);
     }
 
-    public update(entries: DayData[])
+    public update(entries: DayDatum[])
     {
         super.update(entries);
 
         this.confirmedPath
             .datum(entries)
             .transition(this.transition)
-            .attr('d', d3.line<DayData>()
+            .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.confirmed))
             );
         this.confirmedRollingPath
             .datum(entries.filter(entry => entry.getMovingAverage(entry.getConfirmed) != null))
             .transition(this.transition)
-            .attr('d', d3.line<DayData>()
+            .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.getMovingAverage(d.getConfirmed) as number))
             );
@@ -87,14 +87,14 @@ export class MainChart extends LineChart
         this.pendingPath
             .datum(entries)
             .transition(this.transition)
-            .attr('d', d3.line<DayData>()
+            .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.getPending()))
             );
         this.pendingRollingPath
             .datum(entries.filter(entry => entry.getMovingAverage(entry.getPending) != null))
             .transition(this.transition)
-            .attr('d', d3.line<DayData>()
+            .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.getMovingAverage(d.getPending) as number))
             );
@@ -102,14 +102,14 @@ export class MainChart extends LineChart
         this.recoveredPath
             .datum(entries)
             .transition(this.transition)
-            .attr('d', d3.line<DayData>()
+            .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.recovered))
             );
         this.recoveredRollingPath
             .datum(entries.filter(entry => entry.getMovingAverage(entry.getRecovered) != null))
             .transition(this.transition)
-            .attr('d', d3.line<DayData>()
+            .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.getMovingAverage(d.getRecovered) as number))
             );
@@ -117,7 +117,7 @@ export class MainChart extends LineChart
         this.deathsPath
             .datum(entries)
             .transition(this.transition)
-            .attr('d', d3.line<DayData>()
+            .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.deaths))
             );
@@ -125,7 +125,7 @@ export class MainChart extends LineChart
         this.deathsRollingPath
             .datum(entries.filter(entry => entry.getMovingAverage(entry.getDeaths) != null))
             .transition(this.transition)
-            .attr('d', d3.line<DayData>()
+            .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.getMovingAverage(d.getDeaths) as number))
             );
@@ -134,7 +134,7 @@ export class MainChart extends LineChart
     /**
      * @inheritDoc
      */
-    protected getYDomain(entries: DayData[]): [number, number]
+    protected getYDomain(entries: DayDatum[]): [number, number]
     {
         return [0, d3.max(entries, d => d.confirmed) as number]
     }

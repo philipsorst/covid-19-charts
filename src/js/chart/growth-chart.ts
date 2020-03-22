@@ -1,5 +1,5 @@
 import {LineChart} from "./line-chart";
-import {DayData} from "../day-data";
+import {DayDatum} from "../day-datum";
 import * as d3 from "d3";
 import {Margin} from "./margin";
 
@@ -26,13 +26,13 @@ export class GrowthChart extends LineChart
     /**
      * @inheritDoc
      */
-    public update(entries: DayData[])
+    public update(entries: DayDatum[])
     {
         super.update(entries);
         this.path
             .datum(entries.filter(entry => entry.getGrowth() != null))
             .transition(this.transition)
-            .attr('d', d3.line<DayData>()
+            .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.getGrowth() as number))
             );
@@ -41,7 +41,7 @@ export class GrowthChart extends LineChart
     /**
      * @inheritDoc
      */
-    protected getYDomain(entries: DayData[]): [number, number]
+    protected getYDomain(entries: DayDatum[]): [number, number]
     {
         return d3.extent(
             entries.filter(entry => entry.getGrowth() != null), d => d.getGrowth()) as [number, number]
