@@ -110,26 +110,22 @@ class CovidDataLoader
     {
         this.countryNameToCountryCodeMap.set('Bahamas, The', 'BS');
         this.countryNameToCountryCodeMap.set('Cabo Verde', 'CV');
-        this.countryNameToCountryCodeMap.set('Martinique', 'FR');
-        this.countryNameToCountryCodeMap.set('Taiwan*', 'CN');
-        this.countryNameToCountryCodeMap.set('Republic of the Congo', 'CG');
-        this.countryNameToCountryCodeMap.set('Dem. Rep. Congo', 'CG');
-        this.countryNameToCountryCodeMap.set('Congo (Brazzaville)', 'CG');
-        this.countryNameToCountryCodeMap.set('Congo (Kinshasa)', 'CG');
-        this.countryNameToCountryCodeMap.set('The Bahamas', 'BS');
-        this.countryNameToCountryCodeMap.set('The Gambia', 'GM');
-        this.countryNameToCountryCodeMap.set('Gambia, The', 'GM');
-        this.countryNameToCountryCodeMap.set('US', 'US');
         this.countryNameToCountryCodeMap.set('China', 'CN');
-        this.countryNameToCountryCodeMap.set('Netherlands', 'NL');
-        this.countryNameToCountryCodeMap.set('Greenland', 'DK');
-        this.countryNameToCountryCodeMap.set('Czechia', 'CZ');
-        this.countryNameToCountryCodeMap.set('Cruise Ship', 'JP');
+        this.countryNameToCountryCodeMap.set('Congo (Brazzaville)', 'CG');
+        this.countryNameToCountryCodeMap.set('Congo (Kinshasa)', 'CD');
         this.countryNameToCountryCodeMap.set('Cote d\'Ivoire', 'CI');
+        this.countryNameToCountryCodeMap.set('Cruise Ship', 'JP');
         this.countryNameToCountryCodeMap.set('Cyprus', 'CY');
+        this.countryNameToCountryCodeMap.set('Czechia', 'CZ');
+        this.countryNameToCountryCodeMap.set('Gambia, The', 'GM');
         this.countryNameToCountryCodeMap.set('Holy See', 'VA');
         this.countryNameToCountryCodeMap.set('Korea, South', 'KR');
         this.countryNameToCountryCodeMap.set('Kosovo', 'RS');
+        this.countryNameToCountryCodeMap.set('Martinique', 'FR');
+        this.countryNameToCountryCodeMap.set('Netherlands', 'NL');
+        // this.countryNameToCountryCodeMap.set('Taiwan*', 'TW');
+        this.countryNameToCountryCodeMap.set('Taiwan*', 'CN');
+        this.countryNameToCountryCodeMap.set('US', 'US');
     }
 
     private addEntry(entry: any, type: string)

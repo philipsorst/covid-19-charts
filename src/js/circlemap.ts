@@ -5,26 +5,28 @@ import {CountryData} from "./country-data";
 import {CovidData} from "./covid-data";
 import {DayDatum} from "./day-datum";
 import {Location} from "./location";
+import {Utils} from "./utils";
 
 require('../scss/map.scss');
 
 let container = d3.select("#map");
-// const containerWidth = container.node().getBoundingClientRect().width;
-const containerWidth = 1000;
+let containerBounds = Utils.getBoundingClientRect(container);
+// const containerWidth = 1000;
 const svg = container.append("svg")
-    .attr('width', containerWidth)
-    .attr('height', 500);
+    .attr('width', containerBounds.width)
+    .attr('height', containerBounds.height);
 let innerContainer: d3.Selection<SVGGElement, any, any, any>;
 const projection = d3.geoNaturalEarth1();
 const path = d3.geoPath().projection(projection);
 let paths;
 const COLOR_UNKNOWN = '#f0f0f0';
 const zoom = d3.zoom<SVGSVGElement, any>()
-    .scaleExtent([1, 8])
+    .scaleExtent([0.5, 8])
     .on('zoom', zoomed);
 
 function zoomed()
 {
+    console.log(d3.event.transform);
     innerContainer.attr('transform', d3.event.transform);
 }
 
@@ -175,7 +177,6 @@ CountryData.load().then((countryData) => {
             let features = TopoJsonClient.feature(worldData, worldData.objects.countries as GeometryCollection).features;
 
             innerContainer = svg.append('g');
-            svg.call(zoom);
 
             innerContainer
                 .selectAll('path')
@@ -186,6 +187,12 @@ CountryData.load().then((countryData) => {
                 .attr('stroke', '#808080')
                 .attr('fill', '#f0f0f0')
                 .attr('vector-effect', 'non-scaling-stroke');
+
+            const resultingBbox = Utils.getBoundingClientRect(innerContainer);
+            const scaleFactor = Math.min(containerBounds.width / resultingBbox.width, containerBounds.height / resultingBbox.height);
+            svg.call(zoom);
+            svg.call(zoom.translateTo, resultingBbox.width / 2, resultingBbox.height / 2);
+            svg.call(zoom.scaleTo, scaleFactor);
 
             let circleData = new Array<{ location: Location, dayDatum: DayDatum }>();
             covidData.getLocations().forEach(location => {
@@ -211,7 +218,7 @@ CountryData.load().then((countryData) => {
                 .attr('transform', d => 'translate(' + projection([d.location.long, d.location.lat]) + ')')
                 .attr('r', d => Math.sqrt(d.dayDatum.getPending()) / 5)
                 // .attr('fill', 'rgba(255,255,255,0.125)')
-                .attr('fill', 'rgba(0,128,255,0.25)')
+                .attr('fill', 'rgba(244,67,54,0.25)')
                 // .attr('stroke', 'rgba(0,128,255,0.125)');
                 .attr('stroke', 'none');
 

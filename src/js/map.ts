@@ -4,6 +4,7 @@ import * as TopoJsonClient from 'topojson-client';
 import {CountryData} from "./country-data";
 import {CovidData} from "./covid-data";
 import {DayDatum} from "./day-datum";
+import {MapCountryCodeMapper} from "./map/map-country-code-mapper";
 
 require('../scss/map.scss');
 
@@ -18,17 +19,20 @@ console.log(projection.scale());
 const path = d3.geoPath().projection(projection);
 let paths;
 const COLOR_UNKNOWN = '#f0f0f0';
+let countryCodeMapper: MapCountryCodeMapper;
 
 interface MapPlot
 {
     name: string,
     range: ReadonlyArray<string>,
     data: (countryCode: string, dayData: DayDatum | null, covidData: CovidData, countryData: CountryData) => number | null
+    scale: d3.ScaleContinuousNumeric<string, string>
 }
 
 const pendingPercentagePlot: MapPlot = {
     name: 'Pending Percentage',
     range: ['#FFEBEE', '#B71C1C'],
+    scale: d3.scaleLog<string, string>(),
     data: (countryCode: string, dayData, covidData, countryData) => {
         let country = countryData.getCountry(countryCode);
         if (null == country || null == dayData || 0 === dayData.getPending()) {
@@ -41,6 +45,7 @@ const pendingPercentagePlot: MapPlot = {
 const deathRatePlot: MapPlot = {
     name: 'Death Rate',
     range: ['#FFEBEE', '#B71C1C'],
+    scale: d3.scaleLinear<string, string>(),
     data: (countryCode: string, dayData, covidData, countryData) => {
         if (null == dayData) {
             return null;
@@ -52,6 +57,7 @@ const deathRatePlot: MapPlot = {
 const growthRatePlot: MapPlot = {
     name: 'Growth Rate',
     range: ['#FFEBEE', '#B71C1C'],
+    scale: d3.scaleLinear<string, string>(),
     data: (countryCode: string, dayData, covidData, countryData) => {
         if (null == dayData) {
             return null;
@@ -63,6 +69,7 @@ const growthRatePlot: MapPlot = {
 const growthChangeRagePlot: MapPlot = {
     name: 'Growth Rate',
     range: ['#FFEBEE', '#B71C1C'],
+    scale: d3.scaleLinear<string, string>(),
     data: (countryCode: string, dayData, covidData, countryData) => {
         if (null == dayData) {
             return null;
@@ -75,6 +82,7 @@ const growthChangeRagePlot: MapPlot = {
 const confirmedPlot: MapPlot = {
     name: 'Confirmed',
     range: ['#FFEBEE', '#B71C1C'],
+    scale: d3.scaleLinear<string, string>(),
     data: (countryCode: string, dayData, covidData, countryData) => {
         if (null == dayData || 0 === dayData.confirmed) {
             return null;
@@ -86,6 +94,7 @@ const confirmedPlot: MapPlot = {
 const recoveredPlot: MapPlot = {
     name: 'Recovered',
     range: ['#FFEBEE', '#80ff80'],
+    scale: d3.scaleLinear<string, string>(),
     data: (countryCode: string, dayData, covidData, countryData) => {
         if (null == dayData) {
             return null;
@@ -97,6 +106,7 @@ const recoveredPlot: MapPlot = {
 const recoveredPercentagePlot: MapPlot = {
     name: 'Recovered',
     range: ['#FFEBEE', '#80ff80'],
+    scale: d3.scaleLinear<string, string>(),
     data: (countryCode: string, dayData, covidData, countryData) => {
         if (null == dayData) {
             return null;
@@ -115,7 +125,7 @@ function plotMap(
     const extents = new Array<[number, number]>();
     features.forEach(feature => {
         const countryName = (feature.properties as { name: string }).name;
-        const countryCode = countryData.getCode(countryName);
+        const countryCode = countryCodeMapper.getCode(countryName);
         if (covidData.hasCountryCode(countryCode) && null != countryCode) {
             const dayData = covidData.getDayData(countryCode);
             extents.push(d3.extent(dayData, d => mapPlot.data(countryCode, d, covidData, countryData)) as [number, number]);
@@ -123,7 +133,7 @@ function plotMap(
     });
     const extent = [d3.min(extents, d => d[0]) as number, d3.max(extents, d => d[1]) as number];
 
-    const color = d3.scaleLinear<string, string>().domain(extent).range(mapPlot.range);
+    const color = mapPlot.scale.domain(extent).range(mapPlot.range);
     paths = svg
         .selectAll('path')
         .data(features)
@@ -131,7 +141,7 @@ function plotMap(
         .duration(0)
         .attr('fill', d => {
             const countryName = (d.properties as { name: string }).name;
-            const countryCode = countryData.getCode(countryName);
+            const countryCode = countryCodeMapper.getCode(countryName);
             if (!covidData.hasCountryCode(countryCode) || null == countryCode) {
                 return COLOR_UNKNOWN;
             }
@@ -147,6 +157,7 @@ function plotMap(
 }
 
 CountryData.load().then((countryData) => {
+    countryCodeMapper = new MapCountryCodeMapper(countryData);
     CovidData.load(countryData).then(covidData => {
         d3.json('./build/world-atlas/countries-110m.json').then(worldData => {
 
