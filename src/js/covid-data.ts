@@ -126,6 +126,7 @@ class CovidDataLoader
         // this.countryNameToCountryCodeMap.set('Taiwan*', 'TW');
         this.countryNameToCountryCodeMap.set('Taiwan*', 'CN');
         this.countryNameToCountryCodeMap.set('US', 'US');
+        this.countryNameToCountryCodeMap.set('Timor-Leste', 'TL');
     }
 
     private addEntry(entry: any, type: string)

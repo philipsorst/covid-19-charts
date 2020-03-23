@@ -4,7 +4,7 @@ import {Margin} from "./margin";
 import {DayDatum} from "../day-datum";
 import {Colors} from "./colors";
 
-export class GrowthRateChart extends LineChart
+export class GrowthChangeChart extends LineChart
 {
     protected path: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected movingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
@@ -21,7 +21,7 @@ export class GrowthRateChart extends LineChart
         super(parent, width, height, margin, initialXDomain, initialYDomain);
 
         this.linearLine = this.plotContainer.append('line')
-            .attr('stroke', Colors.blue["500"]);
+            .attr('stroke', Colors.gray["500"]);
         // .attr('stroke-width', 0.5);
         // .attr('stroke-dasharray', '5');
         this.path = this.plotContainer.append('path')
@@ -39,20 +39,20 @@ export class GrowthRateChart extends LineChart
         super.update(entries);
 
         this.path
-            .datum(entries.filter(entry => entry.getGrowthChangeRate() != null))
+            .datum(entries.filter(entry => entry.getGrowthChange() != null))
             .transition(this.transition)
             .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getGrowthChangeRate() as number))
+                .y(d => this.yScale(d.getGrowthChange() as number))
             );
 
         const movingWindowSize = 3;
         this.movingPath
-            .datum(entries.filter(entry => entry.getMovingAverage(entry.getGrowthChangeRate, movingWindowSize) != null))
+            .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getGrowthChange, movingWindowSize) != null))
             .transition(this.transition)
             .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getMovingAverage(d.getGrowthChangeRate, movingWindowSize) as number))
+                .y(d => this.yScale(d.getMovingAverageCentered(d.getGrowthChange, movingWindowSize) as number))
                 .curve(d3.curveMonotoneX)
             );
 
@@ -60,8 +60,8 @@ export class GrowthRateChart extends LineChart
             .transition(this.transition)
             .attr('x1', this.xScale.range()[0])
             .attr('x2', this.xScale.range()[1])
-            .attr('y1', this.yScale(1))
-            .attr('y2', this.yScale(1));
+            .attr('y1', this.yScale(0))
+            .attr('y2', this.yScale(0));
     }
 
     /**
@@ -70,8 +70,8 @@ export class GrowthRateChart extends LineChart
     protected getYDomain(entries: DayDatum[]): [number, number]
     {
         return d3.extent(
-            entries.filter(entry => entry.getGrowthChangeRate() != null),
-            d => d.getGrowthChangeRate()
+            entries.filter(entry => entry.getGrowthChange() != null),
+            d => d.getGrowthChange()
         ) as [number, number]
     }
 
@@ -81,6 +81,7 @@ export class GrowthRateChart extends LineChart
     protected createYScale(initialYDomain: [number, number]): d3.ScaleContinuousNumeric<number, number>
     {
         return d3.scaleSymlog()
+            // return d3.scaleLinear()
             .domain(initialYDomain)
             .range([this.getInnerHeight(), 0])
     }

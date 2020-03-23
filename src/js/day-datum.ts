@@ -66,6 +66,29 @@ export class DayDatum
     public getMovingAverage(accessor: () => (number | null), size: number = 1): number | null
     {
         const values = new Array<number>();
+        let current: DayDatum = this;
+        let weightSum = 0;
+        for (let i = 0; i <= size; i++) {
+            console.log(i);
+            let currentValue = accessor.call(current);
+            if (null == currentValue) {
+                return null;
+            }
+            if (null == current.previous) {
+                return null;
+            }
+            const weight = size + 1 - 1;
+            values.push(currentValue * weight);
+            weightSum += weight;
+            current = current.previous;
+        }
+
+        return d3.sum(values) as number / weightSum;
+    }
+
+    public getMovingAverageCentered(accessor: () => (number | null), size: number = 1): number | null
+    {
+        const values = new Array<number>();
         const currentValue = accessor.call(this);
         let weight = 0;
         let weightSum = 0;
@@ -109,6 +132,7 @@ export class DayDatum
         if (null == this.previous) {
             return null;
         }
+
         return this.confirmed - this.previous.confirmed;
     }
 
@@ -117,8 +141,8 @@ export class DayDatum
         if (null == this.previous) {
             return null;
         }
-        const previousGrowth = this.getGrowth();
-        const currentGrowth = this.previous.getGrowth();
+        const currentGrowth = this.getGrowth();
+        const previousGrowth = this.previous.getGrowth();
         if (null == previousGrowth || null == currentGrowth) {
             return null;
         }
