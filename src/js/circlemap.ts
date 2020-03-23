@@ -26,7 +26,6 @@ const zoom = d3.zoom<SVGSVGElement, any>()
 
 function zoomed()
 {
-    console.log(d3.event.transform);
     innerContainer.attr('transform', d3.event.transform);
 }
 

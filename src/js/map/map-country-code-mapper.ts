@@ -33,8 +33,6 @@ export class MapCountryCodeMapper
         this.countryCodeMap.set('Macedonia', 'MK');
         this.countryCodeMap.set('Kosovo', 'RS');
         this.countryCodeMap.set('S. Sudan', 'SS');
-
-
     }
 
     public getCode(name: string): string | null
