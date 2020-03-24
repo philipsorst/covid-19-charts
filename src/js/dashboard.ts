@@ -16,37 +16,14 @@ require('../scss/charts.scss');
 class Dashboard
 {
     private contentSelection: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
-    private countryData: CountryData | undefined;
-    private covidData: CovidData | undefined;
-    private worldData: any | undefined;
     private plotMargin = new Margin(5, 1, 30, 60);
+    private mainChart!: MainChart;
+    private growthChangeChart!: GrowthChangeChart;
+    private deathRateChart!: DeathRateChart;
 
-    constructor()
+    constructor(private covidData: CovidData, private counryData: CountryData, private worldData: any)
     {
         this.contentSelection = d3_select('#content');
-        this.contentSelection.append('div').classed('text-center col-12', true).html('Loading...');
-        this.loadData().then(() => {
-            this.contentSelection.selectAll('*').remove();
-            this.createElements();
-        });
-    }
-
-    private loadData(): Promise<any>
-    {
-        return CountryData.load().then(countryData => {
-            return Promise.all([
-                CovidData.load(countryData),
-                d3_json('./build/world-atlas/countries-110m.json')
-            ]).then(([covidData, worldData]) => {
-                this.countryData = countryData;
-                this.covidData = covidData;
-                this.worldData = worldData;
-            });
-        });
-    }
-
-    private createElements()
-    {
         this.createElementMap();
         this.createElementCharts();
     }
@@ -68,6 +45,10 @@ class Dashboard
         this.createElementGrowthChangeChart(chartsContainer);
         this.createDeathRateChart(chartsContainer);
         this.createElementMainChart(chartsContainer);
+
+        this.mainChart.update(this.covidData.getGlobalDayData());
+        this.deathRateChart.update(this.covidData.getGlobalDayData());
+        this.growthChangeChart.update(this.covidData.getGlobalDayData());
     }
 
     private createElementMainChart(chartsContainer: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>)
@@ -80,9 +61,8 @@ class Dashboard
 
         let mainChartContainer = mainChartSection.append('div').classed('flex-lg-grow-1', true);
 
-
         const boundingClientRect = Utils.getBoundingClientRect(mainChartContainer);
-        new MainChart(
+        this.mainChart = new MainChart(
             mainChartContainer,
             boundingClientRect.width,
             boundingClientRect.height < 150 ? 150 : boundingClientRect.height,
@@ -104,7 +84,7 @@ class Dashboard
 
 
         const boundingClientRect = Utils.getBoundingClientRect(divSelection);
-        new GrowthChangeChart(
+        this.growthChangeChart = new GrowthChangeChart(
             divSelection,
             boundingClientRect.width,
             150,
@@ -125,7 +105,7 @@ class Dashboard
         let divSelection = sectionSelection.append('div').classed('flex-lg-grow-1', true);
 
         const boundingClientRect = Utils.getBoundingClientRect(divSelection);
-        new DeathRateChart(
+        this.deathRateChart = new DeathRateChart(
             divSelection,
             boundingClientRect.width,
             150,
@@ -141,4 +121,23 @@ class Dashboard
     }
 }
 
-new Dashboard();
+class DashboardLoader
+{
+    public static load(): Promise<{ covidData: CovidData, countryData: CountryData, worldData: any }>
+    {
+        return CountryData.load().then(countryData => {
+            return Promise.all([
+                CovidData.load(countryData),
+                d3_json('./build/world-atlas/countries-110m.json')
+            ]).then(([covidData, worldData]) => {
+                return {covidData, countryData, worldData};
+            })
+        });
+    }
+}
+
+d3_select('#content').append('div').classed('text-center col-12', true).html('Loading...');
+DashboardLoader.load().then(data => {
+    d3_select('#content').selectAll('*').remove();
+    new Dashboard(data.covidData, data.countryData, data.worldData);
+});

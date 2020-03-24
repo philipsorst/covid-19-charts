@@ -32,13 +32,15 @@ export class CircleMap
             .attr('vector-effect', 'non-scaling-stroke');
 
         const resultingBbox = Utils.getBoundingClientRect(this.innerContainer);
-        console.log(resultingBbox);
-        const scaleFactor = Math.min(containerBounds.width / resultingBbox.width, containerBounds.height / resultingBbox.height);
+        const scaleFactor = Math.min(
+            containerBounds.width / resultingBbox.width,
+            containerBounds.height / resultingBbox.height
+        );
 
-        let circleMap = this;
         const zoom = d3.zoom<SVGSVGElement, any>()
             .scaleExtent([0.5, 8])
             .on('zoom', () => this.innerContainer.attr('transform', d3.event.transform));
+
         svg.call(zoom);
         svg.call(zoom.translateTo, resultingBbox.width / 2, resultingBbox.height / 2);
         svg.call(zoom.scaleTo, scaleFactor);
