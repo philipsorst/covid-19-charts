@@ -10,6 +10,9 @@ import * as d3 from "d3";
 import {Margin} from "./chart/margin";
 import {GrowthChangeChart} from "./chart/growth-change-chart";
 import {DeathRateChart} from "./chart/death-rate-chart";
+import {Location} from "./location";
+import {DayDatum} from "./day-datum";
+import {InfoPanel} from "./chart/info-panel";
 
 require('../scss/charts.scss');
 
@@ -20,21 +23,49 @@ class Dashboard
     private mainChart!: MainChart;
     private growthChangeChart!: GrowthChangeChart;
     private deathRateChart!: DeathRateChart;
+    private circleMap!: CircleMap;
+    private infoPanel!: InfoPanel;
 
     constructor(private covidData: CovidData, private counryData: CountryData, private worldData: any)
     {
         this.contentSelection = d3_select('#content');
-        this.createElementMap();
+
+        let leftColumnSelection = this.contentSelection.append('div')
+            .classed('col-lg-5 d-lg-flex flex-lg-column', true);
+        this.createInfo(leftColumnSelection);
+        this.createElementMap(leftColumnSelection);
+
         this.createElementCharts();
     }
 
-    private createElementMap()
+    private createInfo<T extends HTMLElement>(parentSelection: d3.Selection<T, unknown, HTMLElement, any>)
     {
-        let mapContainer = this.contentSelection.append('div')
-            .classed('col-lg-5 d-lg-flex flex-lg-column', true)
-            .append('div')
+        let divSelection = parentSelection.append('div')
+            .classed('d-flex flex-lg-row text-center', true)
+            .datum(this.covidData.getGlobalDayData()[this.covidData.getGlobalDayData().length - 1]);
+        this.infoPanel = new InfoPanel(divSelection);
+    }
+
+    private createElementMap<T extends HTMLElement>(parentSelection: d3.Selection<T, unknown, HTMLElement, any>)
+    {
+        let divSelection = parentSelection.append('div')
             .classed('flex-lg-grow-1', true);
-        new CircleMap(mapContainer, this.worldData);
+        this.circleMap = new CircleMap(divSelection, this.worldData);
+
+        let circleData = new Array<{ location: Location, dayDatum: DayDatum }>();
+        this.covidData.getLocations().forEach(location => {
+            const dayData = this.covidData.fetchLocationDayData(location);
+            if (dayData.length > 0) {
+                const lastEntry = dayData[dayData.length - 1];
+                if (lastEntry.getPending() > 0) {
+                    circleData.push({
+                        location: location,
+                        dayDatum: lastEntry
+                    })
+                }
+            }
+        });
+        this.circleMap.update(circleData);
     }
 
     private createElementCharts()
