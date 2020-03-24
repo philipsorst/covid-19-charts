@@ -8,6 +8,8 @@ import {MainChart} from "./chart/main-chart";
 import {Utils} from "./utils";
 import * as d3 from "d3";
 import {Margin} from "./chart/margin";
+import {GrowthChangeChart} from "./chart/growth-change-chart";
+import {DeathRateChart} from "./chart/death-rate-chart";
 
 require('../scss/charts.scss');
 
@@ -63,6 +65,8 @@ class Dashboard
         let chartsContainer = this.contentSelection.append('div')
             .classed('col-lg-7 d-lg-flex flex-lg-column', true);
 
+        this.createElementGrowthChangeChart(chartsContainer);
+        this.createDeathRateChart(chartsContainer);
         this.createElementMainChart(chartsContainer);
     }
 
@@ -85,6 +89,49 @@ class Dashboard
             this.plotMargin,
             d3.extent(this.getCovidData().getGlobalDayData(), d => d.date) as [Date, Date],
             [0, d3.max(this.getCovidData().getGlobalDayData(), d => d.confirmed) as number]
+        );
+    }
+
+    private createElementGrowthChangeChart(chartsContainer: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>)
+    {
+        let sectionSelection = chartsContainer
+            .append('section')
+            .classed('d-lg-flex flex-lg-column mb-4', true);
+
+        sectionSelection.append('h3').classed('text-center mb-1', true).html('Growth Change');
+
+        let divSelection = sectionSelection.append('div').classed('flex-lg-grow-1', true);
+
+
+        const boundingClientRect = Utils.getBoundingClientRect(divSelection);
+        new GrowthChangeChart(
+            divSelection,
+            boundingClientRect.width,
+            150,
+            this.plotMargin,
+            d3.extent(this.getCovidData().getGlobalDayData(), d => d.date) as [Date, Date],
+            [0, d3.max(this.getCovidData().getGlobalDayData(), d => d.getGrowthChange()) as number]
+        );
+    }
+
+    private createDeathRateChart(chartsContainer: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>)
+    {
+        let sectionSelection = chartsContainer
+            .append('section')
+            .classed('d-lg-flex flex-lg-column mb-4', true);
+
+        sectionSelection.append('h3').classed('text-center mb-1', true).html('Death Rate');
+
+        let divSelection = sectionSelection.append('div').classed('flex-lg-grow-1', true);
+
+        const boundingClientRect = Utils.getBoundingClientRect(divSelection);
+        new DeathRateChart(
+            divSelection,
+            boundingClientRect.width,
+            150,
+            this.plotMargin,
+            d3.extent(this.getCovidData().getGlobalDayData(), d => d.date) as [Date, Date],
+            [0, d3.max(this.getCovidData().getGlobalDayData(), d => d.getDeathRate()) as number]
         );
     }
 
