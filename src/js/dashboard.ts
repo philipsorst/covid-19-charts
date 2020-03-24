@@ -4,7 +4,6 @@ import {select as d3_select} from 'd3-selection';
 
 import {CountryData} from "./country-data";
 import {CovidData} from "./covid-data";
-import {MainChart} from "./chart/main-chart";
 import {Utils} from "./utils";
 import * as d3 from "d3";
 import {Margin} from "./chart/margin";
@@ -13,6 +12,7 @@ import {DeathRateChart} from "./chart/death-rate-chart";
 import {Location} from "./location";
 import {DayDatum} from "./day-datum";
 import {InfoPanel} from "./chart/info-panel";
+import {MainChartStacked} from "./chart/main-chart-stacked";
 
 require('../scss/charts.scss');
 
@@ -20,7 +20,7 @@ class Dashboard
 {
     private contentSelection: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
     private plotMargin = new Margin(5, 1, 30, 60);
-    private mainChart!: MainChart;
+    private mainChart!: MainChartStacked;
     private growthChangeChart!: GrowthChangeChart;
     private deathRateChart!: DeathRateChart;
     private circleMap!: CircleMap;
@@ -93,7 +93,7 @@ class Dashboard
         let mainChartContainer = mainChartSection.append('div').classed('flex-lg-grow-1', true);
 
         const boundingClientRect = Utils.getBoundingClientRect(mainChartContainer);
-        this.mainChart = new MainChart(
+        this.mainChart = new MainChartStacked(
             mainChartContainer,
             boundingClientRect.width,
             boundingClientRect.height < 150 ? 150 : boundingClientRect.height,
