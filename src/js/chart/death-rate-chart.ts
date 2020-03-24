@@ -1,9 +1,9 @@
 import {DayDatum} from "../day-datum";
 import {Margin} from "./margin";
 import * as d3 from "d3";
-import {LineChart} from "./line-chart";
+import {AxisChart} from "./axis-chart";
 
-export class DeathRateChart extends LineChart
+export class DeathRateChart extends AxisChart
 {
     protected path: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected pathRolling: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;

@@ -1,10 +1,10 @@
-import {LineChart} from "./line-chart";
+import {AxisChart} from "./axis-chart";
 import * as d3 from "d3";
 import {Margin} from "./margin";
 import {DayDatum} from "../day-datum";
 import {Colors} from "./colors";
 
-export class GrowthChangeChart extends LineChart
+export class GrowthChangeChart extends AxisChart
 {
     protected path: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected movingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;

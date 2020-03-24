@@ -3,7 +3,7 @@ import * as d3 from "d3";
 import {ChartUtils} from "./chart-utils";
 import {DayDatum} from "../day-datum";
 
-export abstract class LineChart
+export abstract class AxisChart
 {
     protected width: number;
     protected height: number;
