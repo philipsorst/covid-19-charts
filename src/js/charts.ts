@@ -33,15 +33,15 @@ function drawInfo(country: Country | null, entry: DayDatum)
         d3.select('#info-num-population').html(d3.format(".2s")(country.population));
     }
     d3.select('#info-num-confirmed').html(d3.format(",")(entry.confirmed));
-    d3.select('#info-num-recovered')
-        .style('color', Colors.green["700"])
-        .html(d3.format(",")(entry.recovered));
+    // d3.select('#info-num-recovered')
+    //     .style('color', Colors.green["700"])
+    //     .html(d3.format(",")(entry.recovered));
     d3.select('#info-num-deaths')
         .style('color', Colors.red["700"])
         .html(d3.format(",")(entry.deaths));
-    d3.select('#info-num-pending')
-        .style('color', Colors.blue["700"])
-        .html(d3.format(",")(entry.getPending()));
+    // d3.select('#info-num-pending')
+    //     .style('color', Colors.blue["700"])
+    //     .html(d3.format(",")(entry.getPending()));
     d3.select('#info-death-rate').html(d3.format(".2%")(entry.getDeathRate()));
 }
 

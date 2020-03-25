@@ -26,11 +26,11 @@ export class GrowthChangeChart extends AxisChart
         // .attr('stroke-dasharray', '5');
         this.path = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', Colors.gray["300"])
+            .attr('stroke', Colors.blue["200"])
             .attr('stroke-width', 1.5);
         this.movingPath = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', Colors.gray["700"])
+            .attr('stroke', Colors.blue["700"])
             .attr('stroke-width', 1.5);
     }
 

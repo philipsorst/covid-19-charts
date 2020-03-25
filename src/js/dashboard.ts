@@ -12,7 +12,7 @@ import {DeathRateChart} from "./chart/death-rate-chart";
 import {Location} from "./location";
 import {DayDatum} from "./day-datum";
 import {InfoPanel} from "./chart/info-panel";
-import {MainChartStacked} from "./chart/main-chart-stacked";
+import {MainChart} from "./chart/main-chart";
 
 require('../scss/charts.scss');
 
@@ -20,7 +20,7 @@ class Dashboard
 {
     private contentSelection: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
     private plotMargin = new Margin(5, 1, 30, 60);
-    private mainChart!: MainChartStacked;
+    private mainChart!: MainChart;
     private growthChangeChart!: GrowthChangeChart;
     private deathRateChart!: DeathRateChart;
     private circleMap!: CircleMap;
@@ -40,9 +40,10 @@ class Dashboard
 
     private createInfo<T extends HTMLElement>(parentSelection: d3.Selection<T, unknown, HTMLElement, any>)
     {
+        const lastEntry = this.covidData.getGlobalDayData()[this.covidData.getGlobalDayData().length - 1];
         let divSelection = parentSelection.append('div')
             .classed('d-flex flex-lg-row text-center', true)
-            .datum(this.covidData.getGlobalDayData()[this.covidData.getGlobalDayData().length - 1]);
+            .datum(lastEntry);
         this.infoPanel = new InfoPanel(divSelection);
     }
 
@@ -93,7 +94,7 @@ class Dashboard
         let mainChartContainer = mainChartSection.append('div').classed('flex-lg-grow-1', true);
 
         const boundingClientRect = Utils.getBoundingClientRect(mainChartContainer);
-        this.mainChart = new MainChartStacked(
+        this.mainChart = new MainChart(
             mainChartContainer,
             boundingClientRect.width,
             boundingClientRect.height < 150 ? 150 : boundingClientRect.height,

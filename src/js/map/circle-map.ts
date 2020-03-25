@@ -59,7 +59,7 @@ export class CircleMap
             .attr('cx', 0)
             .attr('cy', 0)
             .attr('transform', d => 'translate(' + this.projection([d.location.long, d.location.lat]) + ')')
-            .attr('r', d => Math.sqrt(d.dayDatum.getPending()) / 5)
+            .attr('r', d => Math.sqrt(d.dayDatum.confirmed) / 5)
             // .attr('fill', 'rgba(255,255,255,0.125)')
             .attr('fill', 'rgba(244,67,54,0.25)')
             // .attr('stroke', 'rgba(0,128,255,0.125)');

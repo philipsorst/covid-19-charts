@@ -2,6 +2,7 @@ import {DayDatum} from "../day-datum";
 import {Margin} from "./margin";
 import * as d3 from "d3";
 import {AxisChart} from "./axis-chart";
+import {Colors} from "./colors";
 
 export class DeathRateChart extends AxisChart
 {
@@ -20,11 +21,11 @@ export class DeathRateChart extends AxisChart
 
         this.path = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', '#E0E0E0')
+            .attr('stroke', Colors.blue["200"])
             .attr('stroke-width', 1.5);
         this.pathRolling = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', '#616161')
+            .attr('stroke', Colors.blue["700"])
             .attr('stroke-width', 1.5);
     }
 

@@ -75,7 +75,10 @@ export class CovidData
 
     public getGlobalDayData(): DayDatum[]
     {
-        return Array.from(this.globalMap.values());
+        const arr = Array.from(this.globalMap.values());
+        arr.sort((a, b) => a.date.getTime() - b.date.getTime());
+
+        return arr;
     }
 
     public getLastDayData(countryCode: string): DayDatum
@@ -114,7 +117,7 @@ class CovidDataLoader
         this.countryNameToCountryCodeMap.set('Congo (Brazzaville)', 'CG');
         this.countryNameToCountryCodeMap.set('Congo (Kinshasa)', 'CD');
         this.countryNameToCountryCodeMap.set('Cote d\'Ivoire', 'CI');
-        this.countryNameToCountryCodeMap.set('Cruise Ship', 'JP');
+        this.countryNameToCountryCodeMap.set('Diamond Princess', 'JP');
         this.countryNameToCountryCodeMap.set('Cyprus', 'CY');
         this.countryNameToCountryCodeMap.set('Czechia', 'CZ');
         this.countryNameToCountryCodeMap.set('Gambia, The', 'GM');
@@ -238,17 +241,22 @@ class CovidDataLoader
 
     public load(): Promise<CovidData>
     {
+        // const urls = {
+        //     confirmed: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv',
+        //     recovered: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv',
+        //     deaths: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv',
+        // };
+
         const urls = {
-            confirmed: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv',
-            recovered: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv',
-            deaths: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv',
+            confirmed: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv',
+            deaths: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv',
         };
 
-        return Promise.all([d3_fetch.csv(urls.confirmed), d3_fetch.csv(urls.recovered), d3_fetch.csv(urls.deaths)])
-            .then(([confirmed, recovered, deaths]) => {
+        return Promise.all([d3_fetch.csv(urls.confirmed), /*d3_fetch.csv(urls.recovered), */d3_fetch.csv(urls.deaths)])
+            .then(([confirmed, /*recovered, */deaths]) => {
 
                 confirmed.forEach((entry: any) => this.addEntry(entry, 'confirmed'));
-                recovered.forEach((entry: any) => this.addEntry(entry, 'recovered'));
+                /*recovered.forEach((entry: any) => this.addEntry(entry, 'recovered'));*/
                 deaths.forEach((entry: any) => this.addEntry(entry, 'deaths'));
 
                 this.countryMap.forEach((entries) => this.postProcess(entries));

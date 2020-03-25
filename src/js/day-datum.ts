@@ -19,10 +19,15 @@ export class DayDatum
 
     public getDeathRate(): number
     {
-        if (this.deaths + this.recovered === 0) {
+        // if (this.deaths + this.recovered === 0) {
+        //     return 0;
+        // }
+        // return this.deaths / (this.deaths + this.recovered);
+        if (this.confirmed === 0) {
             return 0;
         }
-        return this.deaths / (this.deaths + this.recovered);
+
+        return this.deaths / this.confirmed;
     }
 
     public getConfirmedGrowthRate(): number

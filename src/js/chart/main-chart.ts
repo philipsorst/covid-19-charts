@@ -9,11 +9,11 @@ export class MainChart extends AxisChart
     protected confirmedPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected confirmedRollingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
 
-    protected pendingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected pendingRollingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    // protected pendingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    // protected pendingRollingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
 
-    protected recoveredPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected recoveredRollingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    // protected recoveredPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    // protected recoveredRollingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
 
     protected deathsPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected deathsRollingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
@@ -30,30 +30,30 @@ export class MainChart extends AxisChart
 
         this.confirmedPath = this.plotContainer.append('path')
             .attr('fill', "none")
-            .attr('stroke', Colors.gray["300"])
+            .attr('stroke', Colors.blue["200"])
             .attr('stroke-width', 1.5);
         this.confirmedRollingPath = this.plotContainer.append('path')
             .attr('fill', "none")
-            .attr('stroke', Colors.gray["700"])
+            .attr('stroke', Colors.blue["700"])
             .attr('stroke-width', 1.5);
 
-        this.pendingPath = this.plotContainer.append('path')
-            .attr('fill', 'none')
-            .attr('stroke', Colors.blue["300"])
-            .attr("stroke-width", 1.5);
-        this.pendingRollingPath = this.plotContainer.append('path')
-            .attr('fill', 'none')
-            .attr('stroke', Colors.blue["700"])
-            .attr("stroke-width", 1.5);
+        // this.pendingPath = this.plotContainer.append('path')
+        //     .attr('fill', 'none')
+        //     .attr('stroke', Colors.blue["300"])
+        //     .attr("stroke-width", 1.5);
+        // this.pendingRollingPath = this.plotContainer.append('path')
+        //     .attr('fill', 'none')
+        //     .attr('stroke', Colors.blue["700"])
+        //     .attr("stroke-width", 1.5);
 
-        this.recoveredPath = this.plotContainer.append("path")
-            .attr("fill", "none")
-            .attr("stroke", Colors.green["300"])
-            .attr("stroke-width", 1.5);
-        this.recoveredRollingPath = this.plotContainer.append("path")
-            .attr("fill", "none")
-            .attr("stroke", Colors.green["700"])
-            .attr("stroke-width", 1.5);
+        // this.recoveredPath = this.plotContainer.append("path")
+        //     .attr("fill", "none")
+        //     .attr("stroke", Colors.green["300"])
+        //     .attr("stroke-width", 1.5);
+        // this.recoveredRollingPath = this.plotContainer.append("path")
+        //     .attr("fill", "none")
+        //     .attr("stroke", Colors.green["700"])
+        //     .attr("stroke-width", 1.5);
 
         this.deathsPath = this.plotContainer.append("path")
             .attr("fill", "none")
@@ -84,35 +84,35 @@ export class MainChart extends AxisChart
                 .y(d => this.yScale(d.getMovingAverageCentered(d.getConfirmed) as number))
             );
 
-        this.pendingPath
-            .datum(entries)
-            .transition(this.transition)
-            .attr('d', d3.line<DayDatum>()
-                .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getPending()))
-            );
-        this.pendingRollingPath
-            .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getPending) != null))
-            .transition(this.transition)
-            .attr('d', d3.line<DayDatum>()
-                .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getMovingAverageCentered(d.getPending) as number))
-            );
+        // this.pendingPath
+        //     .datum(entries)
+        //     .transition(this.transition)
+        //     .attr('d', d3.line<DayDatum>()
+        //         .x(d => this.xScale(d.date))
+        //         .y(d => this.yScale(d.getPending()))
+        //     );
+        // this.pendingRollingPath
+        //     .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getPending) != null))
+        //     .transition(this.transition)
+        //     .attr('d', d3.line<DayDatum>()
+        //         .x(d => this.xScale(d.date))
+        //         .y(d => this.yScale(d.getMovingAverageCentered(d.getPending) as number))
+        //     );
 
-        this.recoveredPath
-            .datum(entries)
-            .transition(this.transition)
-            .attr('d', d3.line<DayDatum>()
-                .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.recovered))
-            );
-        this.recoveredRollingPath
-            .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getRecovered) != null))
-            .transition(this.transition)
-            .attr('d', d3.line<DayDatum>()
-                .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getMovingAverageCentered(d.getRecovered) as number))
-            );
+        // this.recoveredPath
+        //     .datum(entries)
+        //     .transition(this.transition)
+        //     .attr('d', d3.line<DayDatum>()
+        //         .x(d => this.xScale(d.date))
+        //         .y(d => this.yScale(d.recovered))
+        //     );
+        // this.recoveredRollingPath
+        //     .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getRecovered) != null))
+        //     .transition(this.transition)
+        //     .attr('d', d3.line<DayDatum>()
+        //         .x(d => this.xScale(d.date))
+        //         .y(d => this.yScale(d.getMovingAverageCentered(d.getRecovered) as number))
+        //     );
 
         this.deathsPath
             .datum(entries)

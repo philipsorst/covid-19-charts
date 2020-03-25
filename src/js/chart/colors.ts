@@ -6,6 +6,7 @@ export class Colors
     };
 
     public static blue = {
+        200: '#90CAF9',
         300: '#64B5F6',
         400: '#42A5F5',
         500: '#2196F3',
