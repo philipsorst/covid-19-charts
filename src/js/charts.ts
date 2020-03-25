@@ -6,7 +6,7 @@ import {CovidData} from "./covid-data";
 import {Country} from "./country";
 import {DeathRateChart} from "./chart/death-rate-chart";
 import {Margin} from "./chart/margin";
-import {GrowthChangeChart} from "./chart/growth-change-chart";
+import {GrowthPercentageChangeChart} from "./chart/growth-percentage-change-chart";
 import {MainChart} from "./chart/main-chart";
 import {GrowthChart} from "./chart/growth-chart";
 import {Colors} from "./chart/colors";
@@ -22,7 +22,7 @@ const COUNTRY_CODE_GLOBAL = 'GLOBAL';
 let currentCountry: Country | null;
 
 let mainChart: MainChart;
-let growthRateChart: GrowthChangeChart;
+let growthRateChart: GrowthPercentageChangeChart;
 let deathRateChart: DeathRateChart;
 let growthChart: GrowthChart;
 
@@ -93,7 +93,7 @@ function createGrowthRateChart()
     parentSelection.selectAll('*').remove();
     const boundingClientRect = Utils.getBoundingClientRect(parentSelection);
     // const totalHeight = plotContainer.node().getBoundingClientRect().height;
-    growthRateChart = new GrowthChangeChart(parentSelection, boundingClientRect.width, growthDeathRateHeight, plotMargin,
+    growthRateChart = new GrowthPercentageChangeChart(parentSelection, boundingClientRect.width, growthDeathRateHeight, plotMargin,
         d3.extent(data.getGlobalDayData(), d => d.date) as [Date, Date],
         [0, d3.max(data.getGlobalDayData(), d => d.getConfirmedGrowthRate()) as number]);
 }

@@ -105,7 +105,8 @@ class CovidDataLoader
     private countryMap = new Map<string, Map<string, DayDatum>>();
     private globalMap = new Map<string, DayDatum>();
     private dateStringSet = new Set<string>();
-    private dateParse = d3_time_format.timeParse('%m/%d/%y');
+    private dateParseLongYear = d3_time_format.timeParse('%m/%d/%Y');
+    private dateParseShortYear = d3_time_format.timeParse('%m/%d/%y');
     private dateFormat = d3_time_format.timeFormat('%Y-%m-%d');
     private countryNameToCountryCodeMap = new Map<string, string>();
 
@@ -130,6 +131,7 @@ class CovidDataLoader
         this.countryNameToCountryCodeMap.set('Taiwan*', 'CN');
         this.countryNameToCountryCodeMap.set('US', 'US');
         this.countryNameToCountryCodeMap.set('Timor-Leste', 'TL');
+        this.countryNameToCountryCodeMap.set('The West Bank and Gaza', 'IL');
     }
 
     private addEntry(entry: any, type: string)
@@ -176,8 +178,12 @@ class CovidDataLoader
             if (entry.hasOwnProperty(dateString)) {
                 const value = +entry[dateString];
                 if (value > 0) {
-                    const date = this.dateParse(dateString);
-                    if (null == date) throw 'Date could not be parsed';
+                    let date = this.dateParseShortYear(dateString);
+                    if (null == date) {
+                        console.warn('Date could not be parsed: ' + dateString);
+                        date = this.dateParseLongYear(dateString);
+                    }
+                    if (null == date) throw 'Date could not be parsed: ' + dateString;
                     const transformedDateString = this.dateFormat(date);
                     this.dateStringSet.add(transformedDateString);
 

@@ -155,6 +155,35 @@ export class DayDatum
         return currentGrowth - previousGrowth;
     }
 
+    public getGrowthPercentage(): number | null
+    {
+        if (null == this.previous) {
+            return null;
+        }
+
+        if (this.previous.confirmed === 0) {
+            return 0;
+        }
+
+        const change = this.confirmed - this.previous.confirmed;
+
+        return change / this.previous.confirmed;
+    }
+
+    public getGrowthPercentageChange(): number | null
+    {
+        if (null == this.previous) {
+            return null;
+        }
+        const currentGrowth = this.getGrowthPercentage();
+        const previousGrowth = this.previous.getGrowthPercentage();
+        if (null == previousGrowth || null == currentGrowth) {
+            return null;
+        }
+
+        return currentGrowth - previousGrowth;
+    }
+
     public getConfirmed(): number
     {
         return this.confirmed;

@@ -4,7 +4,7 @@ import {Margin} from "./margin";
 import {DayDatum} from "../day-datum";
 import {Colors} from "./colors";
 
-export class GrowthChangeChart extends AxisChart
+export class GrowthPercentageChangeChart extends AxisChart
 {
     // protected path: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected movingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
@@ -40,19 +40,19 @@ export class GrowthChangeChart extends AxisChart
         super.update(entries);
 
         // this.path
-        //     .datum(entries.filter(entry => entry.getGrowthChange() != null))
+        //     .datum(entries.filter(entry => entry.getGrowthPercentageChange() != null))
         //     .transition(this.transition)
         //     .attr('d', d3.line<DayDatum>()
         //         .x(d => this.xScale(d.date))
-        //         .y(d => this.yScale(d.getGrowthChange() as number))
+        //         .y(d => this.yScale(d.getGrowthPercentageChange() as number))
         //     );
 
         this.movingPath
-            .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getGrowthChange, this.movingWindowSize) != null))
+            .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getGrowthPercentageChange, this.movingWindowSize) != null))
             .transition(this.transition)
             .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getMovingAverageCentered(d.getGrowthChange, this.movingWindowSize) as number))
+                .y(d => this.yScale(d.getMovingAverageCentered(d.getGrowthPercentageChange, this.movingWindowSize) as number))
                 .curve(d3.curveMonotoneX)
             );
 
@@ -70,19 +70,23 @@ export class GrowthChangeChart extends AxisChart
     protected getYDomain(entries: DayDatum[]): [number, number]
     {
         return d3.extent(
-            entries.filter(entry => entry.getMovingAverageCentered(entry.getGrowthChange, this.movingWindowSize) != null),
-            d => d.getMovingAverageCentered(d.getGrowthChange, this.movingWindowSize)
+            entries.filter(entry => entry.getMovingAverageCentered(entry.getGrowthPercentageChange, this.movingWindowSize) != null),
+            d => d.getMovingAverageCentered(d.getGrowthPercentageChange, this.movingWindowSize)
         ) as [number, number]
+        // return d3.extent(
+        //     entries.filter(entry => entry.getGrowthPercentageChange() != null),
+        //     d => d.getGrowthPercentageChange(),
+        // ) as [number, number]
     }
 
-    // /**
-    //  * @inheritDoc
-    //  */
-    // protected createYScale(initialYDomain: [number, number]): d3.ScaleContinuousNumeric<number, number>
-    // {
-    //     return d3.scaleSymlog()
-    //         // return d3.scaleLinear()
-    //         .domain(initialYDomain)
-    //         .range([this.getInnerHeight(), 0])
-    // }
+    /**
+     * @inheritDoc
+     */
+    protected createYScale(initialYDomain: [number, number]): d3.ScaleContinuousNumeric<number, number>
+    {
+        return d3.scaleSymlog()
+            // return d3.scaleLinear()
+            .domain(initialYDomain)
+            .range([this.getInnerHeight(), 0])
+    }
 }

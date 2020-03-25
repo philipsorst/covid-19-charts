@@ -7,7 +7,7 @@ import {CovidData} from "./covid-data";
 import {Utils} from "./utils";
 import * as d3 from "d3";
 import {Margin} from "./chart/margin";
-import {GrowthChangeChart} from "./chart/growth-change-chart";
+import {GrowthPercentageChangeChart} from "./chart/growth-percentage-change-chart";
 import {DeathRateChart} from "./chart/death-rate-chart";
 import {Location} from "./location";
 import {DayDatum} from "./day-datum";
@@ -21,7 +21,7 @@ class Dashboard
     private contentSelection: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
     private plotMargin = new Margin(5, 1, 30, 60);
     private mainChart!: MainChart;
-    private growthChangeChart!: GrowthChangeChart;
+    private growthChangeChart!: GrowthPercentageChangeChart;
     private deathRateChart!: DeathRateChart;
     private circleMap!: CircleMap;
     private infoPanel!: InfoPanel;
@@ -116,7 +116,7 @@ class Dashboard
 
 
         const boundingClientRect = Utils.getBoundingClientRect(divSelection);
-        this.growthChangeChart = new GrowthChangeChart(
+        this.growthChangeChart = new GrowthPercentageChangeChart(
             divSelection,
             boundingClientRect.width,
             150,
