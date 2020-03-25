@@ -44,7 +44,7 @@ export abstract class AxisChart
 
         this.yScale = this.createYScale(initialYDomain);
 
-        this.yAxis = d3.axisLeft(this.yScale) as d3.Axis<number>;
+        this.yAxis = this.createYAxis();
 
         this.yAxisSelection = this.plotContainer.append('g').call(this.yAxis);
         this.yAxisSelection.selectAll('.domain').attr('stroke-opacity', 0.125);
@@ -98,6 +98,11 @@ export abstract class AxisChart
     protected getInnerHeight(): number
     {
         return this.height - this.margin.top - this.margin.bottom;
+    }
+
+    protected createYAxis(): d3.Axis<number>
+    {
+        return d3.axisLeft(this.yScale) as d3.Axis<number>;
     }
 
     protected getXDomain(entries: DayDatum[]): [Date, Date]

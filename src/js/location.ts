@@ -17,6 +17,6 @@ export class Location
 
     public getName()
     {
-        return this.country.code + '#' + this.province;
+        return this.country.code + '-' + this.province;
     }
 }

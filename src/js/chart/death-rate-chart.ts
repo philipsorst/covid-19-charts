@@ -55,4 +55,12 @@ export class DeathRateChart extends AxisChart
     {
         return [0, d3.max(entries, d => d.getDeathRate()) as number];
     }
+
+    /**
+     * @inheritDoc
+     */
+    protected createYAxis(): d3.Axis<number>
+    {
+        return super.createYAxis().tickFormat(d3.format('.2%'));
+    }
 }
