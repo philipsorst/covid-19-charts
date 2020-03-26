@@ -91,13 +91,13 @@ export class DayDatum
         return d3.sum(values) as number / weightSum;
     }
 
-    public getMovingAverageCentered(accessor: () => (number | null), size: number = 1): number | null
+    public getMovingAverageCentered(accessor: () => (number | null), size: number = 1, excludeZero: boolean = false): number | null
     {
         const values = new Array<number>();
         const currentValue = accessor.call(this);
         let weight = 0;
         let weightSum = 0;
-        if (null == currentValue) {
+        if (null == currentValue || (excludeZero && 0 === currentValue)) {
             return null;
         }
         weight = size + 1;
@@ -107,26 +107,20 @@ export class DayDatum
         let currentPrevious: DayDatum = this;
         let currentNext: DayDatum = this;
         for (let i = 0; i < size; i++) {
-            if (null == currentPrevious.previous || null == currentNext.next) {
-                return null;
-            }
-
-            currentPrevious = currentPrevious.previous;
-            const previousValue = accessor.call(currentPrevious);
+            if (null == currentPrevious.previous || null == currentNext.next) return null;
 
             weight = size - i;
             weightSum += 2 * weight;
 
-            if (null != previousValue) {
-
-                values.push(previousValue * weight)
-            }
+            currentPrevious = currentPrevious.previous;
+            const previousValue = accessor.call(currentPrevious);
+            if (null == previousValue || (excludeZero && 0 === previousValue)) return null;
+            values.push(previousValue * weight);
 
             currentNext = currentNext.next;
             const nextValue = accessor.call(currentNext);
-            if (null != nextValue) {
-                values.push(nextValue * weight)
-            }
+            if (null == nextValue || (excludeZero && 0 === nextValue)) return null;
+            values.push(nextValue * weight);
         }
 
         return d3.sum(values) as number / weightSum;

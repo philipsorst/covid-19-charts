@@ -59,6 +59,14 @@ export class DeathRateChart extends AxisChart
     /**
      * @inheritDoc
      */
+    protected preUpdateYAxis()
+    {
+        this.yAxis.ticks(this.getInnerHeight() / 20);
+    }
+
+    /**
+     * @inheritDoc
+     */
     protected createYAxis(): d3.Axis<number>
     {
         return super.createYAxis().tickFormat(d3.format('.2%'));

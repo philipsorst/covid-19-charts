@@ -2,8 +2,8 @@
 
 $font-family-base: 'Roboto Slab', serif;
 $h1-font-size: 1rem * 2.5 !default;
-$h2-font-size: 1rem * 1.66 !default;
-$h3-font-size: 1rem * 1.33 !default;
+$h2-font-size: 1rem * 1.5 !default;
+$h3-font-size: 1rem * 1.25 !default;
 $display4-size: 2rem;
 @import "~bootstrap/scss/bootstrap";
 
@@ -14,5 +14,13 @@ html {
 @include media-breakpoint-up(lg) {
     #inner-container {
         height: 100vh;
+    }
+}
+
+section {
+    margin-bottom: 1rem;
+
+    h2 {
+        text-align: center;
     }
 }

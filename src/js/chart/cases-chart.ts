@@ -4,7 +4,7 @@ import {Margin} from "./margin";
 import {DayDatum} from "../day-datum";
 import {Colors} from "./colors";
 
-export class MainChart extends AxisChart
+export class CasesChart extends AxisChart
 {
     protected confirmedPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected confirmedRollingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
@@ -33,7 +33,7 @@ export class MainChart extends AxisChart
 
         this.deathsPath = this.plotContainer.append("path")
             .attr("fill", "none")
-            .attr("stroke", Colors.red["300"])
+            .attr("stroke", Colors.red["200"])
             .attr("stroke-width", 1.5);
 
         this.deathsRollingPath = this.plotContainer.append("path")
@@ -44,7 +44,6 @@ export class MainChart extends AxisChart
 
     public update(entries: DayDatum[])
     {
-        this.yAxis.ticks(this.yScale.domain()[1] / 100000);
         super.update(entries);
 
         this.confirmedPath
@@ -75,7 +74,7 @@ export class MainChart extends AxisChart
 
         this.deathsRollingPath
             .datum(entries.filter(entry => {
-                const d = entry.getMovingAverageCentered(entry.getDeaths);
+                const d = entry.getMovingAverageCentered(entry.getDeaths, 1, true);
                 return d != null && d > 0;
             }))
             .transition(this.transition)
@@ -102,6 +101,14 @@ export class MainChart extends AxisChart
             // return d3.scaleLinear()
             .domain(initialYDomain)
             .range([this.getInnerHeight(), 0])
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected preUpdateYAxis()
+    {
+        this.yAxis.ticks(Math.log10(this.yScale.domain()[1]));
     }
 
     /**

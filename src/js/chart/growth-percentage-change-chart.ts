@@ -82,6 +82,14 @@ export class GrowthPercentageChangeChart extends AxisChart
     /**
      * @inheritDoc
      */
+    protected preUpdateYAxis()
+    {
+        this.yAxis.ticks(this.getInnerHeight() / 20);
+    }
+
+    /**
+     * @inheritDoc
+     */
     protected createYScale(initialYDomain: [number, number]): d3.ScaleContinuousNumeric<number, number>
     {
         return d3.scaleSymlog()

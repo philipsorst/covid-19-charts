@@ -35,7 +35,7 @@ export abstract class AxisChart
             .domain(initialXDomain)
             .range([0, this.getInnerWidth()]);
 
-        this.xAxis = d3.axisBottom(this.xScale) as d3.Axis<Date>;
+        this.xAxis = d3.axisBottom(this.xScale).tickSizeOuter(0) as d3.Axis<Date>;
 
         this.xAxisSelection = this.plotContainer.append('g')
             .attr('transform', `translate(0,${this.getInnerHeight()})`)
@@ -66,6 +66,7 @@ export abstract class AxisChart
         this.yScale.domain(this.getYDomain(entries));
         this.yAxis.scale(this.yScale);
 
+        this.preUpdateXAxis();
         this.xAxisSelection.selectAll('line.grid').remove();
         this.xAxisSelection.transition(this.transition).call(this.xAxis)
             .on('end', () => {
@@ -77,7 +78,9 @@ export abstract class AxisChart
                         .attr('y2', -this.getInnerHeight())
                 );
             });
+        this.postUpdateXAxis();
 
+        this.preUpdateYAxis();
         this.yAxisSelection.selectAll('line.grid').remove();
         this.yAxisSelection.transition(this.transition).call(this.yAxis)
             .on('end', () => {
@@ -88,6 +91,7 @@ export abstract class AxisChart
                         .attr('x2', this.getInnerWidth())
                 );
             });
+        this.postUpdateYAxis();
     }
 
     protected getInnerWidth(): number
@@ -102,12 +106,33 @@ export abstract class AxisChart
 
     protected createYAxis(): d3.Axis<number>
     {
-        return d3.axisLeft(this.yScale) as d3.Axis<number>;
+        return d3.axisLeft(this.yScale).tickSizeOuter(0) as d3.Axis<number>;
     }
 
     protected getXDomain(entries: DayDatum[]): [Date, Date]
     {
         return d3.extent(entries, d => d.date) as [Date, Date];
+    }
+
+
+    protected preUpdateXAxis()
+    {
+        /* Hook */
+    }
+
+    protected postUpdateXAxis()
+    {
+        /* Hook */
+    }
+
+    protected preUpdateYAxis()
+    {
+        /* Hook */
+    }
+
+    protected postUpdateYAxis()
+    {
+        /* Hook */
     }
 
     protected abstract getYDomain(entries: DayDatum[]): [number, number];

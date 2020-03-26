@@ -7,7 +7,7 @@ import {Country} from "./country";
 import {DeathRateChart} from "./chart/death-rate-chart";
 import {Margin} from "./chart/margin";
 import {GrowthPercentageChangeChart} from "./chart/growth-percentage-change-chart";
-import {MainChart} from "./chart/main-chart";
+import {CasesChart} from "./chart/cases-chart";
 import {GrowthChart} from "./chart/growth-chart";
 import {Colors} from "./chart/colors";
 
@@ -21,7 +21,7 @@ let countryData: CountryData;
 const COUNTRY_CODE_GLOBAL = 'GLOBAL';
 let currentCountry: Country | null;
 
-let mainChart: MainChart;
+let mainChart: CasesChart;
 let growthRateChart: GrowthPercentageChangeChart;
 let deathRateChart: DeathRateChart;
 let growthChart: GrowthChart;
@@ -77,7 +77,7 @@ function createMainChart()
     let parentSelection = d3.select('#plot-main');
     parentSelection.selectAll('*').remove();
     const boundingClientRect = Utils.getBoundingClientRect(parentSelection);
-    mainChart = new MainChart(
+    mainChart = new CasesChart(
         parentSelection,
         boundingClientRect.width,
         boundingClientRect.height < 150 ? 150 : boundingClientRect.height,

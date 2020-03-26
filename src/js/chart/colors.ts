@@ -14,6 +14,7 @@ export class Colors
     };
 
     public static red = {
+        200: '#EF9A9A',
         300: '#E57373',
         400: '#EF5350',
         500: '#F44336',
