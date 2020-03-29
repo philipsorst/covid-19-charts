@@ -35,7 +35,9 @@ export abstract class AxisChart
             .domain(initialXDomain)
             .range([0, this.getInnerWidth()]);
 
-        this.xAxis = d3.axisBottom(this.xScale).tickSizeOuter(0) as d3.Axis<Date>;
+        this.xAxis = d3.axisBottom(this.xScale)
+            .tickSizeOuter(0)
+            .ticks(this.getInnerWidth() / 100) as d3.Axis<Date>;
 
         this.xAxisSelection = this.plotContainer.append('g')
             .attr('transform', `translate(0,${this.getInnerHeight()})`)
