@@ -12,20 +12,20 @@ export class InfoPanel
 
     constructor(parentSelection: d3.Selection<any, DayDatum, HTMLElement, any>)
     {
-        let confirmedSelection = parentSelection.append('div').classed('flex-lg-fill', true);
+        let confirmedSelection = parentSelection.append('div').classed('flex-lg-fill mb-4 mb-lg-0', true);
         confirmedSelection.append('h2').html('Confirmed');
         this.confirmedNumberSelection = confirmedSelection
             .append('div')
             .classed('display-4', true)
             .html(d => this.defaultNumberFormat(d.getConfirmed()));
 
-        let deathsSelection = parentSelection.append('div').classed('flex-lg-fill', true);
+        let deathsSelection = parentSelection.append('div').classed('flex-lg-fill mb-4 mb-lg-0', true);
         deathsSelection.append('h2').html('Deaths');
         this.deathsNumberSelection = deathsSelection.append('div').classed('display-4', true)
             .style('color', Colors.red["700"])
             .html(d => this.defaultNumberFormat(d.deaths));
 
-        let deathRateSelection = parentSelection.append('div').classed('flex-lg-fill', true);
+        let deathRateSelection = parentSelection.append('div').classed('flex-lg-fill mb-4 mb-lg-0', true);
         deathRateSelection.append('h2').html('Death Rate');
         this.deathRatePercentageSelection = deathRateSelection.append('div').classed('display-4', true)
             .html(d => this.percentageFormat(d.getDeathRate()));

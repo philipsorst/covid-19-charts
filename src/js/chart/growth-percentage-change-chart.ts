@@ -6,7 +6,7 @@ import {Colors} from "./colors";
 
 export class GrowthPercentageChangeChart extends AxisChart
 {
-    // protected path: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected path: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected movingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     private linearLine: d3.Selection<SVGLineElement, unknown, HTMLElement, any>;
     private movingWindowSize = 3;
@@ -25,10 +25,10 @@ export class GrowthPercentageChangeChart extends AxisChart
             .attr('stroke', Colors.gray["500"]);
         // .attr('stroke-width', 0.5);
         // .attr('stroke-dasharray', '5');
-        // this.path = this.plotContainer.append('path')
-        //     .attr('fill', 'none')
-        //     .attr('stroke', Colors.blue["200"])
-        //     .attr('stroke-width', 1.5);
+        this.path = this.plotContainer.append('path')
+            .attr('fill', 'none')
+            .attr('stroke', Colors.blue["100"])
+            .attr('stroke-width', 1.5);
         this.movingPath = this.plotContainer.append('path')
             .attr('fill', 'none')
             .attr('stroke', Colors.blue["700"])
@@ -39,21 +39,21 @@ export class GrowthPercentageChangeChart extends AxisChart
     {
         super.update(entries);
 
-        // this.path
-        //     .datum(entries.filter(entry => entry.getGrowthPercentageChange() != null))
-        //     .transition(this.transition)
-        //     .attr('d', d3.line<DayDatum>()
-        //         .x(d => this.xScale(d.date))
-        //         .y(d => this.yScale(d.getGrowthPercentageChange() as number))
-        //     );
+        this.path
+            .datum(entries.filter(entry => entry.getGrowthPercentageChange() != null))
+            .transition(this.transition)
+            .attr('d', d3.line<DayDatum>()
+                .x(d => this.xScale(d.date))
+                .y(d => this.yScale(d.getGrowthPercentageChange() as number))
+            );
 
         this.movingPath
             .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getGrowthPercentageChange, this.movingWindowSize) != null))
             .transition(this.transition)
             .attr('d', d3.line<DayDatum>()
-                .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getMovingAverageCentered(d.getGrowthPercentageChange, this.movingWindowSize) as number))
-                .curve(d3.curveMonotoneX)
+                    .x(d => this.xScale(d.date))
+                    .y(d => this.yScale(d.getMovingAverageCentered(d.getGrowthPercentageChange, this.movingWindowSize) as number))
+                // .curve(d3.curveMonotoneX)
             );
 
         this.linearLine
@@ -72,11 +72,12 @@ export class GrowthPercentageChangeChart extends AxisChart
         return d3.extent(
             entries.filter(entry => entry.getMovingAverageCentered(entry.getGrowthPercentageChange, this.movingWindowSize) != null),
             d => d.getMovingAverageCentered(d.getGrowthPercentageChange, this.movingWindowSize)
-        ) as [number, number]
+        ) as [number, number];
+
         // return d3.extent(
         //     entries.filter(entry => entry.getGrowthPercentageChange() != null),
         //     d => d.getGrowthPercentageChange(),
-        // ) as [number, number]
+        // ) as [number, number];
     }
 
     /**

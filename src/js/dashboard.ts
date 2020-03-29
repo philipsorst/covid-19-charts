@@ -19,7 +19,7 @@ require('../scss/charts.scss');
 class Dashboard
 {
     private contentSelection: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
-    private plotMargin = new Margin(5, 1, 30, 60);
+    private plotMargin = new Margin(5, 1, 25, 60);
     private mainChart!: CasesChart;
     private growthChangeChart!: GrowthPercentageChangeChart;
     private deathRateChart!: DeathRateChart;
@@ -55,14 +55,14 @@ class Dashboard
             .classed('flex-lg-grow-1 d-lg-flex flex-lg-column', true);
 
         this.casesInfoParentSelection = leftColumnSelection.append('section')
-            .classed('d-flex flex-lg-row text-center', true);
+            .classed('d-flex flex-column flex-lg-row text-center', true);
 
         let mainChartSectionSelection = leftColumnSelection.append('section')
             .classed('flex-lg-grow-1 d-lg-flex flex-lg-column', true);
-        mainChartSectionSelection.append('h2').html('Cases');
         this.casesChartParentSelection = mainChartSectionSelection
             .append('div')
             .classed('flex-lg-grow-1', true);
+        mainChartSectionSelection.append('h2').classed('h4', true).html('Cases');
 
         /* Right column */
         let rightColumnSelection = this.contentSelection.append('div')
@@ -70,17 +70,17 @@ class Dashboard
 
         let growthPercentageChangeSectionSelection = rightColumnSelection.append('section')
             .classed('flex-lg-fill d-lg-flex flex-lg-column', true);
-        growthPercentageChangeSectionSelection.append('h2').html('Growth Percentage Change');
         this.growthPercentageChangeChartParentSelection = growthPercentageChangeSectionSelection
             .append('div')
             .classed('flex-lg-grow-1', true);
+        growthPercentageChangeSectionSelection.append('h2').classed('h4', true).html('Growth Percentage Change');
 
         let deathRateSectionSelection = rightColumnSelection.append('section')
             .classed('flex-lg-fill d-lg-flex flex-lg-column', true);
-        deathRateSectionSelection.append('h2').html('Death Rate');
         this.deathRateParentChartSelection = deathRateSectionSelection
             .append('div')
             .classed('flex-lg-grow-1', true);
+        deathRateSectionSelection.append('h2').classed('h4', true).html('Death Rate');
     }
 
     private createVisualizations()

@@ -40,7 +40,7 @@ export class CircleMap
         );
 
         const zoom = d3.zoom<SVGSVGElement, any>()
-            .scaleExtent([0.5, 8])
+            .scaleExtent([0.1, 8])
             .on('zoom', () => this.innerContainer.attr('transform', d3.event.transform));
 
         // svg.call(zoom);

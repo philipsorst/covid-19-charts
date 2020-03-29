@@ -23,7 +23,7 @@ export class CasesChart extends AxisChart
 
         this.confirmedPath = this.plotContainer.append('path')
             .attr('fill', "none")
-            .attr('stroke', Colors.blue["200"])
+            .attr('stroke', Colors.blue["100"])
             .attr('stroke-width', 1.5);
 
         this.confirmedRollingPath = this.plotContainer.append('path')
@@ -33,7 +33,7 @@ export class CasesChart extends AxisChart
 
         this.deathsPath = this.plotContainer.append("path")
             .attr("fill", "none")
-            .attr("stroke", Colors.red["200"])
+            .attr("stroke", Colors.red["100"])
             .attr("stroke-width", 1.5);
 
         this.deathsRollingPath = this.plotContainer.append("path")

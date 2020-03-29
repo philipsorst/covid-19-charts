@@ -6,6 +6,7 @@ export class Colors
     };
 
     public static blue = {
+        100: '#BBDEFB',
         200: '#90CAF9',
         300: '#64B5F6',
         400: '#42A5F5',
@@ -14,6 +15,7 @@ export class Colors
     };
 
     public static red = {
+        100: '#FFCDD2',
         200: '#EF9A9A',
         300: '#E57373',
         400: '#EF5350',
