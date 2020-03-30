@@ -54,8 +54,23 @@ class Dashboard
         let leftColumnSelection = this.contentSelection.append('div')
             .classed('col-lg-6 d-lg-flex flex-lg-column', true);
 
-        this.mapParentSelection = leftColumnSelection.append('section')
+        let mapSectionSelection = leftColumnSelection.append('section')
             .classed('card flex-lg-grow-1 d-lg-flex flex-lg-column', true);
+        let mapTabsSelection = mapSectionSelection
+            .append('div')
+            .classed('card-header', true)
+            .append('ul')
+            .classed('nav nav-tabs card-header-tabs', true);
+        mapTabsSelection
+            .append('li')
+            .classed('nav-item', true)
+            .append('a')
+            .classed('nav-link active', true)
+            .attr('href', '#')
+            .html('Confirmed');
+        this.mapParentSelection = mapSectionSelection
+            .append('div')
+            .classed('flex-lg-grow-1', true);
 
         let casesInfoSectionSelection = leftColumnSelection.append('section')
             .classed('card', true);
