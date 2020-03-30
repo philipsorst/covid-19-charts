@@ -2,10 +2,12 @@ import {AxisChart} from "./axis-chart";
 import {DayDatum} from "../day-datum";
 import * as d3 from "d3";
 import {Margin} from "./margin";
+import {Colors} from "./colors";
 
 export class GrowthChart extends AxisChart
 {
     protected path: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected pathRolling: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
 
     constructor(
         parent: d3.Selection<any, any, any, any>,
@@ -19,7 +21,11 @@ export class GrowthChart extends AxisChart
 
         this.path = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', '#616161')
+            .attr('stroke', Colors.blue["100"])
+            .attr('stroke-width', 1.5);
+        this.pathRolling = this.plotContainer.append('path')
+            .attr('fill', 'none')
+            .attr('stroke', Colors.blue["700"])
             .attr('stroke-width', 1.5);
     }
 
@@ -35,6 +41,13 @@ export class GrowthChart extends AxisChart
             .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.getGrowth() as number))
+            );
+        this.pathRolling
+            .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getGrowth) != null))
+            .transition(this.transition)
+            .attr('d', d3.line<DayDatum>()
+                .x(d => this.xScale(d.date))
+                .y(d => this.yScale(d.getMovingAverageCentered(d.getGrowth) as number))
             );
     }
 

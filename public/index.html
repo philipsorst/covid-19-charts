@@ -4,87 +4,53 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <link rel="stylesheet" href="./build/style.css"/>
-    <link rel="stylesheet" href="./build/charts.css"/>
-    <title>Covid 19 Charts</title>
+    <link rel="stylesheet" href="./build/dashboard.css"/>
+    <title>Covid 19 Dashboard</title>
 </head>
 <body>
 <div class="container-fluid">
-    <div class="d-lg-flex flex-lg-column" id="inner-container">
-        <div class="border-bottom pt-3 pb-3 mb-3 dropdown">
-            <h1 class="dropdown-toggle text-center" data-toggle="dropdown" type="button">
-                <span class="d-none d-md-inline">COVID-19 Cases: </span><span id="heading"></span>
-            </h1>
-            <div class="dropdown-menu country-select">
-                <div class="row">
+    <div class="d-flex flex-column" id="inner-container">
+        <div class="border-bottom pt-2 pb-2 mb-2">
+            <h1 class="text-center">COVID-19 Dashboard</h1>
+        </div>
+        <div class="flex-grow-1 row" id="content">
+        </div>
+        <div>
+            <div class="text-center text-muted pt-2 pb-2 mt-2 border-top">
+                <div class="d-lg-inline ml-lg-2 mr-lg-2">
+                    <div class="d-lg-inline">Data Sources:</div>
+                    <ul class="list-inline mb-0 d-lg-inline">
+                        <li class="list-inline-item"><a href="https://systems.jhu.edu/">Johns Hopkins CSSE</a></li>
+                        <li class="list-inline-item"><a href="https://www.wikidata.org">Wikidata</a></li>
+                    </ul>
                 </div>
-            </div>
-        </div>
-        <div class="d-lg-flex flex-lg-row flex-lg-grow-1">
-            <div id="info" class="pl-4 pr-4" style="min-width: 200px;">
-                <section class="text-center">
-                    <div class="mb-4" id="info-population">
-                        <h3>Population</h3>
-                        <p class="display-4" id="info-num-population"></p>
+                <div class="d-lg-inline ml-lg-2 mr-lg-2">
+                    <div class="d-lg-inline">Visualization:</div>
+                    <div class="d-lg-inline">
+                        <a href="https://sorst.net">Philip Washington Sorst</a>
                     </div>
-                    <div class="mb-4">
-                        <h3>Confirmed</h3>
-                        <p class="display-4" id="info-num-confirmed"></p>
-                    </div>
-                    <!--                    <div class="mb-4">-->
-                    <!--                        <h3>Pending</h3>-->
-                    <!--                        <p class="display-4" id="info-num-pending"></p>-->
-                    <!--                    </div>-->
-                    <!--                    <div class="mb-4">-->
-                    <!--                        <h3>Recovered</h3>-->
-                    <!--                        <p class="display-4" id="info-num-recovered"></p>-->
-                    <!--                    </div>-->
-                    <div class="mb-4">
-                        <h3>Deaths</h3>
-                        <p class="display-4" id="info-num-deaths"></p>
-                    </div>
-                    <div class="mb-4">
-                        <h3>Death Rate</h3>
-                        <p class="display-4" id="info-death-rate"></p>
-                    </div>
-                </section>
-            </div>
-            <div class="d-lg-flex flex-lg-column flex-lg-grow-1 pl-4 pr-4">
-                <section class="flex-lg-grow-1 d-lg-flex flex-lg-column mb-4">
-                    <h3 class="text-center mb-1">Cases</h3>
-                    <div id="plot-main" class="flex-lg-grow-1"></div>
-                </section>
-                <!--                <section class="mb-4">-->
-                <!--                    <h2 class="text-center">Growth</h2>-->
-                <!--                    <div id="plot-growth"></div>-->
-                <!--                </section>-->
-                <section class="mb-4">
-                    <h3 class="text-center mb-1">Growth Change</h3>
-                    <div id="plot-growth-rate"></div>
-                </section>
-                <section>
-                    <h3 class="text-center mb-1">Death Rate</h3>
-                    <div id="plot-death-rate"></div>
-                </section>
-            </div>
-        </div>
-        <div class="text-center text-muted pt-2 pb-2 mt-2 border-top">
-            <div class="d-lg-inline ml-lg-2 mr-lg-2">
-                <div class="d-lg-inline">Data Sources:</div>
-                <ul class="list-inline mb-0 d-lg-inline">
-                    <li class="list-inline-item"><a href="https://systems.jhu.edu/">Johns Hopkins CSSE</a></li>
-                    <li class="list-inline-item"><a href="https://www.wikidata.org">Wikidata</a></li>
-                </ul>
-            </div>
-            <div class="d-lg-inline ml-lg-2 mr-lg-2">
-                <div class="d-lg-inline">Visualization:</div>
-                <div class="d-lg-inline">
-                    <a href="https://sorst.net">Philip Washington Sorst</a>
                 </div>
             </div>
         </div>
     </div>
 </div>
+<!--<div class="container-fluid">-->
+<!--    <div class="d-lg-flex flex-lg-column">-->
+<!--        <div class="border-bottom pt-2 pb-2 mb-2">-->
+<!--            <h1 class="text-center">COVID-19 Dashboard</h1>-->
+<!--        </div>-->
+<!--        <div class="d-lg-flex flex-lg-row flex-lg-grow-1">-->
+<!--            Test-->
+<!--        </div>-->
+<!--&lt;!&ndash;        <div class="d-lg-flex flex-lg-row flex-lg-grow-1 row" id="content">&ndash;&gt;-->
+<!--&lt;!&ndash;            <div class="col-lg-12">&ndash;&gt;-->
+<!--&lt;!&ndash;                <div class="text-center">Test</div>&ndash;&gt;-->
+<!--&lt;!&ndash;            </div>&ndash;&gt;-->
+<!--&lt;!&ndash;        </div>&ndash;&gt;-->
+<!--
+<!--    </div>-->
+<!--</div>-->
 <script src="./build/runtime.js" type="text/javascript"></script>
-<script src="./build/charts.js" type="text/javascript"></script>
+<script src="./build/dashboard.js" type="text/javascript"></script>
 </body>
 </html>

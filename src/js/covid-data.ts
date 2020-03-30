@@ -118,7 +118,6 @@ class CovidDataLoader
         this.countryNameToCountryCodeMap.set('Congo (Brazzaville)', 'CG');
         this.countryNameToCountryCodeMap.set('Congo (Kinshasa)', 'CD');
         this.countryNameToCountryCodeMap.set('Cote d\'Ivoire', 'CI');
-        this.countryNameToCountryCodeMap.set('Diamond Princess', 'JP');
         this.countryNameToCountryCodeMap.set('Cyprus', 'CY');
         this.countryNameToCountryCodeMap.set('Czechia', 'CZ');
         this.countryNameToCountryCodeMap.set('Gambia, The', 'GM');
@@ -130,8 +129,13 @@ class CovidDataLoader
         // this.countryNameToCountryCodeMap.set('Taiwan*', 'TW');
         this.countryNameToCountryCodeMap.set('Taiwan*', 'CN');
         this.countryNameToCountryCodeMap.set('US', 'US');
+        this.countryNameToCountryCodeMap.set('Burma', 'MM');
         this.countryNameToCountryCodeMap.set('Timor-Leste', 'TL');
-        this.countryNameToCountryCodeMap.set('West Bank and Gaza', 'IL')
+        this.countryNameToCountryCodeMap.set('West Bank and Gaza', 'IL');
+
+        /* Entities */
+        this.countryNameToCountryCodeMap.set('Diamond Princess', 'JP');
+        this.countryNameToCountryCodeMap.set('MS Zaandam', 'CL');
     }
 
     private addEntry(entry: any, type: string)

@@ -25,7 +25,7 @@ export class InfoPanel
             .style('color', Colors.red["700"])
             .html(d => this.defaultNumberFormat(d.deaths));
 
-        let deathRateSelection = parentSelection.append('div').classed('flex-lg-fill mb-4 mb-lg-0', true);
+        let deathRateSelection = parentSelection.append('div').classed('flex-lg-fill', true);
         deathRateSelection.append('h2').html('Death Rate');
         this.deathRatePercentageSelection = deathRateSelection.append('div').classed('display-4', true)
             .html(d => this.percentageFormat(d.getDeathRate()));
