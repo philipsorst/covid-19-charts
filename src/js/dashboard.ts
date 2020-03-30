@@ -141,8 +141,8 @@ class Dashboard
             casesChartBounds.width,
             casesChartBounds.height - 2 < 150 ? 150 : casesChartBounds.height - 2,
             this.plotMargin,
-            d3.extent(this.getCovidData().getGlobalDayData(), d => d.date) as [Date, Date],
-            [0, d3.max(this.getCovidData().getGlobalDayData(), d => d.confirmed) as number]
+            d3.extent(this.covidData.getGlobalDayData(), d => d.date) as [Date, Date],
+            [0, d3.max(this.covidData.getGlobalDayData(), d => d.confirmed) as number]
         );
 
         this.circleMap = new CircleMap(
@@ -159,8 +159,8 @@ class Dashboard
             growthChartBounds.width,
             growthChartBounds.height < 150 ? 150 : growthChartBounds.height,
             this.plotMargin,
-            d3.extent(this.getCovidData().getGlobalDayData(), d => d.date) as [Date, Date],
-            [0, d3.max(this.getCovidData().getGlobalDayData(), d => d.getGrowth()) as number]
+            d3.extent(this.covidData.getGlobalDayData(), d => d.date) as [Date, Date],
+            [0, d3.max(this.covidData.getGlobalDayData(), d => d.getGrowth()) as number]
         );
 
         this.growthChangeChart = new GrowthPercentageChangeChart(
@@ -168,8 +168,8 @@ class Dashboard
             growthPercentageChangeChartBounds.width,
             growthPercentageChangeChartBounds.height < 150 ? 150 : growthPercentageChangeChartBounds.height,
             this.plotMargin,
-            d3.extent(this.getCovidData().getGlobalDayData(), d => d.date) as [Date, Date],
-            [0, d3.max(this.getCovidData().getGlobalDayData(), d => d.getGrowthChange()) as number]
+            d3.extent(this.covidData.getGlobalDayData(), d => d.date) as [Date, Date],
+            [0, d3.max(this.covidData.getGlobalDayData(), d => d.getGrowthChange()) as number]
         );
 
         this.deathRateChart = new DeathRateChart(
@@ -177,14 +177,9 @@ class Dashboard
             deathRateChartBounds.width,
             deathRateChartBounds.height < 150 ? 150 : deathRateChartBounds.height,
             this.plotMargin,
-            d3.extent(this.getCovidData().getGlobalDayData(), d => d.date) as [Date, Date],
-            [0, d3.max(this.getCovidData().getGlobalDayData(), d => d.getDeathRate()) as number]
+            d3.extent(this.covidData.getGlobalDayData(), d => d.date) as [Date, Date],
+            [0, d3.max(this.covidData.getGlobalDayData(), d => d.getDeathRate()) as number]
         );
-
-        this.mainChart.update(this.covidData.getGlobalDayData());
-        this.growthChart.update(this.covidData.getGlobalDayData());
-        this.deathRateChart.update(this.covidData.getGlobalDayData());
-        this.growthChangeChart.update(this.covidData.getGlobalDayData());
     }
 
     private getCircleMapLastDayData()
@@ -205,48 +200,35 @@ class Dashboard
         return circleData;
     }
 
-    private createElementMainChart<T extends HTMLElement>(parentSelection: d3.Selection<T, unknown, HTMLElement, any>)
+    public setLocation(location: Location | null)
     {
-        const boundingClientRect = Utils.getBoundingClientRect(parentSelection);
-        this.mainChart = new CasesChart(
-            parentSelection,
-            boundingClientRect.width,
-            boundingClientRect.height < 150 ? 150 : boundingClientRect.height,
-            this.plotMargin,
-            d3.extent(this.getCovidData().getGlobalDayData(), d => d.date) as [Date, Date],
-            [0, d3.max(this.getCovidData().getGlobalDayData(), d => d.confirmed) as number]
-        );
+        if (null == location) {
+            d3.select('#current-location').html('Global');
+        } else {
+            let name = location.country.name;
+            if (null != location.province && '' != location.province) {
+                name += ' / ' + location.province;
+            }
+            d3.select('#current-location').html(name);
+        }
+
+
+        const dayData = this.getDayData(location);
+        const lastEntry = dayData[dayData.length - 1];
+        this.mainChart.update(dayData);
+        this.growthChart.update(dayData);
+        this.deathRateChart.update(dayData);
+        this.growthChangeChart.update(dayData);
+        this.infoPanel.update(lastEntry);
     }
 
-    private createElementGrowthChangeChart<T extends HTMLElement>(parentSelection: d3.Selection<T, unknown, HTMLElement, any>)
+    private getDayData(location: Location | null): DayDatum[]
     {
-        const boundingClientRect = Utils.getBoundingClientRect(parentSelection);
-        this.growthChangeChart = new GrowthPercentageChangeChart(
-            parentSelection,
-            boundingClientRect.width,
-            boundingClientRect.height < 150 ? 150 : boundingClientRect.height,
-            this.plotMargin,
-            d3.extent(this.getCovidData().getGlobalDayData(), d => d.date) as [Date, Date],
-            [0, d3.max(this.getCovidData().getGlobalDayData(), d => d.getGrowthChange()) as number]
-        );
-    }
+        if (null == location) {
+            return this.covidData.getGlobalDayData();
+        }
 
-    private createDeathRateChart<T extends HTMLElement>(parentSelection: d3.Selection<T, unknown, HTMLElement, any>)
-    {
-        const boundingClientRect = Utils.getBoundingClientRect(parentSelection);
-        this.deathRateChart = new DeathRateChart(
-            parentSelection,
-            boundingClientRect.width,
-            boundingClientRect.height < 150 ? 150 : boundingClientRect.height,
-            this.plotMargin,
-            d3.extent(this.getCovidData().getGlobalDayData(), d => d.date) as [Date, Date],
-            [0, d3.max(this.getCovidData().getGlobalDayData(), d => d.getDeathRate()) as number]
-        );
-    }
-
-    private getCovidData(): CovidData
-    {
-        return this.covidData as CovidData;
+        return this.covidData.fetchLocationDayData(location);
     }
 }
 
@@ -268,5 +250,7 @@ class DashboardLoader
 d3_select('#content').append('div').classed('text-center col-12', true).html('Loading...');
 DashboardLoader.load().then(data => {
     d3_select('#content').selectAll('*').remove();
-    new Dashboard(data.covidData, data.countryData, data.worldData);
+    const dashboard = new Dashboard(data.covidData, data.countryData, data.worldData);
+    let location = data.covidData.getLocations().filter(location => location.country.code === 'DE').pop() as Location;
+    dashboard.setLocation(location)
 });

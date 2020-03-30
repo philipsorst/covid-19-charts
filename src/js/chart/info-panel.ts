@@ -10,7 +10,7 @@ export class InfoPanel
     private defaultNumberFormat = d3.format(',');
     private percentageFormat = d3.format('.2%');
 
-    constructor(parentSelection: d3.Selection<any, DayDatum, HTMLElement, any>)
+    constructor(private parentSelection: d3.Selection<any, DayDatum, HTMLElement, any>)
     {
         let confirmedSelection = parentSelection.append('div').classed('flex-lg-fill mb-4 mb-lg-0', true);
         confirmedSelection.append('h2').html('Confirmed');
@@ -29,5 +29,13 @@ export class InfoPanel
         deathRateSelection.append('h2').html('Death Rate');
         this.deathRatePercentageSelection = deathRateSelection.append('div').classed('display-4', true)
             .html(d => this.percentageFormat(d.getDeathRate()));
+    }
+
+    public update(lastEntry: DayDatum)
+    {
+        this.parentSelection.selectAll('.display-4').datum(lastEntry);
+        this.confirmedNumberSelection.html(d => this.defaultNumberFormat(d.getConfirmed()));
+        this.deathsNumberSelection.html(d => this.defaultNumberFormat(d.deaths));
+        this.deathRatePercentageSelection.html(d => this.percentageFormat(d.getDeathRate()));
     }
 }
