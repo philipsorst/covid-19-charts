@@ -14,6 +14,7 @@ import {DayDatum} from "./day-datum";
 import {InfoPanel} from "./chart/info-panel";
 import {CasesChart} from "./chart/cases-chart";
 import {GrowthChart} from "./chart/growth-chart";
+import {GrowthPercentageChart} from "./chart/growth-percentage-chart";
 
 require('../scss/charts.scss');
 
@@ -22,8 +23,9 @@ class Dashboard
     private contentSelection: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
     private plotMargin = new Margin(5, 1, 25, 60);
     private mainChart!: CasesChart;
-    private growthChangeChart!: GrowthPercentageChangeChart;
+    private growthPercentageChangeChart!: GrowthPercentageChangeChart;
     private growthChart!: GrowthChart;
+    private growthPercentageChart!: GrowthPercentageChart;
     private deathRateChart!: DeathRateChart;
     private circleMap!: CircleMap;
     private infoPanel!: InfoPanel;
@@ -34,6 +36,7 @@ class Dashboard
     private growthPercentageChangeChartParentSelection!: d3.Selection<any, any, any, any>;
     private deathRateChartParentSelection!: d3.Selection<any, any, any, any>;
     private growthChartParentSelection!: d3.Selection<any, any, any, any>;
+    private growthPercentageChartParentSelection!: d3.Selection<any, any, any, any>;
 
     constructor(private covidData: CovidData, private counryData: CountryData, private worldData: any)
     {
@@ -102,6 +105,16 @@ class Dashboard
             .append('div')
             .classed('flex-lg-grow-1', true);
 
+        let growthPercentageSectionSelection = rightColumnSelection.append('section')
+            .classed('card flex-lg-fill d-lg-flex flex-lg-column', true);
+        growthPercentageSectionSelection
+            .append('h2')
+            .classed('h4 card-header', true)
+            .html('Growth Percentage');
+        this.growthPercentageChartParentSelection = growthPercentageSectionSelection
+            .append('div')
+            .classed('flex-lg-grow-1', true);
+
         let growthPercentageChangeSectionSelection = rightColumnSelection.append('section')
             .classed('card flex-lg-fill d-lg-flex flex-lg-column', true);
         growthPercentageChangeSectionSelection
@@ -163,7 +176,16 @@ class Dashboard
             [0, d3.max(this.covidData.getGlobalDayData(), d => d.getGrowth()) as number]
         );
 
-        this.growthChangeChart = new GrowthPercentageChangeChart(
+        this.growthPercentageChart = new GrowthPercentageChart(
+            this.growthPercentageChartParentSelection,
+            growthChartBounds.width,
+            growthChartBounds.height < 150 ? 150 : growthChartBounds.height,
+            this.plotMargin,
+            d3.extent(this.covidData.getGlobalDayData(), d => d.date) as [Date, Date],
+            [0, d3.max(this.covidData.getGlobalDayData(), d => d.getGrowthPercentage()) as number]
+        );
+
+        this.growthPercentageChangeChart = new GrowthPercentageChangeChart(
             this.growthPercentageChangeChartParentSelection,
             growthPercentageChangeChartBounds.width,
             growthPercentageChangeChartBounds.height < 150 ? 150 : growthPercentageChangeChartBounds.height,
@@ -218,7 +240,8 @@ class Dashboard
         this.mainChart.update(dayData);
         this.growthChart.update(dayData);
         this.deathRateChart.update(dayData);
-        this.growthChangeChart.update(dayData);
+        this.growthPercentageChangeChart.update(dayData);
+        this.growthPercentageChart.update(dayData);
         this.infoPanel.update(lastEntry);
     }
 
