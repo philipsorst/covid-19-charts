@@ -6,8 +6,8 @@ import {Colors} from "./colors";
 
 export class NetReproductionNumberChart extends AxisChart
 {
-    protected path: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected pathRolling: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected path!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected pathRolling!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
 
     constructor(
         parent: d3.Selection<any, any, any, any>,
@@ -18,7 +18,13 @@ export class NetReproductionNumberChart extends AxisChart
         initialYDomain: [number, number] = [0, 1])
     {
         super(parent, width, height, margin, initialXDomain, initialYDomain);
+    }
 
+    /**
+     * @inheritDoc
+     */
+    protected addPlots()
+    {
         this.path = this.plotContainer.append('path')
             .attr('fill', 'none')
             .attr('stroke', Colors.blue["100"])
@@ -56,7 +62,8 @@ export class NetReproductionNumberChart extends AxisChart
      */
     protected getYDomain(entries: DayDatum[]): [number, number]
     {
-        return d3.extent(
-            entries.filter(entry => entry.getNetReproductionNumber() != null), d => d.getNetReproductionNumber()) as [number, number]
+        // return d3.extent(
+        //     entries.filter(entry => entry.getNetReproductionNumber() != null), d => d.getNetReproductionNumber()) as [number, number]
+        return [0, 5];
     }
 }

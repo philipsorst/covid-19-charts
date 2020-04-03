@@ -250,6 +250,8 @@ class CovidDataLoader
                         entry.pending -= dayDatum14.getGrowth() as number;
                     }
                 }
+            } else {
+                entry.pending = entry.confirmed;
             }
             lastEntry = entry;
         });

@@ -152,11 +152,11 @@ export class DayDatum
             return null;
         }
 
-        if (0 === previous.confirmed) {
+        if (0 === previous.pending) {
             return 0;
         }
 
-        return (this.confirmed - previous.confirmed) / previous.confirmed;
+        return Math.max(0, (this.pending - previous.pending) / previous.pending);
     }
 
     public getGrowth(): number | null

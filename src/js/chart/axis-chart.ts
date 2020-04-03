@@ -31,6 +31,8 @@ export abstract class AxisChart
 
         this.plotContainer = ChartUtils.createSvgAndPlotContainer(parent, width, height, margin);
 
+        this.addPlots();
+
         this.xScale = d3.scaleTime()
             .domain(initialXDomain)
             .range([0, this.getInnerWidth()]);
@@ -51,6 +53,11 @@ export abstract class AxisChart
         this.yAxisSelection = this.plotContainer.append('g').call(this.yAxis);
         this.yAxisSelection.selectAll('.domain').attr('stroke-opacity', 0.125);
         this.transition = d3.transition().duration(500);
+    }
+
+    protected addPlots()
+    {
+        /* Hook */
     }
 
     protected createYScale(initialYDomain: [number, number]): d3.ScaleContinuousNumeric<number, number>

@@ -6,12 +6,12 @@ import {Colors} from "./colors";
 
 export class CasesChart extends AxisChart
 {
-    protected confirmedPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected confirmedRollingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected deathsPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected deathsRollingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected pendingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected pendingRollingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected confirmedPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected confirmedRollingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected deathsPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected deathsRollingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected pendingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected pendingRollingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
 
     constructor(
         parent: d3.Selection<any, any, any, any>,
@@ -22,7 +22,14 @@ export class CasesChart extends AxisChart
         initialYDomain: [number, number] = [0, 1])
     {
         super(parent, width, height, margin, initialXDomain, initialYDomain);
+    }
 
+
+    /**
+     * @inheritDoc
+     */
+    protected addPlots()
+    {
         this.confirmedPath = this.plotContainer.append('path')
             .attr('fill', "none")
             .attr('stroke', Colors.blue["100"])

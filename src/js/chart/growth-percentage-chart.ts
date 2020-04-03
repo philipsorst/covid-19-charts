@@ -6,8 +6,8 @@ import {Colors} from "./colors";
 
 export class GrowthPercentageChart extends AxisChart
 {
-    protected path: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected movingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected path!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected movingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     private movingWindowSize = 3;
 
     constructor(
@@ -19,7 +19,10 @@ export class GrowthPercentageChart extends AxisChart
         initialYDomain: [number, number] = [0, 1])
     {
         super(parent, width, height, margin, initialXDomain, initialYDomain);
+    }
 
+    protected addPlots()
+    {
         this.path = this.plotContainer.append('path')
             .attr('fill', 'none')
             .attr('stroke', Colors.blue["100"])

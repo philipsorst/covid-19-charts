@@ -6,8 +6,8 @@ import {Colors} from "./colors";
 
 export class DeathRateChart extends AxisChart
 {
-    protected path: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected pathRolling: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected path!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected pathRolling!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
 
     constructor(
         parent: d3.Selection<any, any, any, any>,
@@ -18,7 +18,13 @@ export class DeathRateChart extends AxisChart
         initialYDomain: [number, number] = [0, 1])
     {
         super(parent, width, height, margin, initialXDomain, initialYDomain);
+    }
 
+    /**
+     * @inheritDoc
+     */
+    protected addPlots()
+    {
         this.path = this.plotContainer.append('path')
             .attr('fill', 'none')
             .attr('stroke', Colors.blue["100"])
@@ -29,6 +35,9 @@ export class DeathRateChart extends AxisChart
             .attr('stroke-width', 1.5);
     }
 
+    /**
+     * @inheritDoc
+     */
     public update(entries: DayDatum[])
     {
         super.update(entries);
