@@ -12,6 +12,25 @@ export class DayDatum
     previous: DayDatum | null = null;
     next: DayDatum | null = null;
 
+    public getPrevious(numDays: number = 1): DayDatum | null
+    {
+        return this.getPreviousInternal(numDays, 0);
+    }
+
+    private getPreviousInternal(numDays: number, numDaysSeen: number): DayDatum | null
+    {
+        if (numDays === numDaysSeen) {
+            return this;
+        }
+
+        const previous = this.previous;
+        if (null == previous) {
+            return null;
+        }
+
+        return previous.getPreviousInternal(numDays, numDaysSeen + 1);
+    }
+
     public getPending(): number
     {
         return this.confirmed - this.recovered - this.deaths;
@@ -124,6 +143,20 @@ export class DayDatum
         }
 
         return d3.sum(values) as number / weightSum;
+    }
+
+    public getNetReproductionNumber(): number | null
+    {
+        const previous = this.getPrevious(6);
+        if (null == previous) {
+            return null;
+        }
+
+        if (0 === previous.confirmed) {
+            return 0;
+        }
+
+        return (this.confirmed - previous.confirmed) / previous.confirmed;
     }
 
     public getGrowth(): number | null

@@ -7,14 +7,13 @@ import {CovidData} from "./covid-data";
 import {Utils} from "./utils";
 import * as d3 from "d3";
 import {Margin} from "./chart/margin";
-import {GrowthPercentageChangeChart} from "./chart/growth-percentage-change-chart";
 import {DeathRateChart} from "./chart/death-rate-chart";
 import {Location} from "./location";
 import {DayDatum} from "./day-datum";
 import {InfoPanel} from "./chart/info-panel";
 import {CasesChart} from "./chart/cases-chart";
 import {GrowthChart} from "./chart/growth-chart";
-import {GrowthPercentageChart} from "./chart/growth-percentage-chart";
+import {NetReproductionNumberChart} from "./chart/net-reproduction-number-chart";
 
 require('../scss/charts.scss');
 
@@ -23,9 +22,10 @@ class Dashboard
     private contentSelection: d3.Selection<HTMLDivElement, unknown, HTMLElement, any>;
     private plotMargin = new Margin(5, 1, 25, 60);
     private mainChart!: CasesChart;
-    private growthPercentageChangeChart!: GrowthPercentageChangeChart;
+    // private growthPercentageChangeChart!: GrowthPercentageChangeChart;
+    private netReproductionNumberChart!: NetReproductionNumberChart;
     private growthChart!: GrowthChart;
-    private growthPercentageChart!: GrowthPercentageChart;
+    // private growthPercentageChart!: GrowthPercentageChart;
     private deathRateChart!: DeathRateChart;
     private circleMap!: CircleMap;
     private infoPanel!: InfoPanel;
@@ -33,10 +33,12 @@ class Dashboard
     private casesInfoParentSelection!: d3.Selection<any, any, any, any>;
     private mapParentSelection!: d3.Selection<any, any, any, any>;
     private casesChartParentSelection!: d3.Selection<any, any, any, any>;
-    private growthPercentageChangeChartParentSelection!: d3.Selection<any, any, any, any>;
+    // private growthPercentageChangeChartParentSelection!: d3.Selection<any, any, any, any>;
     private deathRateChartParentSelection!: d3.Selection<any, any, any, any>;
+    private netReproductionNumberChartParentSelection!: d3.Selection<any, any, any, any>;
     private growthChartParentSelection!: d3.Selection<any, any, any, any>;
-    private growthPercentageChartParentSelection!: d3.Selection<any, any, any, any>;
+
+    // private growthPercentageChartParentSelection!: d3.Selection<any, any, any, any>;
 
     constructor(private covidData: CovidData, private counryData: CountryData, private worldData: any)
     {
@@ -95,6 +97,16 @@ class Dashboard
         let rightColumnSelection = this.contentSelection.append('div')
             .classed('col-lg-6 d-lg-flex flex-lg-column', true);
 
+        let netReproductionNumberSelection = rightColumnSelection.append('section')
+            .classed('card flex-lg-fill d-lg-flex flex-lg-column', true);
+        netReproductionNumberSelection
+            .append('h2')
+            .classed('h4 card-header', true)
+            .html('Net Reproduction Number');
+        this.netReproductionNumberChartParentSelection = netReproductionNumberSelection
+            .append('div')
+            .classed('flex-lg-grow-1', true);
+
         let growthSectionSelection = rightColumnSelection.append('section')
             .classed('card flex-lg-fill d-lg-flex flex-lg-column', true);
         growthSectionSelection
@@ -105,25 +117,25 @@ class Dashboard
             .append('div')
             .classed('flex-lg-grow-1', true);
 
-        let growthPercentageSectionSelection = rightColumnSelection.append('section')
-            .classed('card flex-lg-fill d-lg-flex flex-lg-column', true);
-        growthPercentageSectionSelection
-            .append('h2')
-            .classed('h4 card-header', true)
-            .html('Growth Percentage');
-        this.growthPercentageChartParentSelection = growthPercentageSectionSelection
-            .append('div')
-            .classed('flex-lg-grow-1', true);
-
-        let growthPercentageChangeSectionSelection = rightColumnSelection.append('section')
-            .classed('card flex-lg-fill d-lg-flex flex-lg-column', true);
-        growthPercentageChangeSectionSelection
-            .append('h2')
-            .classed('h4 card-header', true)
-            .html('Growth Percentage Change');
-        this.growthPercentageChangeChartParentSelection = growthPercentageChangeSectionSelection
-            .append('div')
-            .classed('flex-lg-grow-1', true);
+        // let growthPercentageSectionSelection = rightColumnSelection.append('section')
+        //     .classed('card flex-lg-fill d-lg-flex flex-lg-column', true);
+        // growthPercentageSectionSelection
+        //     .append('h2')
+        //     .classed('h4 card-header', true)
+        //     .html('Growth Percentage');
+        // this.growthPercentageChartParentSelection = growthPercentageSectionSelection
+        //     .append('div')
+        //     .classed('flex-lg-grow-1', true);
+        //
+        // let growthPercentageChangeSectionSelection = rightColumnSelection.append('section')
+        //     .classed('card flex-lg-fill d-lg-flex flex-lg-column', true);
+        // growthPercentageChangeSectionSelection
+        //     .append('h2')
+        //     .classed('h4 card-header', true)
+        //     .html('Growth Percentage Change');
+        // this.growthPercentageChangeChartParentSelection = growthPercentageChangeSectionSelection
+        //     .append('div')
+        //     .classed('flex-lg-grow-1', true);
 
         let deathRateSectionSelection = rightColumnSelection.append('section')
             .classed('card flex-lg-fill d-lg-flex flex-lg-column', true);
@@ -145,7 +157,8 @@ class Dashboard
         /* Precompute bounding boxes */
         const mapBounds = Utils.getBoundingClientRect(this.mapParentSelection);
         const casesChartBounds = Utils.getBoundingClientRect(this.casesChartParentSelection);
-        const growthPercentageChangeChartBounds = Utils.getBoundingClientRect(this.growthPercentageChangeChartParentSelection);
+        // const growthPercentageChangeChartBounds = Utils.getBoundingClientRect(this.growthPercentageChangeChartParentSelection);
+        const netReproductionNumberChartBounds = Utils.getBoundingClientRect(this.netReproductionNumberChartParentSelection);
         const deathRateChartBounds = Utils.getBoundingClientRect(this.deathRateChartParentSelection);
         const growthChartBounds = Utils.getBoundingClientRect(this.growthChartParentSelection);
 
@@ -167,6 +180,15 @@ class Dashboard
         let circleData = this.getCircleMapLastDayData();
         this.circleMap.update(circleData);
 
+        this.netReproductionNumberChart = new NetReproductionNumberChart(
+            this.netReproductionNumberChartParentSelection,
+            growthChartBounds.width,
+            netReproductionNumberChartBounds.height < 150 ? 150 : netReproductionNumberChartBounds.height,
+            this.plotMargin,
+            d3.extent(this.covidData.getGlobalDayData(), d => d.date) as [Date, Date],
+            [0, d3.max(this.covidData.getGlobalDayData(), d => d.getNetReproductionNumber()) as number]
+        );
+
         this.growthChart = new GrowthChart(
             this.growthChartParentSelection,
             growthChartBounds.width,
@@ -176,23 +198,23 @@ class Dashboard
             [0, d3.max(this.covidData.getGlobalDayData(), d => d.getGrowth()) as number]
         );
 
-        this.growthPercentageChart = new GrowthPercentageChart(
-            this.growthPercentageChartParentSelection,
-            growthChartBounds.width,
-            growthChartBounds.height < 150 ? 150 : growthChartBounds.height,
-            this.plotMargin,
-            d3.extent(this.covidData.getGlobalDayData(), d => d.date) as [Date, Date],
-            [0, d3.max(this.covidData.getGlobalDayData(), d => d.getGrowthPercentage()) as number]
-        );
-
-        this.growthPercentageChangeChart = new GrowthPercentageChangeChart(
-            this.growthPercentageChangeChartParentSelection,
-            growthPercentageChangeChartBounds.width,
-            growthPercentageChangeChartBounds.height < 150 ? 150 : growthPercentageChangeChartBounds.height,
-            this.plotMargin,
-            d3.extent(this.covidData.getGlobalDayData(), d => d.date) as [Date, Date],
-            [0, d3.max(this.covidData.getGlobalDayData(), d => d.getGrowthChange()) as number]
-        );
+        // this.growthPercentageChart = new GrowthPercentageChart(
+        //     this.growthPercentageChartParentSelection,
+        //     growthChartBounds.width,
+        //     growthPercentageChartBounds.height < 150 ? 150 : growthPercentageChartBounds.height,
+        //     this.plotMargin,
+        //     d3.extent(this.covidData.getGlobalDayData(), d => d.date) as [Date, Date],
+        //     [0, d3.max(this.covidData.getGlobalDayData(), d => d.getGrowthPercentage()) as number]
+        // );
+        //
+        // this.growthPercentageChangeChart = new GrowthPercentageChangeChart(
+        //     this.growthPercentageChangeChartParentSelection,
+        //     growthPercentageChangeChartBounds.width,
+        //     growthPercentageChangeChartBounds.height < 150 ? 150 : growthPercentageChangeChartBounds.height,
+        //     this.plotMargin,
+        //     d3.extent(this.covidData.getGlobalDayData(), d => d.date) as [Date, Date],
+        //     [0, d3.max(this.covidData.getGlobalDayData(), d => d.getGrowthChange()) as number]
+        // );
 
         this.deathRateChart = new DeathRateChart(
             this.deathRateChartParentSelection,
@@ -240,9 +262,10 @@ class Dashboard
         this.mainChart.update(dayData);
         this.growthChart.update(dayData);
         this.deathRateChart.update(dayData);
-        this.growthPercentageChangeChart.update(dayData);
-        this.growthPercentageChart.update(dayData);
+        // this.growthPercentageChangeChart.update(dayData);
+        // this.growthPercentageChart.update(dayData);
         this.infoPanel.update(lastEntry);
+        this.netReproductionNumberChart.update(dayData);
     }
 
     private getDayData(location: Location | null): DayDatum[]
