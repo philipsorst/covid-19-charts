@@ -242,6 +242,14 @@ class CovidDataLoader
             if (null != lastEntry) {
                 entry.previous = lastEntry;
                 lastEntry.next = entry;
+                const growth = entry.getGrowth();
+                if (null != growth) {
+                    entry.pending = lastEntry.pending + growth;
+                    const dayDatum14 = entry.getPrevious(14);
+                    if (null != dayDatum14 && null != dayDatum14.getGrowth()) {
+                        entry.pending -= dayDatum14.getGrowth() as number;
+                    }
+                }
             }
             lastEntry = entry;
         });

@@ -9,6 +9,7 @@ export class DayDatum
     deaths: number = 0;
     recovered: number = 0;
     confirmed: number = 0;
+    pending: number = 0;
     previous: DayDatum | null = null;
     next: DayDatum | null = null;
 
@@ -33,7 +34,7 @@ export class DayDatum
 
     public getPending(): number
     {
-        return this.confirmed - this.recovered - this.deaths;
+        return this.pending;
     }
 
     public getDeathRate(): number
@@ -93,7 +94,6 @@ export class DayDatum
         let current: DayDatum = this;
         let weightSum = 0;
         for (let i = 0; i <= size; i++) {
-            console.log(i);
             let currentValue = accessor.call(current);
             if (null == currentValue) {
                 return null;
@@ -166,6 +166,15 @@ export class DayDatum
         }
 
         return this.confirmed - this.previous.confirmed;
+    }
+
+    public getDeathGrowth(): number | null
+    {
+        if (null == this.previous) {
+            return null;
+        }
+
+        return this.deaths - this.previous.deaths;
     }
 
     public getGrowthChange(): number | null

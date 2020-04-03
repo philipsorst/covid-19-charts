@@ -10,6 +10,8 @@ export class CasesChart extends AxisChart
     protected confirmedRollingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected deathsPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected deathsRollingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected pendingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected pendingRollingPath: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
 
     constructor(
         parent: d3.Selection<any, any, any, any>,
@@ -39,6 +41,16 @@ export class CasesChart extends AxisChart
         this.deathsRollingPath = this.plotContainer.append("path")
             .attr("fill", "none")
             .attr("stroke", Colors.red["700"])
+            .attr("stroke-width", 1.5);
+
+        this.pendingPath = this.plotContainer.append("path")
+            .attr("fill", "none")
+            .attr("stroke", Colors.green["100"])
+            .attr("stroke-width", 1.5);
+
+        this.pendingRollingPath = this.plotContainer.append("path")
+            .attr("fill", "none")
+            .attr("stroke", Colors.green["700"])
             .attr("stroke-width", 1.5);
     }
 
@@ -81,6 +93,25 @@ export class CasesChart extends AxisChart
             .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.getMovingAverageCentered(d.getDeaths) as number))
+            );
+
+        this.pendingPath
+            .datum(entries.filter(d => d.pending > 0))
+            .transition(this.transition)
+            .attr('d', d3.line<DayDatum>()
+                .x(d => this.xScale(d.date))
+                .y(d => this.yScale(d.pending))
+            );
+
+        this.pendingRollingPath
+            .datum(entries.filter(entry => {
+                const d = entry.getMovingAverageCentered(entry.getPending, 1, true);
+                return d != null && d > 0;
+            }))
+            .transition(this.transition)
+            .attr('d', d3.line<DayDatum>()
+                .x(d => this.xScale(d.date))
+                .y(d => this.yScale(d.getMovingAverageCentered(d.getPending) as number))
             );
     }
 

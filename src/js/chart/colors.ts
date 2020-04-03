@@ -1,7 +1,9 @@
 export class Colors
 {
     public static green = {
+        100: '#C8E6C9',
         300: '#81C784',
+        500: '#4CAF50',
         700: '#388E3C'
     };
 
