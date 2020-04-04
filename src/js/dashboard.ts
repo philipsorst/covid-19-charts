@@ -14,6 +14,7 @@ import {InfoPanel} from "./chart/info-panel";
 import {CasesChart} from "./chart/cases-chart";
 import {GrowthChart} from "./chart/growth-chart";
 import {NetReproductionNumberChart} from "./chart/net-reproduction-number-chart";
+import {Country} from "./country";
 
 require('../scss/charts.scss');
 
@@ -72,7 +73,7 @@ class Dashboard
             .append('a')
             .classed('nav-link active', true)
             .attr('href', '#')
-            .html('Confirmed');
+            .html('Pending');
         this.mapParentSelection = mapSectionSelection
             .append('div')
             .classed('flex-lg-grow-1', true);
@@ -268,6 +269,35 @@ class Dashboard
         this.netReproductionNumberChart.update(dayData);
     }
 
+    public setCountry(country: Country | null)
+    {
+        if (null == country) {
+            d3.select('#current-location').html('Global');
+        } else {
+            d3.select('#current-location').html(country.name);
+        }
+
+
+        const dayData = this.getDayDataByCountry(country);
+        const lastEntry = dayData[dayData.length - 1];
+        this.mainChart.update(dayData);
+        this.growthChart.update(dayData);
+        this.deathRateChart.update(dayData);
+        // this.growthPercentageChangeChart.update(dayData);
+        // this.growthPercentageChart.update(dayData);
+        this.infoPanel.update(lastEntry);
+        this.netReproductionNumberChart.update(dayData);
+    }
+
+    private getDayDataByCountry(country: Country | null): DayDatum[]
+    {
+        if (null == country) {
+            return this.covidData.getGlobalDayData();
+        }
+
+        return this.covidData.getDayData(country.code);
+    }
+
     private getDayData(location: Location | null): DayDatum[]
     {
         if (null == location) {
@@ -297,6 +327,13 @@ d3_select('#content').append('div').classed('text-center col-12', true).html('Lo
 DashboardLoader.load().then(data => {
     d3_select('#content').selectAll('*').remove();
     const dashboard = new Dashboard(data.covidData, data.countryData, data.worldData);
-    let location = data.covidData.getLocations().filter(location => location.country.code === 'DE').pop() as Location;
-    dashboard.setLocation(location)
+    let pathMatchEx = /.*\/(.*)$/;
+    let country = null;
+    let match = window.location.pathname.match(pathMatchEx);
+    if (null != match) {
+        let countryCode = match[1];
+        country = data.countryData.getCountry(countryCode);
+    }
+
+    dashboard.setCountry(country)
 });

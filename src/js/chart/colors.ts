@@ -26,6 +26,7 @@ export class Colors
     };
 
     public static gray = {
+        100: '#F5F5F5',
         300: '#E0E0E0',
         400: '#BDBDBD',
         500: '#9E9E9E',

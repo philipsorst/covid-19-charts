@@ -12,6 +12,8 @@ export class CasesChart extends AxisChart
     protected deathsRollingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected pendingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected pendingRollingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected recoveredPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected recoveredRollingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
 
     constructor(
         parent: d3.Selection<any, any, any, any>,
@@ -32,12 +34,12 @@ export class CasesChart extends AxisChart
     {
         this.confirmedPath = this.plotContainer.append('path')
             .attr('fill', "none")
-            .attr('stroke', Colors.blue["100"])
+            .attr('stroke', Colors.gray["100"])
             .attr('stroke-width', 1.5);
 
         this.confirmedRollingPath = this.plotContainer.append('path')
             .attr('fill', "none")
-            .attr('stroke', Colors.blue["700"])
+            .attr('stroke', Colors.gray["700"])
             .attr('stroke-width', 1.5);
 
         this.deathsPath = this.plotContainer.append("path")
@@ -52,10 +54,20 @@ export class CasesChart extends AxisChart
 
         this.pendingPath = this.plotContainer.append("path")
             .attr("fill", "none")
-            .attr("stroke", Colors.green["100"])
+            .attr("stroke", Colors.blue["100"])
             .attr("stroke-width", 1.5);
 
         this.pendingRollingPath = this.plotContainer.append("path")
+            .attr("fill", "none")
+            .attr("stroke", Colors.blue["700"])
+            .attr("stroke-width", 1.5);
+
+        this.recoveredPath = this.plotContainer.append("path")
+            .attr("fill", "none")
+            .attr("stroke", Colors.green["100"])
+            .attr("stroke-width", 1.5);
+
+        this.recoveredRollingPath = this.plotContainer.append("path")
             .attr("fill", "none")
             .attr("stroke", Colors.green["700"])
             .attr("stroke-width", 1.5);
@@ -119,6 +131,25 @@ export class CasesChart extends AxisChart
             .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.getMovingAverageCentered(d.getPending) as number))
+            );
+
+        this.recoveredPath
+            .datum(entries.filter(d => d.getRecovered() > 0))
+            .transition(this.transition)
+            .attr('d', d3.line<DayDatum>()
+                .x(d => this.xScale(d.date))
+                .y(d => this.yScale(d.getRecovered()))
+            );
+
+        this.recoveredRollingPath
+            .datum(entries.filter(entry => {
+                const d = entry.getMovingAverageCentered(entry.getRecovered, 1, true);
+                return d != null && d > 0;
+            }))
+            .transition(this.transition)
+            .attr('d', d3.line<DayDatum>()
+                .x(d => this.xScale(d.date))
+                .y(d => this.yScale(d.getMovingAverageCentered(d.getRecovered) as number))
             );
     }
 

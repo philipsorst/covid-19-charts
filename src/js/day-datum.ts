@@ -7,7 +7,6 @@ export class DayDatum
     }
 
     deaths: number = 0;
-    recovered: number = 0;
     confirmed: number = 0;
     pending: number = 0;
     previous: DayDatum | null = null;
@@ -227,7 +226,7 @@ export class DayDatum
 
     public getRecovered(): number
     {
-        return this.recovered;
+        return this.confirmed - this.pending - this.deaths;
     }
 
     public getDeaths(): number

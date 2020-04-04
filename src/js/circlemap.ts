@@ -100,7 +100,7 @@ const recoveredPlot: MapPlot = {
         if (null == dayData) {
             return null;
         }
-        return dayData.recovered;
+        return dayData.getRecovered();
     }
 };
 
@@ -111,7 +111,7 @@ const recoveredPercentagePlot: MapPlot = {
         if (null == dayData) {
             return null;
         }
-        return dayData.recovered / dayData.confirmed;
+        return dayData.getRecovered() / dayData.confirmed;
     }
 };
 
@@ -207,6 +207,10 @@ CountryData.load().then((countryData) => {
                 }
             });
 
+            const circleScale = d3.scaleSqrt()
+                .domain([0, d3.max(circleData, d => d.dayDatum.getPending()) as number])
+                .range([0, resultingBbox.width / 20]);
+
             innerContainer
                 .selectAll('circle')
                 .data(circleData)
@@ -215,7 +219,7 @@ CountryData.load().then((countryData) => {
                 .attr('cx', 0)
                 .attr('cy', 0)
                 .attr('transform', d => 'translate(' + projection([d.location.long, d.location.lat]) + ')')
-                .attr('r', d => Math.sqrt(d.dayDatum.getPending()) / 5)
+                .attr('r', d => circleScale(d.dayDatum.getPending()))
                 // .attr('fill', 'rgba(255,255,255,0.125)')
                 .attr('fill', 'rgba(244,67,54,0.25)')
                 // .attr('stroke', 'rgba(0,128,255,0.125)');

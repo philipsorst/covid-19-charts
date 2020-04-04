@@ -99,7 +99,7 @@ const recoveredPlot: MapPlot = {
         if (null == dayData) {
             return null;
         }
-        return dayData.recovered;
+        return dayData.getRecovered();
     }
 };
 
@@ -111,7 +111,7 @@ const recoveredPercentagePlot: MapPlot = {
         if (null == dayData) {
             return null;
         }
-        return dayData.recovered / dayData.confirmed;
+        return dayData.getRecovered() / dayData.confirmed;
     }
 };
 
