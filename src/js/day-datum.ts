@@ -157,7 +157,7 @@ export class DayDatum
             return 0;
         }
 
-        const val = Math.max(0, (this.confirmed - yesterday.confirmed) / incubationAgo.pending);
+        const val = Math.max(0, (this.confirmed - yesterday.confirmed) / incubationAgo.pending) * pendingDays;
 
         // console.log('NRN', this.date, this.confirmed - yesterday.confirmed, incubationAgo.pending, val);
         return val;
