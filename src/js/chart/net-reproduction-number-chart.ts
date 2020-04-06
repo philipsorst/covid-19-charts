@@ -77,6 +77,6 @@ export class NetReproductionNumberChart extends AxisChart
     {
         // return d3.extent(
         //     entries.filter(entry => entry.getNetReproductionNumber() != null), d => d.getNetReproductionNumber()) as [number, number]
-        return [0, 3];
+        return [0, 10];
     }
 }

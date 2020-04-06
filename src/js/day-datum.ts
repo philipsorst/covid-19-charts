@@ -147,7 +147,7 @@ export class DayDatum
     public getNetReproductionNumber(): number | null
     {
         const incubationDays = 1;
-        const infectiousDays = 7;
+        const infectiousDays = 14;
 
         const yesterday = this.getPrevious();
         const incubationAgo = this.getPrevious(incubationDays);
@@ -171,6 +171,15 @@ export class DayDatum
         }
 
         return this.confirmed - this.previous.confirmed;
+    }
+
+    public getPendingGrowth(): number | null
+    {
+        if (null == this.previous) {
+            return null;
+        }
+
+        return this.pending - this.previous.pending;
     }
 
     public getDeathGrowth(): number | null

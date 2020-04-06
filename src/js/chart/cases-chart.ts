@@ -166,8 +166,8 @@ export class CasesChart extends AxisChart
      */
     protected createYScale(initialYDomain: [number, number]): d3.ScaleContinuousNumeric<number, number>
     {
-        return d3.scaleLog()
-            // return d3.scaleLinear()
+        // return d3.scaleLog()
+        return d3.scaleLinear()
             .domain(initialYDomain)
             .range([this.getInnerHeight(), 0])
     }
