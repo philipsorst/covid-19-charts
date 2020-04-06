@@ -6,6 +6,7 @@ import {Colors} from "./colors";
 
 export class NetReproductionNumberChart extends AxisChart
 {
+    private linearLine!: d3.Selection<SVGLineElement, unknown, HTMLElement, any>;
     protected path!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected pathRolling!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
 
@@ -25,6 +26,12 @@ export class NetReproductionNumberChart extends AxisChart
      */
     protected addPlots()
     {
+        this.linearLine = this.plotContainer.append('line')
+            .attr('stroke', Colors.gray["500"])
+            .attr('x1', this.xScale.range()[0])
+            .attr('x2', this.xScale.range()[1])
+            .attr('y1', this.yScale(1))
+            .attr('y2', this.yScale(1));
         this.path = this.plotContainer.append('path')
             .attr('fill', 'none')
             .attr('stroke', Colors.blue["100"])
@@ -41,6 +48,12 @@ export class NetReproductionNumberChart extends AxisChart
     public update(entries: DayDatum[])
     {
         super.update(entries);
+        this.linearLine
+            .transition(this.transition)
+            .attr('x1', this.xScale.range()[0])
+            .attr('x2', this.xScale.range()[1])
+            .attr('y1', this.yScale(1))
+            .attr('y2', this.yScale(1));
         this.path
             .datum(entries.filter(entry => entry.getNetReproductionNumber() != null))
             .transition(this.transition)
@@ -64,6 +77,6 @@ export class NetReproductionNumberChart extends AxisChart
     {
         // return d3.extent(
         //     entries.filter(entry => entry.getNetReproductionNumber() != null), d => d.getNetReproductionNumber()) as [number, number]
-        return [0, 5];
+        return [0, 3];
     }
 }

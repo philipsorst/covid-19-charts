@@ -146,16 +146,21 @@ export class DayDatum
 
     public getNetReproductionNumber(): number | null
     {
-        const previous = this.getPrevious(6);
-        if (null == previous) {
-            return null;
-        }
+        const incubationDays = 6;
+        const pendingDays = 14;
 
-        if (0 === previous.pending) {
+        const yesterday = this.getPrevious();
+        const incubationAgo = this.getPrevious(incubationDays);
+        if (null == yesterday || null == incubationAgo) return null;
+
+        if (0 === incubationAgo.pending) {
             return 0;
         }
 
-        return Math.max(0, (this.pending - previous.pending) / previous.pending);
+        const val = Math.max(0, (this.confirmed - yesterday.confirmed) / incubationAgo.pending);
+
+        // console.log('NRN', this.date, this.confirmed - yesterday.confirmed, incubationAgo.pending, val);
+        return val;
     }
 
     public getGrowth(): number | null
