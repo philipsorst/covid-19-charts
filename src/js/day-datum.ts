@@ -146,18 +146,19 @@ export class DayDatum
 
     public getNetReproductionNumber(): number | null
     {
-        const incubationDays = 6;
-        const pendingDays = 14;
+        const incubationDays = 1;
+        const infectiousDays = 7;
 
         const yesterday = this.getPrevious();
         const incubationAgo = this.getPrevious(incubationDays);
-        if (null == yesterday || null == incubationAgo) return null;
+        const infectiousDaysAgo = this.getPrevious(infectiousDays);
+        if (null == yesterday || null == incubationAgo || null == infectiousDaysAgo) return null;
 
         if (0 === incubationAgo.pending) {
             return 0;
         }
 
-        const val = Math.max(0, (this.confirmed - yesterday.confirmed) / incubationAgo.pending) * pendingDays;
+        const val = Math.max(0, (this.confirmed - infectiousDaysAgo.confirmed) / infectiousDaysAgo.pending);
 
         // console.log('NRN', this.date, this.confirmed - yesterday.confirmed, incubationAgo.pending, val);
         return val;
@@ -197,17 +198,18 @@ export class DayDatum
 
     public getGrowthPercentage(): number | null
     {
-        if (null == this.previous) {
+        const previous = this.getPrevious(1);
+        if (null == previous) {
             return null;
         }
 
-        if (this.previous.confirmed === 0) {
+        if (previous.pending === 0) {
             return 0;
         }
 
-        const change = this.confirmed - this.previous.confirmed;
+        const change = this.pending - previous.pending;
 
-        return change / this.previous.confirmed;
+        return change / previous.pending;
     }
 
     public getGrowthPercentageChange(): number | null

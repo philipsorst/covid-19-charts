@@ -38,20 +38,13 @@ class Dashboard
     private deathRateChartParentSelection!: d3.Selection<any, any, any, any>;
     private netReproductionNumberChartParentSelection!: d3.Selection<any, any, any, any>;
     private growthChartParentSelection!: d3.Selection<any, any, any, any>;
-
-    // private growthPercentageChartParentSelection!: d3.Selection<any, any, any, any>;
+ // private growthPercentageChartParentSelection!: d3.Selection<any, any, any, any>;
 
     constructor(private covidData: CovidData, private counryData: CountryData, private worldData: any)
     {
         this.contentSelection = d3_select('#content');
         this.createHtmlLayout();
         this.createVisualizations();
-
-        // this.createElementGrowthChangeChart(growthPercentageChangeSectionSelection);
-        // this.createDeathRateChart(deathRateSectionSelection);
-        // this.createInfo(infoSectionSelection);
-        // this.createElementMap(mapSectionSelection);
-        // this.createElementMainChart(mainChartContainerSelection);
     }
 
     private createHtmlLayout()
@@ -127,7 +120,7 @@ class Dashboard
         // this.growthPercentageChartParentSelection = growthPercentageSectionSelection
         //     .append('div')
         //     .classed('flex-lg-grow-1', true);
-        //
+
         // let growthPercentageChangeSectionSelection = rightColumnSelection.append('section')
         //     .classed('card flex-lg-fill d-lg-flex flex-lg-column', true);
         // growthPercentageChangeSectionSelection
@@ -159,6 +152,7 @@ class Dashboard
         const mapBounds = Utils.getBoundingClientRect(this.mapParentSelection);
         const casesChartBounds = Utils.getBoundingClientRect(this.casesChartParentSelection);
         // const growthPercentageChangeChartBounds = Utils.getBoundingClientRect(this.growthPercentageChangeChartParentSelection);
+        // const growthPercentageChartBounds = Utils.getBoundingClientRect(this.growthPercentageChartParentSelection);
         const netReproductionNumberChartBounds = Utils.getBoundingClientRect(this.netReproductionNumberChartParentSelection);
         const deathRateChartBounds = Utils.getBoundingClientRect(this.deathRateChartParentSelection);
         const growthChartBounds = Utils.getBoundingClientRect(this.growthChartParentSelection);

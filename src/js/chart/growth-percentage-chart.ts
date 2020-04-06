@@ -61,8 +61,8 @@ export class GrowthPercentageChart extends AxisChart
     protected getYDomain(entries: DayDatum[]): [number, number]
     {
         return d3.extent(
-            entries.filter(entry => entry.getGrowthPercentage() != null),
-            d => d.getGrowthPercentage()
+            entries.filter(entry => entry.getMovingAverageCentered(entry.getGrowthPercentage, this.movingWindowSize) != null),
+            d => d.getMovingAverageCentered(d.getGrowthPercentage, this.movingWindowSize)
         ) as [number, number];
 
         // return d3.extent(
