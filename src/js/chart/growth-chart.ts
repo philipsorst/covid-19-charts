@@ -37,7 +37,7 @@ export class GrowthChart extends AxisChart
             .attr('y2', this.yScale(1));
         this.path = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', Utils.colorWithOpacity(Colors.gray["900"], 0.25))
+            .attr('stroke', Utils.colorWithOpacity(Colors.gray["900"], 0.125))
             .attr('stroke-width', 1.5);
         this.pathRolling = this.plotContainer.append('path')
             .attr('fill', 'none')
@@ -45,7 +45,7 @@ export class GrowthChart extends AxisChart
             .attr('stroke-width', 1.5);
         this.pendingPath = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', Utils.colorWithOpacity(Colors.blue["900"], 0.25))
+            .attr('stroke', Utils.colorWithOpacity(Colors.blue["900"], 0.125))
             .attr('stroke-width', 1.5);
         this.pendingPathRolling = this.plotContainer.append('path')
             .attr('fill', 'none')

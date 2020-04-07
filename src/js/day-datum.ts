@@ -31,6 +31,25 @@ export class DayDatum
         return previous.getPreviousInternal(numDays, numDaysSeen + 1);
     }
 
+    public getNext(numDays: number = 1): DayDatum | null
+    {
+        return this.getNextInternal(numDays, 0);
+    }
+
+    private getNextInternal(numDays: number, numDaysSeen: number): DayDatum | null
+    {
+        if (numDays === numDaysSeen) {
+            return this;
+        }
+
+        const next = this.next;
+        if (null == next) {
+            return null;
+        }
+
+        return next.getNextInternal(numDays, numDaysSeen + 1);
+    }
+
     public getPending(): number
     {
         return this.pending;
@@ -109,6 +128,31 @@ export class DayDatum
         return d3.sum(values) as number / weightSum;
     }
 
+    public getMovingMedianCentered(accessor: () => (number | null), size: number = 1, excludeZero: boolean = false): number | null
+    {
+        const values = new Array<number>();
+        const currentValue = accessor.call(this);
+        if (null == currentValue || (excludeZero && 0 === currentValue)) return null;
+
+        for (let i = 1; i <= size; i++) {
+            const previous = this.getPrevious(i);
+            if (null == previous) return null;
+            const previousValue = accessor.call(previous);
+            if (null == previousValue || (excludeZero && 0 === previousValue)) return null;
+            values.push(previousValue);
+        }
+
+        for (let i = 1; i <= size; i++) {
+            const next = this.getNext(i);
+            if (null == next) return null;
+            const nextValue = accessor.call(next);
+            if (null == nextValue || (excludeZero && 0 === nextValue)) return null;
+            values.push(nextValue);
+        }
+
+        return d3.median(values) as number;
+    }
+
     public getMovingAverageCentered(accessor: () => (number | null), size: number = 1, excludeZero: boolean = false): number | null
     {
         const values = new Array<number>();
@@ -146,7 +190,7 @@ export class DayDatum
 
     public getNetReproductionNumber(): number | null
     {
-        const incubationDays = 1;
+        const incubationDays = 6;
         const infectiousDays = 14;
 
         const yesterday = this.getPrevious();
@@ -154,7 +198,7 @@ export class DayDatum
         const infectiousDaysAgo = this.getPrevious(infectiousDays);
         if (null == yesterday || null == incubationAgo || null == infectiousDaysAgo) return null;
 
-        if (0 === incubationAgo.pending) {
+        if (0 === infectiousDaysAgo.pending) {
             return 0;
         }
 
