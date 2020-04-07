@@ -4,7 +4,8 @@ export class Colors
         100: '#C8E6C9',
         300: '#81C784',
         500: '#4CAF50',
-        700: '#388E3C'
+        700: '#388E3C',
+        900: '#1B5E20'
     };
 
     public static blue = {
@@ -13,7 +14,8 @@ export class Colors
         300: '#64B5F6',
         400: '#42A5F5',
         500: '#2196F3',
-        700: '#1976D2'
+        700: '#1976D2',
+        900: '#0D47A1'
     };
 
     public static red = {
@@ -22,7 +24,8 @@ export class Colors
         300: '#E57373',
         400: '#EF5350',
         500: '#F44336',
-        700: '#D32F2F'
+        700: '#D32F2F',
+        900: '#B71C1C'
     };
 
     public static gray = {
@@ -30,6 +33,7 @@ export class Colors
         300: '#E0E0E0',
         400: '#BDBDBD',
         500: '#9E9E9E',
-        700: '#616161'
+        700: '#616161',
+        900: '#212121'
     };
 }

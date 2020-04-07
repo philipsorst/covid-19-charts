@@ -3,6 +3,7 @@ import {DayDatum} from "../day-datum";
 import * as d3 from "d3";
 import {Margin} from "./margin";
 import {Colors} from "./colors";
+import {Utils} from "../utils";
 
 export class GrowthChart extends AxisChart
 {
@@ -36,19 +37,19 @@ export class GrowthChart extends AxisChart
             .attr('y2', this.yScale(1));
         this.path = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', Colors.gray["100"])
+            .attr('stroke', Utils.colorWithOpacity(Colors.gray["900"], 0.25))
             .attr('stroke-width', 1.5);
         this.pathRolling = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', Colors.gray["700"])
+            .attr('stroke', Utils.colorWithOpacity(Colors.gray["900"], 0.75))
             .attr('stroke-width', 1.5);
         this.pendingPath = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', Colors.blue["100"])
+            .attr('stroke', Utils.colorWithOpacity(Colors.blue["900"], 0.25))
             .attr('stroke-width', 1.5);
         this.pendingPathRolling = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', Colors.blue["700"])
+            .attr('stroke', Utils.colorWithOpacity(Colors.blue["900"], 0.75))
             .attr('stroke-width', 1.5);
     }
 
