@@ -192,17 +192,17 @@ export class DayDatum
 
     public getNetReproductionNumber(): number | null
     {
-        const infectiousDays = 10;
+        const incubationDays = 5;
 
         const yesterday = this.getPrevious();
-        const infectiousDaysAgo = this.getPrevious(infectiousDays);
-        if (null == yesterday || null == infectiousDaysAgo) return null;
+        const incubationDaysAgo = this.getPrevious(incubationDays);
+        if (null == yesterday || null == incubationDaysAgo) return null;
 
-        if (0 === infectiousDaysAgo.getPending()) {
+        if (0 === incubationDaysAgo.getPending()) {
             return 0;
         }
 
-        const val = Math.max(0, (this.getConfirmed() - infectiousDaysAgo.getConfirmed()) / infectiousDaysAgo.getPending());
+        const val = Math.max(0, (this.getConfirmed() - incubationDaysAgo.getConfirmed()) / incubationDaysAgo.getPending());
 
         // console.log('NRN', this.date, this.confirmed - yesterday.confirmed, incubationAgo.pending, val);
         return val;
@@ -233,6 +233,15 @@ export class DayDatum
         }
 
         return this.getDeaths() - this.previous.getDeaths();
+    }
+
+    public getRecoveredGrowth(): number | null
+    {
+        if (null == this.previous) {
+            return null;
+        }
+
+        return this.getRecovered() - this.previous.getRecovered();
     }
 
     public getGrowthChange(): number | null

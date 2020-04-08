@@ -7,7 +7,7 @@ import {Colors} from "./colors";
 export class GrowthChart extends AxisChart
 {
     protected linearLine!: d3.Selection<SVGLineElement, unknown, HTMLElement, any>;
-    protected paths!: Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>;
+    protected recoveredPaths!: Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>;
     protected pendingPaths!: Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>;
     protected deathPaths!: Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>;
 
@@ -34,15 +34,15 @@ export class GrowthChart extends AxisChart
             .attr('y1', this.yScale(1))
             .attr('y2', this.yScale(1));
 
-        this.paths = new Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>(7);
-        const colorScaleGray = d3.scaleLinear<string, string>()
+        this.recoveredPaths = new Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>(7);
+        const colorGreenScale = d3.scaleLinear<string, string>()
             .domain([0, 6])
-            .range(['rgba(13,13,13,0.1)', 'rgba(13,13,13,0.9)']);
+            .range(['rgba(27,94,32,0.1)', 'rgba(27,94,32,0.75)']);
         for (let i = 6; i >= 0; i--) {
-            this.paths[i] = (
+            this.recoveredPaths[i] = (
                 this.plotContainer.append('path')
                     .attr('fill', 'none')
-                    .attr('stroke', colorScaleGray(i))
+                    .attr('stroke', colorGreenScale(i))
                     .attr('stroke-width', 1.5)
             );
         }
@@ -50,7 +50,7 @@ export class GrowthChart extends AxisChart
         this.deathPaths = new Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>(7);
         const colorScaleRed = d3.scaleLinear<string, string>()
             .domain([0, 6])
-            .range(['rgba(183,28,28,0.1)', 'rgba(183,28,28,0.9)']);
+            .range(['rgba(183,28,28,0.1)', 'rgba(183,28,28,0.75)']);
         for (let i = 6; i >= 0; i--) {
             this.deathPaths[i] = (
                 this.plotContainer.append('path')
@@ -63,7 +63,7 @@ export class GrowthChart extends AxisChart
         this.pendingPaths = new Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>(7);
         const colorScaleBlue = d3.scaleLinear<string, string>()
             .domain([0, 6])
-            .range(['rgba(13,71,161,0.1)', 'rgba(13,71,161,0.9)']);
+            .range(['rgba(13,71,161,0.1)', 'rgba(13,71,161,0.75)']);
         for (let i = 6; i >= 0; i--) {
             this.pendingPaths[i] = (
                 this.plotContainer.append('path')
@@ -88,12 +88,12 @@ export class GrowthChart extends AxisChart
             .attr('y2', this.yScale(1));
 
         for (let i = 6; i >= 0; i--) {
-            this.paths[i]
-                .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getGrowth, i) != null))
+            this.recoveredPaths[i]
+                .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getRecoveredGrowth, i) != null))
                 .transition(this.transition)
                 .attr('d', d3.line<DayDatum>()
                     .x(d => this.xScale(d.date))
-                    .y(d => this.yScale(d.getMovingAverageCentered(d.getGrowth, i) as number))
+                    .y(d => this.yScale(d.getMovingAverageCentered(d.getRecoveredGrowth, i) as number))
                 );
         }
 
@@ -123,11 +123,11 @@ export class GrowthChart extends AxisChart
      */
     protected getYDomain(entries: DayDatum[]): [number, number]
     {
-        const growthExtend = d3.extent(
-            entries.filter(entry => entry.getGrowth() != null), d => d.getGrowth()) as [number, number];
+        const recoveredGrowthExtend = d3.extent(
+            entries.filter(entry => entry.getRecoveredGrowth() != null), d => d.getRecoveredGrowth()) as [number, number];
         const pendingGrowthExtend = d3.extent(
             entries.filter(entry => entry.getPendingGrowth() != null), d => d.getPendingGrowth()) as [number, number];
-        return [Math.min(growthExtend[0], pendingGrowthExtend[0]), Math.max(growthExtend[1], pendingGrowthExtend[1])];
+        return [Math.min(recoveredGrowthExtend[0], pendingGrowthExtend[0]), Math.max(recoveredGrowthExtend[1], pendingGrowthExtend[1])];
     }
 
 }

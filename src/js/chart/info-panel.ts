@@ -15,7 +15,7 @@ export class InfoPanel
     constructor(private parentSelection: d3.Selection<any, DayDatum, HTMLElement, any>)
     {
         let confirmedSelection = parentSelection.append('div').classed('flex-lg-fill mb-4 mb-lg-0', true);
-        confirmedSelection.append('h2').html('Confirmed');
+        confirmedSelection.append('h2').html('Total');
         this.confirmedNumberSelection = confirmedSelection
             .append('div')
             .classed('display-4', true)

@@ -7,7 +7,6 @@ export class MapCountryCodeMapper
     constructor(private countryData: CountryData)
     {
         this.countryCodeMap.set('China', 'CN');
-        this.countryCodeMap.set('W. Sahara', 'EH');
         this.countryCodeMap.set('Dem. Rep. Congo', 'CD');
         this.countryCodeMap.set('Dominican Rep.', 'DO');
         this.countryCodeMap.set('Falkland Is.', 'GB');
@@ -33,6 +32,10 @@ export class MapCountryCodeMapper
         this.countryCodeMap.set('Macedonia', 'MK');
         this.countryCodeMap.set('Kosovo', 'RS');
         this.countryCodeMap.set('S. Sudan', 'SS');
+
+        /* Inofficial */
+        // this.countryCodeMap.set('W. Sahara', 'EH');
+        this.countryCodeMap.set('W. Sahara', 'MA');
     }
 
     public getCode(name: string): string | null

@@ -53,15 +53,16 @@ export class CountryData
         this.codeToCountryMap.set(code, country);
     }
 
-    public getCountry(code: string): Country | null
+    public getCountry(code: string | null): Country | null
     {
+        if (null == code) return null;
         const country = this.codeToCountryMap.get(code);
         if (null == country) return null;
 
         return country;
     }
 
-    public fetchCountry(code: string): Country | null
+    public fetchCountry(code: string): Country
     {
         const country = this.codeToCountryMap.get(code);
         if (null == country) throw `Country not found for ${code}`;

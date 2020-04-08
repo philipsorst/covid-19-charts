@@ -5,16 +5,35 @@ import * as d3 from 'd3';
 import {DayDatum} from "../day-datum";
 import {Location} from "../location";
 import {Colors} from "../chart/colors";
+import {CountryData} from "../country-data";
+import {MapCountryCodeMapper} from "./map-country-code-mapper";
+import {Country} from "../country";
+import {CountryWithGeoFeature} from "../country-with-geo-feature";
 
 export class CircleMap
 {
     private innerContainer: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
     private projection: d3.GeoProjection;
     private scaleFactor: number;
+    private countryMapper: MapCountryCodeMapper;
+    private country: Country | null = null;
+    private countryPaths: d3.Selection<SVGPathElement, CountryWithGeoFeature, SVGGElement, unknown>;
 
-    constructor(container: d3.Selection<any, unknown, HTMLElement, any>, private width: number, private height: number, worldData: any | undefined)
+    constructor(
+        container: d3.Selection<any, unknown, HTMLElement, any>,
+        private width: number,
+        private height: number,
+        private countryData: CountryData,
+        worldData: any | undefined)
     {
-        let features = TopoJsonClient.feature(worldData, worldData.objects.countries as GeometryCollection).features;
+        this.countryMapper = new MapCountryCodeMapper(countryData);
+
+        let features = TopoJsonClient.feature<{ name: string }>(worldData, worldData.objects.countries as GeometryCollection<{ name: string }>).features;
+        const countries = features
+            .filter(feature => countryData.getCountry(this.countryMapper.getCode(feature.properties.name)) != null)
+            .map((feature) =>
+                new CountryWithGeoFeature(countryData.fetchCountry(this.countryMapper.getCode(feature.properties.name) as string), feature)
+            );
 
         this.projection = d3.geoNaturalEarth1();
         const path = d3.geoPath().projection(this.projection);
@@ -25,12 +44,12 @@ export class CircleMap
 
         this.innerContainer = svg.append('g');
 
-        this.innerContainer
+        this.countryPaths = this.innerContainer
             .selectAll('path')
-            .data(features)
+            .data(countries)
             .enter()
             .append('path')
-            .attr('d', path)
+            .attr('d', d => path(d.feature))
             .attr('stroke', '#808080')
             .attr('fill', '#f0f0f0')
             .attr('vector-effect', 'non-scaling-stroke');
@@ -71,5 +90,16 @@ export class CircleMap
             .attr('fill', fillColor.toString())
             // .attr('stroke', 'rgba(0,128,255,0.125)');
             .attr('stroke', 'none');
+    }
+
+    public setCountry(country: Country | null)
+    {
+        this.country = country;
+        this.updateCountry();
+    }
+
+    private updateCountry()
+    {
+        this.countryPaths.attr('stroke', d => this.country != null && this.country.code === d.country.code ? 'red' : '#808080')
     }
 }

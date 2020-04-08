@@ -40,7 +40,7 @@ class Dashboard
     private growthChartParentSelection!: d3.Selection<any, any, any, any>;
  // private growthPercentageChartParentSelection!: d3.Selection<any, any, any, any>;
 
-    constructor(private covidData: CovidData, private counryData: CountryData, private worldData: any)
+    constructor(private covidData: CovidData, private countryData: CountryData, private worldData: any)
     {
         this.contentSelection = d3_select('#content');
         this.createHtmlLayout();
@@ -170,6 +170,7 @@ class Dashboard
             this.mapParentSelection,
             mapBounds.width,
             mapBounds.height < 300 ? 300 : mapBounds.height,
+            this.countryData,
             this.worldData
         );
         let circleData = this.getCircleMapLastDayData();
@@ -282,6 +283,7 @@ class Dashboard
         // this.growthPercentageChart.update(dayData);
         this.infoPanel.update(lastEntry);
         this.netReproductionNumberChart.update(dayData);
+        this.circleMap.setCountry(country);
     }
 
     private getDayDataByCountry(country: Country | null): DayDatum[]

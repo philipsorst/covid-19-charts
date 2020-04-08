@@ -6,8 +6,8 @@ import {Colors} from "./colors";
 
 export class CasesChart extends AxisChart
 {
-    protected confirmedPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected confirmedRollingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    // protected confirmedPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    // protected confirmedRollingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected deathsPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected deathsRollingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected pendingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
@@ -32,15 +32,15 @@ export class CasesChart extends AxisChart
      */
     protected addPlots()
     {
-        this.confirmedPath = this.plotContainer.append('path')
-            .attr('fill', "none")
-            .attr('stroke', Colors.gray["100"])
-            .attr('stroke-width', 1.5);
-
-        this.confirmedRollingPath = this.plotContainer.append('path')
-            .attr('fill', "none")
-            .attr('stroke', Colors.gray["700"])
-            .attr('stroke-width', 1.5);
+        // this.confirmedPath = this.plotContainer.append('path')
+        //     .attr('fill', "none")
+        //     .attr('stroke', Colors.gray["100"])
+        //     .attr('stroke-width', 1.5);
+        //
+        // this.confirmedRollingPath = this.plotContainer.append('path')
+        //     .attr('fill', "none")
+        //     .attr('stroke', Colors.gray["700"])
+        //     .attr('stroke-width', 1.5);
 
         this.deathsPath = this.plotContainer.append("path")
             .attr("fill", "none")
@@ -77,23 +77,23 @@ export class CasesChart extends AxisChart
     {
         super.update(entries);
 
-        this.confirmedPath
-            .datum(entries.filter(d => d.confirmed > 0))
-            .transition(this.transition)
-            .attr('d', d3.line<DayDatum>()
-                .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.confirmed))
-            );
-        this.confirmedRollingPath
-            .datum(entries.filter(entry => {
-                const d = entry.getMovingAverageCentered(entry.getConfirmed);
-                return d != null && d > 0;
-            }))
-            .transition(this.transition)
-            .attr('d', d3.line<DayDatum>()
-                .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getMovingAverageCentered(d.getConfirmed) as number))
-            );
+        // this.confirmedPath
+        //     .datum(entries.filter(d => d.confirmed > 0))
+        //     .transition(this.transition)
+        //     .attr('d', d3.line<DayDatum>()
+        //         .x(d => this.xScale(d.date))
+        //         .y(d => this.yScale(d.confirmed))
+        //     );
+        // this.confirmedRollingPath
+        //     .datum(entries.filter(entry => {
+        //         const d = entry.getMovingAverageCentered(entry.getConfirmed);
+        //         return d != null && d > 0;
+        //     }))
+        //     .transition(this.transition)
+        //     .attr('d', d3.line<DayDatum>()
+        //         .x(d => this.xScale(d.date))
+        //         .y(d => this.yScale(d.getMovingAverageCentered(d.getConfirmed) as number))
+        //     );
 
         this.deathsPath
             .datum(entries.filter(d => d.deaths > 0))
@@ -158,7 +158,7 @@ export class CasesChart extends AxisChart
      */
     protected getYDomain(entries: DayDatum[]): [number, number]
     {
-        return [1, d3.max(entries, d => d.confirmed) as number]
+        return [1, d3.max(entries, d => Math.max(d.getPending(), d.getRecovered(), d.getDeaths())) as number]
     }
 
     /**
@@ -170,14 +170,6 @@ export class CasesChart extends AxisChart
         return d3.scaleLinear()
             .domain(initialYDomain)
             .range([this.getInnerHeight(), 0])
-    }
-
-    /**
-     * @inheritDoc
-     */
-    protected preUpdateYAxis()
-    {
-        this.yAxis.ticks(Math.log10(this.yScale.domain()[1]));
     }
 
     /**

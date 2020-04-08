@@ -27,11 +27,11 @@ export class DeathRateChart extends AxisChart
     {
         this.path = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', Colors.blue["100"])
+            .attr('stroke', Colors.red["100"])
             .attr('stroke-width', 1.5);
         this.pathRolling = this.plotContainer.append('path')
             .attr('fill', 'none')
-            .attr('stroke', Colors.blue["700"])
+            .attr('stroke', Colors.red["700"])
             .attr('stroke-width', 1.5);
     }
 

@@ -9,6 +9,7 @@ export class NetReproductionNumberChart extends AxisChart
     private linearLine!: d3.Selection<SVGLineElement, unknown, HTMLElement, any>;
     protected path!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected pathRolling!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    private minNumConfirmed = 100;
 
     constructor(
         parent: d3.Selection<any, any, any, any>,
@@ -55,14 +56,18 @@ export class NetReproductionNumberChart extends AxisChart
             .attr('y1', this.yScale(1))
             .attr('y2', this.yScale(1));
         this.path
-            .datum(entries.filter(entry => entry.getNetReproductionNumber() != null))
+            .datum(entries
+                .filter(entry => entry.confirmed > this.minNumConfirmed)
+                .filter(entry => entry.getNetReproductionNumber() != null))
             .transition(this.transition)
             .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
                 .y(d => this.yScale(d.getNetReproductionNumber() as number))
             );
         this.pathRolling
-            .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getNetReproductionNumber) != null))
+            .datum(entries
+                .filter(entry => entry.confirmed > this.minNumConfirmed)
+                .filter(entry => entry.getMovingAverageCentered(entry.getNetReproductionNumber) != null))
             .transition(this.transition)
             .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
@@ -75,8 +80,24 @@ export class NetReproductionNumberChart extends AxisChart
      */
     protected getYDomain(entries: DayDatum[]): [number, number]
     {
-        // return d3.extent(
-        //     entries.filter(entry => entry.getNetReproductionNumber() != null), d => d.getNetReproductionNumber()) as [number, number]
-        return [0, 10];
+        return d3.extent(
+            entries
+                .filter(entry => entry.confirmed > this.minNumConfirmed)
+                .filter(
+                    entry => entry.getNetReproductionNumber() != null),
+            d => d.getNetReproductionNumber()
+        ) as [number, number];
+        // return [0, 10];
+    }
+
+    /**
+     * @inheritDoc
+     */
+    protected createYScale(initialYDomain: [number, number]): d3.ScaleContinuousNumeric<number, number>
+    {
+        return d3.scaleSymlog()
+            // return d3.scaleLinear()
+            .domain(initialYDomain)
+            .range([this.getInnerHeight(), 0])
     }
 }
