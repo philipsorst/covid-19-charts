@@ -3,15 +3,13 @@ import {DayDatum} from "../day-datum";
 import * as d3 from "d3";
 import {Margin} from "./margin";
 import {Colors} from "./colors";
-import {Utils} from "../utils";
 
 export class GrowthChart extends AxisChart
 {
     protected linearLine!: d3.Selection<SVGLineElement, unknown, HTMLElement, any>;
-    protected path!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected pathRolling!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected pendingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected pendingPathRolling!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    protected paths!: Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>;
+    protected pendingPaths!: Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>;
+    protected deathPaths!: Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>;
 
     constructor(
         parent: d3.Selection<any, any, any, any>,
@@ -35,22 +33,45 @@ export class GrowthChart extends AxisChart
             .attr('x2', this.xScale.range()[1])
             .attr('y1', this.yScale(1))
             .attr('y2', this.yScale(1));
-        this.path = this.plotContainer.append('path')
-            .attr('fill', 'none')
-            .attr('stroke', Utils.colorWithOpacity(Colors.gray["900"], 0.125))
-            .attr('stroke-width', 1.5);
-        this.pathRolling = this.plotContainer.append('path')
-            .attr('fill', 'none')
-            .attr('stroke', Utils.colorWithOpacity(Colors.gray["900"], 0.75))
-            .attr('stroke-width', 1.5);
-        this.pendingPath = this.plotContainer.append('path')
-            .attr('fill', 'none')
-            .attr('stroke', Utils.colorWithOpacity(Colors.blue["900"], 0.125))
-            .attr('stroke-width', 1.5);
-        this.pendingPathRolling = this.plotContainer.append('path')
-            .attr('fill', 'none')
-            .attr('stroke', Utils.colorWithOpacity(Colors.blue["900"], 0.75))
-            .attr('stroke-width', 1.5);
+
+        this.paths = new Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>(7);
+        const colorScaleGray = d3.scaleLinear<string, string>()
+            .domain([0, 6])
+            .range(['rgba(13,13,13,0.1)', 'rgba(13,13,13,0.9)']);
+        for (let i = 6; i >= 0; i--) {
+            this.paths[i] = (
+                this.plotContainer.append('path')
+                    .attr('fill', 'none')
+                    .attr('stroke', colorScaleGray(i))
+                    .attr('stroke-width', 1.5)
+            );
+        }
+
+        this.deathPaths = new Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>(7);
+        const colorScaleRed = d3.scaleLinear<string, string>()
+            .domain([0, 6])
+            .range(['rgba(183,28,28,0.1)', 'rgba(183,28,28,0.9)']);
+        for (let i = 6; i >= 0; i--) {
+            this.deathPaths[i] = (
+                this.plotContainer.append('path')
+                    .attr('fill', 'none')
+                    .attr('stroke', colorScaleRed(i))
+                    .attr('stroke-width', 1.5)
+            );
+        }
+
+        this.pendingPaths = new Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>(7);
+        const colorScaleBlue = d3.scaleLinear<string, string>()
+            .domain([0, 6])
+            .range(['rgba(13,71,161,0.1)', 'rgba(13,71,161,0.9)']);
+        for (let i = 6; i >= 0; i--) {
+            this.pendingPaths[i] = (
+                this.plotContainer.append('path')
+                    .attr('fill', 'none')
+                    .attr('stroke', colorScaleBlue(i))
+                    .attr('stroke-width', 1.5)
+            );
+        }
     }
 
     /**
@@ -65,35 +86,36 @@ export class GrowthChart extends AxisChart
             .attr('x2', this.xScale.range()[1])
             .attr('y1', this.yScale(1))
             .attr('y2', this.yScale(1));
-        this.path
-            .datum(entries.filter(entry => entry.getGrowth() != null))
-            .transition(this.transition)
-            .attr('d', d3.line<DayDatum>()
-                .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getGrowth() as number))
-            );
-        this.pathRolling
-            .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getGrowth) != null))
-            .transition(this.transition)
-            .attr('d', d3.line<DayDatum>()
-                .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getMovingAverageCentered(d.getGrowth) as number))
-            );
 
-        this.pendingPath
-            .datum(entries.filter(entry => entry.getPendingGrowth() != null))
-            .transition(this.transition)
-            .attr('d', d3.line<DayDatum>()
-                .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getPendingGrowth() as number))
-            );
-        this.pendingPathRolling
-            .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getPendingGrowth) != null))
-            .transition(this.transition)
-            .attr('d', d3.line<DayDatum>()
-                .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getMovingAverageCentered(d.getPendingGrowth) as number))
-            );
+        for (let i = 6; i >= 0; i--) {
+            this.paths[i]
+                .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getGrowth, i) != null))
+                .transition(this.transition)
+                .attr('d', d3.line<DayDatum>()
+                    .x(d => this.xScale(d.date))
+                    .y(d => this.yScale(d.getMovingAverageCentered(d.getGrowth, i) as number))
+                );
+        }
+
+        for (let i = 6; i >= 0; i--) {
+            this.deathPaths[i]
+                .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getDeathGrowth, i) != null))
+                .transition(this.transition)
+                .attr('d', d3.line<DayDatum>()
+                    .x(d => this.xScale(d.date))
+                    .y(d => this.yScale(d.getMovingAverageCentered(d.getDeathGrowth, i) as number))
+                );
+        }
+
+        for (let i = 6; i >= 0; i--) {
+            this.pendingPaths[i]
+                .datum(entries.filter(entry => entry.getMovingAverageCentered(entry.getPendingGrowth, i) != null))
+                .transition(this.transition)
+                .attr('d', d3.line<DayDatum>()
+                    .x(d => this.xScale(d.date))
+                    .y(d => this.yScale(d.getMovingAverageCentered(d.getPendingGrowth, i) as number))
+                );
+        }
     }
 
     /**
