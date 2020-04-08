@@ -192,13 +192,11 @@ export class DayDatum
 
     public getNetReproductionNumber(): number | null
     {
-        const incubationDays = 6;
-        const infectiousDays = 14;
+        const infectiousDays = 10;
 
         const yesterday = this.getPrevious();
-        const incubationAgo = this.getPrevious(incubationDays);
         const infectiousDaysAgo = this.getPrevious(infectiousDays);
-        if (null == yesterday || null == incubationAgo || null == infectiousDaysAgo) return null;
+        if (null == yesterday || null == infectiousDaysAgo) return null;
 
         if (0 === infectiousDaysAgo.getPending()) {
             return 0;
