@@ -56,8 +56,7 @@ export class CircleMap
             .domain([0, d3.max(data, d => d.dayDatum.getPending()) as number])
             .range([0, 50]);
 
-        const fillColor = d3.color(Colors.blue["700"]) as d3.RGBColor;
-        fillColor.opacity = 0.25;
+        const fillColor = Utils.colorWithOpacity(Colors.blue["700"], 0.25);
 
         this.innerContainer
             .selectAll('circle')

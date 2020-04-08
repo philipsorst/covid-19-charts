@@ -7,6 +7,7 @@ export class DayDatum
     }
 
     deaths: number = 0;
+    recovered: number = 0;
     confirmed: number = 0;
     pending: number = 0;
     previous: DayDatum | null = null;
@@ -52,7 +53,8 @@ export class DayDatum
 
     public getPending(): number
     {
-        return this.pending;
+        // return this.pending;
+        return this.confirmed - this.recovered - this.deaths;
     }
 
     public getDeathRate(): number
@@ -198,11 +200,11 @@ export class DayDatum
         const infectiousDaysAgo = this.getPrevious(infectiousDays);
         if (null == yesterday || null == incubationAgo || null == infectiousDaysAgo) return null;
 
-        if (0 === infectiousDaysAgo.pending) {
+        if (0 === infectiousDaysAgo.getPending()) {
             return 0;
         }
 
-        const val = Math.max(0, (this.confirmed - infectiousDaysAgo.confirmed) / infectiousDaysAgo.pending);
+        const val = Math.max(0, (this.getConfirmed() - infectiousDaysAgo.getConfirmed()) / infectiousDaysAgo.getPending());
 
         // console.log('NRN', this.date, this.confirmed - yesterday.confirmed, incubationAgo.pending, val);
         return val;
@@ -214,7 +216,7 @@ export class DayDatum
             return null;
         }
 
-        return this.confirmed - this.previous.confirmed;
+        return this.getConfirmed() - this.previous.getConfirmed();
     }
 
     public getPendingGrowth(): number | null
@@ -223,7 +225,7 @@ export class DayDatum
             return null;
         }
 
-        return this.pending - this.previous.pending;
+        return this.getPending() - this.previous.getPending();
     }
 
     public getDeathGrowth(): number | null
@@ -232,7 +234,7 @@ export class DayDatum
             return null;
         }
 
-        return this.deaths - this.previous.deaths;
+        return this.getDeaths() - this.previous.getDeaths();
     }
 
     public getGrowthChange(): number | null
@@ -256,13 +258,13 @@ export class DayDatum
             return null;
         }
 
-        if (previous.pending === 0) {
+        if (previous.getPending() === 0) {
             return 0;
         }
 
-        const change = this.pending - previous.pending;
+        const change = this.getPending() - previous.getPending();
 
-        return change / previous.pending;
+        return change / previous.getPending();
     }
 
     public getGrowthPercentageChange(): number | null
@@ -286,7 +288,8 @@ export class DayDatum
 
     public getRecovered(): number
     {
-        return this.confirmed - this.pending - this.deaths;
+        // return this.confirmed - this.pending - this.deaths;
+        return this.recovered;
     }
 
     public getDeaths(): number

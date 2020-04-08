@@ -113,6 +113,7 @@ class CovidDataLoader
     constructor(private countryData: CountryData)
     {
         this.countryNameToCountryCodeMap.set('Bahamas, The', 'BS');
+        this.countryNameToCountryCodeMap.set('Burma', 'MM');
         this.countryNameToCountryCodeMap.set('Cabo Verde', 'CV');
         this.countryNameToCountryCodeMap.set('China', 'CN');
         this.countryNameToCountryCodeMap.set('Congo (Brazzaville)', 'CG');
@@ -124,14 +125,18 @@ class CovidDataLoader
         this.countryNameToCountryCodeMap.set('Holy See', 'VA');
         this.countryNameToCountryCodeMap.set('Korea, South', 'KR');
         this.countryNameToCountryCodeMap.set('Kosovo', 'RS');
-        this.countryNameToCountryCodeMap.set('Martinique', 'FR');
         this.countryNameToCountryCodeMap.set('Netherlands', 'NL');
-        // this.countryNameToCountryCodeMap.set('Taiwan*', 'TW');
-        this.countryNameToCountryCodeMap.set('Taiwan*', 'CN');
-        this.countryNameToCountryCodeMap.set('US', 'US');
-        this.countryNameToCountryCodeMap.set('Burma', 'MM');
+        this.countryNameToCountryCodeMap.set('Sao Tome and Principe', 'ST');
         this.countryNameToCountryCodeMap.set('Timor-Leste', 'TL');
+        this.countryNameToCountryCodeMap.set('US', 'US');
+
+        /* Foreign Territories */
+        this.countryNameToCountryCodeMap.set('Martinique', 'FR');
+
+        /* Disputed */
+        this.countryNameToCountryCodeMap.set('Taiwan*', 'CN');
         this.countryNameToCountryCodeMap.set('West Bank and Gaza', 'IL');
+        this.countryNameToCountryCodeMap.set('Western Sahara', 'MA');
 
         /* Entities */
         this.countryNameToCountryCodeMap.set('Diamond Princess', 'JP');
@@ -243,15 +248,15 @@ class CovidDataLoader
                 entry.previous = lastEntry;
                 lastEntry.next = entry;
                 const growth = entry.getGrowth();
-                if (null != growth) {
-                    entry.pending = lastEntry.pending + growth;
-                    const dayDatum14 = entry.getPrevious(14);
-                    if (null != dayDatum14 && null != dayDatum14.getGrowth()) {
-                        entry.pending -= dayDatum14.getGrowth() as number;
-                    }
-                }
+                // if (null != growth) {
+                // entry.pending = lastEntry.pending + growth;
+                // const dayDatum14 = entry.getPrevious(14);
+                // if (null != dayDatum14 && null != dayDatum14.getGrowth()) {
+                // entry.pending -= dayDatum14.getGrowth() as number;
+                // }
+                // }
             } else {
-                entry.pending = entry.confirmed;
+                // entry.pending = entry.confirmed;
             }
             lastEntry = entry;
         });
@@ -261,22 +266,17 @@ class CovidDataLoader
 
     public load(): Promise<CovidData>
     {
-        // const urls = {
-        //     confirmed: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv',
-        //     recovered: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Recovered.csv',
-        //     deaths: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv',
-        // };
-
         const urls = {
             confirmed: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv',
+            recovered: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv',
             deaths: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv',
         };
 
-        return Promise.all([d3_fetch.csv(urls.confirmed), /*d3_fetch.csv(urls.recovered), */d3_fetch.csv(urls.deaths)])
-            .then(([confirmed, /*recovered, */deaths]) => {
+        return Promise.all([d3_fetch.csv(urls.confirmed), d3_fetch.csv(urls.recovered), d3_fetch.csv(urls.deaths)])
+            .then(([confirmed, recovered, deaths]) => {
 
                 confirmed.forEach((entry: any) => this.addEntry(entry, 'confirmed'));
-                /*recovered.forEach((entry: any) => this.addEntry(entry, 'recovered'));*/
+                recovered.forEach((entry: any) => this.addEntry(entry, 'recovered'));
                 deaths.forEach((entry: any) => this.addEntry(entry, 'deaths'));
 
                 this.countryMap.forEach((entries) => this.postProcess(entries));
