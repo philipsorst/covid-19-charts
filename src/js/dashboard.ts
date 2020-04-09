@@ -192,7 +192,7 @@ class Dashboard
             growthChartBounds.height < 150 ? 150 : growthChartBounds.height,
             this.plotMargin,
             d3.extent(this.covidData.getGlobalDayData(), d => d.date) as [Date, Date],
-            [0, d3.max(this.covidData.getGlobalDayData(), d => d.getGrowth()) as number]
+            [0, d3.max(this.covidData.getGlobalDayData(), d => d.getConfirmedGrowth()) as number]
         );
 
         // this.growthPercentageChart = new GrowthPercentageChart(

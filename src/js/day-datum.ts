@@ -53,8 +53,8 @@ export class DayDatum
 
     public getPending(): number
     {
-        // return this.pending;
-        return this.confirmed - this.recovered - this.deaths;
+        return this.pending;
+        // return this.confirmed - this.recovered - this.deaths;
     }
 
     public getDeathRate(): number
@@ -94,7 +94,7 @@ export class DayDatum
             return null;
         }
 
-        const lastGrowth = this.previous.getGrowth();
+        const lastGrowth = this.previous.getConfirmedGrowth();
         if (null == lastGrowth) {
             return null;
         }
@@ -103,7 +103,7 @@ export class DayDatum
             return 0;
         }
 
-        const currentGrowth = this.getGrowth() as number;
+        const currentGrowth = this.getConfirmedGrowth() as number;
 
         return currentGrowth / lastGrowth;
     }
@@ -208,7 +208,7 @@ export class DayDatum
         return val;
     }
 
-    public getGrowth(): number | null
+    public getConfirmedGrowth(): number | null
     {
         if (null == this.previous) {
             return null;
@@ -249,8 +249,8 @@ export class DayDatum
         if (null == this.previous) {
             return null;
         }
-        const currentGrowth = this.getGrowth();
-        const previousGrowth = this.previous.getGrowth();
+        const currentGrowth = this.getConfirmedGrowth();
+        const previousGrowth = this.previous.getConfirmedGrowth();
         if (null == previousGrowth || null == currentGrowth) {
             return null;
         }
@@ -295,8 +295,8 @@ export class DayDatum
 
     public getRecovered(): number
     {
-        // return this.confirmed - this.pending - this.deaths;
-        return this.recovered;
+        return this.confirmed - this.pending - this.deaths;
+        // return this.recovered;
     }
 
     public getDeaths(): number

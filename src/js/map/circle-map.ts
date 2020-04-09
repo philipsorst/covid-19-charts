@@ -14,10 +14,15 @@ export class CircleMap
 {
     private innerContainer: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
     private projection: d3.GeoProjection;
-    private scaleFactor: number;
+    private globalScaleFactor: number;
     private countryMapper: MapCountryCodeMapper;
-    private country: Country | null = null;
+    private countries: Array<CountryWithGeoFeature>;
+    private country: CountryWithGeoFeature | null = null;
     private countryPaths: d3.Selection<SVGPathElement, CountryWithGeoFeature, SVGGElement, unknown>;
+    private countryPath: d3.GeoPath;
+    private svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
+    private zoom: d3.ZoomBehavior<SVGSVGElement, any>;
+    private globalTranslate: number[];
 
     constructor(
         container: d3.Selection<any, unknown, HTMLElement, any>,
@@ -29,44 +34,45 @@ export class CircleMap
         this.countryMapper = new MapCountryCodeMapper(countryData);
 
         let features = TopoJsonClient.feature<{ name: string }>(worldData, worldData.objects.countries as GeometryCollection<{ name: string }>).features;
-        const countries = features
+        this.countries = features
             .filter(feature => countryData.getCountry(this.countryMapper.getCode(feature.properties.name)) != null)
             .map((feature) =>
                 new CountryWithGeoFeature(countryData.fetchCountry(this.countryMapper.getCode(feature.properties.name) as string), feature)
             );
 
         this.projection = d3.geoNaturalEarth1();
-        const path = d3.geoPath().projection(this.projection);
+        this.countryPath = d3.geoPath().projection(this.projection);
 
-        const svg = container.append('svg')
+        this.svg = container.append('svg')
             .attr('width', this.width)
             .attr('height', this.height);
 
-        this.innerContainer = svg.append('g');
+        this.innerContainer = this.svg.append('g');
 
         this.countryPaths = this.innerContainer
             .selectAll('path')
-            .data(countries)
+            .data(this.countries)
             .enter()
             .append('path')
-            .attr('d', d => path(d.feature))
-            .attr('stroke', '#808080')
-            .attr('fill', '#f0f0f0')
+            .attr('d', d => this.countryPath(d.feature))
+            .attr('stroke', Colors.gray["500"])
+            .attr('fill', Colors.gray["100"])
             .attr('vector-effect', 'non-scaling-stroke');
 
         const resultingBbox = Utils.getBoundingClientRect(this.innerContainer);
-        this.scaleFactor = Math.min(
+        this.globalScaleFactor = Math.min(
             width / resultingBbox.width,
             height / resultingBbox.height
         );
+        this.globalTranslate = [resultingBbox.width / 2, resultingBbox.height / 2];
 
-        const zoom = d3.zoom<SVGSVGElement, any>()
+        this.zoom = d3.zoom<SVGSVGElement, any>()
             .scaleExtent([0.1, 8])
             .on('zoom', () => this.innerContainer.attr('transform', d3.event.transform));
 
-        svg.call(zoom);
-        svg.call(zoom.translateTo, resultingBbox.width / 2, resultingBbox.height / 2);
-        svg.call(zoom.scaleTo, this.scaleFactor);
+        // this.svg.call(this.zoom);
+        this.svg.call(this.zoom.translateTo, this.globalTranslate[0], this.globalTranslate[1]);
+        this.svg.call(this.zoom.scaleTo, this.globalScaleFactor);
     }
 
     public update(data: Array<{ location: Location, dayDatum: DayDatum }>)
@@ -94,12 +100,35 @@ export class CircleMap
 
     public setCountry(country: Country | null)
     {
-        this.country = country;
+        if (null == country) {
+            this.country = null;
+        } else {
+            this.country = this.countries.filter(c => country?.code === c.country.code).pop() as CountryWithGeoFeature;
+        }
         this.updateCountry();
     }
 
     private updateCountry()
     {
-        this.countryPaths.attr('stroke', d => this.country != null && this.country.code === d.country.code ? 'red' : '#808080')
+        this.countryPaths.attr(
+            'fill',
+            d => this.country != null && this.country.country.code === d.country.code ? Colors.red["100"] : Colors.gray["100"]
+        );
+
+        if (null == this.country) {
+            return null;
+        }
+
+        const bounds = this.countryPath.bounds(this.country.feature);
+        const dx = bounds[1][0] - bounds[0][0];
+        const dy = bounds[1][1] - bounds[0][1];
+        const x = (bounds[0][0] + bounds[1][0]) / 2;
+        const y = (bounds[0][1] + bounds[1][1]) / 2;
+        const scale = Math.max(1, Math.min(8, 0.75 / Math.max(dx / this.width, dy / this.height)));
+        const translate = [this.width / 2 - scale * x, this.height / 2 - scale * y];
+
+        this.svg.transition()
+            .duration(750)
+            .call(this.zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
     }
 }
