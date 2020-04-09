@@ -51,7 +51,7 @@ export abstract class AxisChart
 
         this.yAxisSelection = this.plotContainer.append('g').call(this.yAxis);
         this.yAxisSelection.selectAll('.domain').attr('stroke-opacity', 0.125);
-        this.transition = d3.transition().duration(500);
+        this.transition = d3.transition().duration(750);
     }
 
     protected addPlots()

@@ -1,7 +1,5 @@
 import {CircleMap} from "./map/circle-map";
-import {json as d3_json} from 'd3-fetch';
-import {select as d3_select} from 'd3-selection';
-
+import 'bootstrap';
 import {CountryData} from "./country-data";
 import {CovidData} from "./covid-data";
 import {Utils} from "./utils";
@@ -16,7 +14,7 @@ import {GrowthChart} from "./chart/growth-chart";
 import {NetReproductionNumberChart} from "./chart/net-reproduction-number-chart";
 import {Country} from "./country";
 
-require('../scss/charts.scss');
+import '../scss/dashboard.scss';
 
 class Dashboard
 {
@@ -38,13 +36,53 @@ class Dashboard
     private deathRateChartParentSelection!: d3.Selection<any, any, any, any>;
     private netReproductionNumberChartParentSelection!: d3.Selection<any, any, any, any>;
     private growthChartParentSelection!: d3.Selection<any, any, any, any>;
- // private growthPercentageChartParentSelection!: d3.Selection<any, any, any, any>;
+
+    // private growthPercentageChartParentSelection!: d3.Selection<any, any, any, any>;
 
     constructor(private covidData: CovidData, private countryData: CountryData, private worldData: any)
     {
-        this.contentSelection = d3_select('#content');
+        this.contentSelection = d3.select('#content');
+        this.initCountrySelect();
         this.createHtmlLayout();
         this.createVisualizations();
+    }
+
+    private initCountrySelect()
+    {
+        const countries: Array<Country | null> = this.covidData.getCountryCodes()
+            .filter(countryCode => this.countryData.getCountry(countryCode) != null)
+            .map((countryCode => this.countryData.getCountry(countryCode) as Country));
+        countries.sort((a, b) => (a as Country).name.localeCompare((b as Country).name));
+        countries.unshift(null);
+
+        const self = this;
+        const countrySelections = d3.select('.country-select .country')
+            .selectAll('div')
+            .data(countries)
+            .enter()
+            .append('a')
+            .attr('href', '#')
+            .classed('dropdown-item', true)
+            .on('click', d => {
+                d3.select('#country-filter').property('value', '');
+                filter('');
+                self.setCountry(d)
+            })
+            .html(d => null == d ? 'Global' : d.name);
+
+        function filter(filterText: string)
+        {
+            d3.selectAll<HTMLAnchorElement, Country | null>('.country-select .country a')
+                .style('display', d => {
+                    if (null == d || d.name.toLowerCase().includes(filterText.toLowerCase()) || filterText.trim() === '') return null;
+                    return 'none';
+                });
+        }
+
+        d3.select('#country-filter').on('input', d => {
+            const filterText: string = d3.select('#country-filter').property('value');
+            filter(filterText);
+        });
     }
 
     private createHtmlLayout()
@@ -269,10 +307,11 @@ class Dashboard
     {
         if (null == country) {
             d3.select('#current-location').html('Global');
+            history.pushState({}, 'Global', './');
         } else {
             d3.select('#current-location').html(country.name);
+            history.pushState({}, country.name, './' + country.code);
         }
-
 
         const dayData = this.getDayDataByCountry(country);
         const lastEntry = dayData[dayData.length - 1];
@@ -312,7 +351,7 @@ class DashboardLoader
         return CountryData.load().then(countryData => {
             return Promise.all([
                 CovidData.load(countryData),
-                d3_json('./build/world-atlas/countries-110m.json')
+                d3.json('./build/world-atlas/countries-50m.json')
             ]).then(([covidData, worldData]) => {
                 return {covidData, countryData, worldData};
             })
@@ -320,9 +359,12 @@ class DashboardLoader
     }
 }
 
-d3_select('#content').append('div').classed('text-center col-12', true).html('Loading...');
+d3.select('#content')
+    .append('div')
+    .classed('text-center col-12', true)
+    .html('Loading...');
 DashboardLoader.load().then(data => {
-    d3_select('#content').selectAll('*').remove();
+    d3.select('#content').selectAll('*').remove();
     const dashboard = new Dashboard(data.covidData, data.countryData, data.worldData);
     let pathMatchEx = /.*\/(.*)$/;
     let country = null;

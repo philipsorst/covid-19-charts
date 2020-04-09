@@ -35,7 +35,15 @@ export class CircleMap
 
         let features = TopoJsonClient.feature<{ name: string }>(worldData, worldData.objects.countries as GeometryCollection<{ name: string }>).features;
         this.countries = features
-            .filter(feature => countryData.getCountry(this.countryMapper.getCode(feature.properties.name)) != null)
+            .filter(feature => {
+                const code = this.countryMapper.getCode(feature.properties.name);
+                console.log(feature.properties.name);
+                if (null == code) {
+                    console.warn(`No code found for ${feature.properties.name}`);
+                    return false;
+                }
+                return null != countryData.getCountry(code);
+            })
             .map((feature) =>
                 new CountryWithGeoFeature(countryData.fetchCountry(this.countryMapper.getCode(feature.properties.name) as string), feature)
             );
@@ -103,7 +111,7 @@ export class CircleMap
         if (null == country) {
             this.country = null;
         } else {
-            this.country = this.countries.filter(c => country?.code === c.country.code).pop() as CountryWithGeoFeature;
+            this.country = this.countries.filter(c => country.code === c.country.code).pop() as CountryWithGeoFeature;
         }
         this.updateCountry();
     }

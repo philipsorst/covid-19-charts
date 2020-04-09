@@ -1,0 +1,10 @@
+header {
+    .dropdown-menu {
+        width: 300px;
+        left: 50%;
+        margin-left: -150px;
+        text-align: center;
+        max-height: 400px;
+        overflow-y: scroll;
+    }
+}

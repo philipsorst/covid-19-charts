@@ -80,14 +80,17 @@ export class NetReproductionNumberChart extends AxisChart
      */
     protected getYDomain(entries: DayDatum[]): [number, number]
     {
-        return d3.extent(
+        const extend = d3.extent(
             entries
                 .filter(entry => entry.confirmed > this.minNumConfirmed)
                 .filter(
                     entry => entry.getNetReproductionNumber() != null),
             d => d.getNetReproductionNumber()
-        ) as [number, number];
-        // return [0, 10];
+        );
+
+        if (null == extend[0] || null == extend[1]) return [0, 1];
+
+        return extend;
     }
 
     /**
