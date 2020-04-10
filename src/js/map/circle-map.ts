@@ -37,7 +37,6 @@ export class CircleMap
         this.countries = features
             .filter(feature => {
                 const code = this.countryMapper.getCode(feature.properties.name);
-                console.log(feature.properties.name);
                 if (null == code) {
                     console.warn(`No code found for ${feature.properties.name}`);
                     return false;

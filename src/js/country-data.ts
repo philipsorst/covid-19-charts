@@ -12,6 +12,25 @@ export class CountryData
 
     static load(): Promise<CountryData>
     {
+        // const sparql = `
+        // SELECT DISTINCT ?x ?xLabel ?iso3166alpha2 ?population ?area ?claimedByIso3166alpha2 ?hostCountryIso3166alpha2 ?iso3166alpha3 ?iso31662 isSouvereignState
+        // WHERE
+        // {
+        //   ?x wdt:P297 ?iso3166alpha2 ;
+        //      wdt:P298 ?iso3166alpha3 .
+        //   OPTIONAL { ?x wdt:P300 ?iso31662 } .
+        //   OPTIONAL { ?x wdt:P1082 ?population } .
+        //   OPTIONAL { ?x wdt:P2046 ?area } .
+        //   OPTIONAL { ?x wdt:P1336 ?claimedBy . ?claimedBy wdt:P31 wd:Q3624078 . ?claimedBy wdt:P297 ?claimedByIso3166alpha2  } .
+        //   OPTIONAL { ?x wdt:P17 ?hostCountry . ?hostCountry wdt:P297 ?hostCountryIso3166alpha2  } .
+        //   # not a former country
+        //   FILTER NOT EXISTS {?x wdt:P31 wd:Q3024240} .
+        //   BIND( EXISTS { ?x wdt:P31 wd:Q3624078 } as ?isSouvereignState ) .
+        //
+        //   SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+        // }
+        // ORDER BY ?iso3166alpha2`.trim();
+
         const sparql = ` 
         SELECT DISTINCT ?countryLabel ?population ?iso3166alpha2
         WHERE
@@ -19,9 +38,9 @@ export class CountryData
             ?country wdt:P31 wd:Q3624078 ;
                      wdt:P1082 ?population ;
                      wdt:P297 ?iso3166alpha2 .
-            #not a former country
+            # not a former country
             FILTER NOT EXISTS {?country wdt:P31 wd:Q3024240}
-            #and no an ancient civilisation (needed to exclude ancient Egypt)
+            # and no an ancient civilisation (needed to exclude ancient Egypt)
             FILTER NOT EXISTS {?country wdt:P31 wd:Q28171280} .
 
             SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
