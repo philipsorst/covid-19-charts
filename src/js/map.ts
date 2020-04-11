@@ -35,7 +35,7 @@ const pendingPercentagePlot: MapPlot = {
     scale: d3.scaleLog<string, string>(),
     data: (countryCode: string, dayData, covidData, countryData) => {
         let country = countryData.getCountry(countryCode);
-        if (null == country || null == dayData || 0 === dayData.getPending()) {
+        if (null == country || null == dayData || 0 === dayData.getPending() || null == country.population) {
             return null;
         }
         return dayData.getPending() / country.population;

@@ -29,7 +29,7 @@ let growthChart: GrowthChart;
 function drawInfo(country: Country | null, entry: DayDatum)
 {
     d3.select('#info-population').classed('d-none', null == country);
-    if (null != country) {
+    if (null != country && null != country.population) {
         d3.select('#info-num-population').html(d3.format(".2s")(country.population));
     }
     d3.select('#info-num-confirmed').html(d3.format(",")(entry.confirmed));
