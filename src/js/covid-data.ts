@@ -112,7 +112,6 @@ class CovidDataLoader
 
     constructor(private countryData: CountryData)
     {
-        this.countryNameToCountryCodeMap.set('Bahamas, The', 'BS');
         this.countryNameToCountryCodeMap.set('Burma', 'MM');
         this.countryNameToCountryCodeMap.set('Cabo Verde', 'CV');
         this.countryNameToCountryCodeMap.set('China', 'CN');
@@ -121,22 +120,18 @@ class CovidDataLoader
         this.countryNameToCountryCodeMap.set('Cote d\'Ivoire', 'CI');
         this.countryNameToCountryCodeMap.set('Cyprus', 'CY');
         this.countryNameToCountryCodeMap.set('Czechia', 'CZ');
-        this.countryNameToCountryCodeMap.set('Gambia, The', 'GM');
         this.countryNameToCountryCodeMap.set('Holy See', 'VA');
         this.countryNameToCountryCodeMap.set('Korea, South', 'KR');
-        this.countryNameToCountryCodeMap.set('Kosovo', 'RS');
-        this.countryNameToCountryCodeMap.set('Netherlands', 'NL');
         this.countryNameToCountryCodeMap.set('Sao Tome and Principe', 'ST');
         this.countryNameToCountryCodeMap.set('Timor-Leste', 'TL');
         this.countryNameToCountryCodeMap.set('US', 'US');
 
         /* Foreign Territories */
-        this.countryNameToCountryCodeMap.set('Martinique', 'FR');
 
         /* Disputed */
-        this.countryNameToCountryCodeMap.set('Taiwan*', 'CN');
-        this.countryNameToCountryCodeMap.set('West Bank and Gaza', 'IL');
-        this.countryNameToCountryCodeMap.set('Western Sahara', 'MA');
+        this.countryNameToCountryCodeMap.set('Taiwan*', 'TW');
+        this.countryNameToCountryCodeMap.set('West Bank and Gaza', 'PS');
+        this.countryNameToCountryCodeMap.set('Western Sahara', 'EH');
 
         /* Entities */
         this.countryNameToCountryCodeMap.set('Diamond Princess', 'JP');

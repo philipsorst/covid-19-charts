@@ -63,30 +63,60 @@ export class CountryData
         // }
         // ORDER BY ?iso3166alpha2`.trim();
 
-        const sparql = ` 
-        SELECT DISTINCT ?countryLabel ?population ?iso3166alpha2
+        // const sparql = `
+        // SELECT DISTINCT ?countryLabel ?population ?iso3166alpha2
+        // WHERE
+        // {
+        //     ?country wdt:P31 wd:Q3624078 ;
+        //              wdt:P1082 ?population ;
+        //              wdt:P297 ?iso3166alpha2 .
+        //     # not a former country
+        //     FILTER NOT EXISTS {?country wdt:P31 wd:Q3024240}
+        //     # and no an ancient civilisation (needed to exclude ancient Egypt)
+        //     FILTER NOT EXISTS {?country wdt:P31 wd:Q28171280} .
+        //
+        //     SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+        // }
+        // ORDER BY ?iso3166alpha2`.trim();
+
+        const sparql = `
+        SELECT DISTINCT ?x ?xLabel ?iso3166alpha2 ?population ?area ?hostCountryCode ?isSovereign ?isDisputed
         WHERE
         {
-            ?country wdt:P31 wd:Q3624078 ;
-                     wdt:P1082 ?population ;
-                     wdt:P297 ?iso3166alpha2 .
+            ?x wdt:P297 ?iso3166alpha2 .
+            OPTIONAL { ?x wdt:P1082 ?population } .
+            OPTIONAL { ?x wdt:P2046 ?area } .
+            OPTIONAL { ?x wdt:P17 ?hostCountry . ?hostCountry wdt:P297 ?hostCountryCode  } .
             # not a former country
-            FILTER NOT EXISTS {?country wdt:P31 wd:Q3024240}
-            # and no an ancient civilisation (needed to exclude ancient Egypt)
-            FILTER NOT EXISTS {?country wdt:P31 wd:Q28171280} .
+            FILTER NOT EXISTS {?x wdt:P31 wd:Q3024240} .
+            BIND( EXISTS { ?x wdt:P31 wd:Q3624078 } as ?isSovereign ) .
+            BIND( EXISTS { ?x wdt:P31 wd:Q15239622 } as ?isDisputed ) .
 
             SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
         }
         ORDER BY ?iso3166alpha2`.trim();
+
         const url = "https://query.wikidata.org/sparql?format=json&query=" + encodeURIComponent(sparql);
         return d3.json(url).then(response => {
             const countryData = new CountryData();
             const results = response.results.bindings as Array<any>;
             results.forEach(result => {
-                const name = result.countryLabel.value;
+                const name = result.xLabel.value;
                 const code = result.iso3166alpha2.value;
-                const population = +result.population.value;
-                const country = new Country(code, name, population);
+                const population = (result.population != null) ? +result.population.value : null;
+                const area = (result.area != null) ? +result.area.value : null;
+                const isSovereign = result.isSovereign.value;
+                const isDisputed = result.isDisputed.value;
+                const hostCountryCode = (result.hostCountryCode != null) ? result.hostCountryCode.value : null;
+                const country = new Country(
+                    code,
+                    name,
+                    population,
+                    area,
+                    hostCountryCode,
+                    isSovereign,
+                    isDisputed
+                );
                 countryData.addCodeToCountry(code, country);
                 countryData.addNameToCode(name, code);
             });
