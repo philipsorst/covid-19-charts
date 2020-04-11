@@ -14,7 +14,7 @@ export class CircleMap
 {
     private innerContainer: d3.Selection<SVGGElement, unknown, HTMLElement, any>;
     private projection: d3.GeoProjection;
-    private globalScaleFactor: number;
+    // private globalScaleFactor: number;
     private countryMapper: MapCountryCodeMapper;
     private countries: Array<CountryWithGeoFeature>;
     private country: CountryWithGeoFeature | null = null;
@@ -22,7 +22,7 @@ export class CircleMap
     private countryPath: d3.GeoPath;
     private svg: d3.Selection<SVGSVGElement, unknown, HTMLElement, any>;
     private zoom: d3.ZoomBehavior<SVGSVGElement, any>;
-    private globalTranslate: number[];
+    private globalBounds: [[number, number], [number, number]];
 
     constructor(
         container: d3.Selection<any, unknown, HTMLElement, any>,
@@ -33,8 +33,8 @@ export class CircleMap
     {
         this.countryMapper = new MapCountryCodeMapper(countryData);
 
-        let features = TopoJsonClient.feature<{ name: string }>(worldData, worldData.objects.countries as GeometryCollection<{ name: string }>).features;
-        this.countries = features
+        const globalFeatureCollection = TopoJsonClient.feature<{ name: string }>(worldData, worldData.objects.countries as GeometryCollection<{ name: string }>);
+        this.countries = globalFeatureCollection.features
             .filter(feature => {
                 const code = this.countryMapper.getCode(feature.properties.name);
                 if (null == code) {
@@ -49,6 +49,8 @@ export class CircleMap
 
         this.projection = d3.geoNaturalEarth1();
         this.countryPath = d3.geoPath().projection(this.projection);
+
+        this.globalBounds = this.countryPath.bounds(globalFeatureCollection);
 
         this.svg = container.append('svg')
             .attr('width', this.width)
@@ -66,20 +68,20 @@ export class CircleMap
             .attr('fill', Colors.gray["100"])
             .attr('vector-effect', 'non-scaling-stroke');
 
-        const resultingBbox = Utils.getBoundingClientRect(this.innerContainer);
-        this.globalScaleFactor = Math.min(
-            width / resultingBbox.width,
-            height / resultingBbox.height
-        );
-        this.globalTranslate = [resultingBbox.width / 2, resultingBbox.height / 2];
+        // const resultingBbox = Utils.getBoundingClientRect(this.innerContainer);
+        // this.globalScaleFactor = Math.min(
+        //     width / resultingBbox.width,
+        //     height / resultingBbox.height
+        // );
+        // this.globalTranslate = [resultingBbox.width / 2, resultingBbox.height / 2];
 
         this.zoom = d3.zoom<SVGSVGElement, any>()
             .scaleExtent([0.1, 8])
             .on('zoom', () => this.innerContainer.attr('transform', d3.event.transform));
 
         // this.svg.call(this.zoom);
-        this.svg.call(this.zoom.translateTo, this.globalTranslate[0], this.globalTranslate[1]);
-        this.svg.call(this.zoom.scaleTo, this.globalScaleFactor);
+        // this.svg.call(this.zoom.translateTo, this.globalTranslate[0], this.globalTranslate[1]);
+        // this.svg.call(this.zoom.scaleTo, this.globalScaleFactor);
     }
 
     public update(data: Array<{ location: Location, dayDatum: DayDatum }>)
@@ -122,20 +124,34 @@ export class CircleMap
             d => this.country != null && this.country.country.code === d.country.code ? Colors.red["100"] : Colors.gray["100"]
         );
 
+        let bounds = null;
+        let fillRate = null;
         if (null == this.country) {
-            return null;
+            bounds = this.globalBounds;
+            fillRate = 1;
+            // this.svg
+            //     .transition().duration(750)
+            //     .call(this.zoom.transform, d3.zoomIdentity.translate(this.globalTranslate[0], this.globalTranslate[1]));
+            //         // .scale(scale));
+            //     // .call(this.zoom.scaleTo, this.globalScaleFactor)
+            //     // .call(this.zoom.translateTo, this.globalTranslate[0], this.globalTranslate[1]);
+            // return;
+        } else {
+            bounds = this.countryPath.bounds(this.country.feature);
+            fillRate = 0.75;
         }
 
-        const bounds = this.countryPath.bounds(this.country.feature);
+
+        console.log('bounds', bounds);
         const dx = bounds[1][0] - bounds[0][0];
         const dy = bounds[1][1] - bounds[0][1];
         const x = (bounds[0][0] + bounds[1][0]) / 2;
         const y = (bounds[0][1] + bounds[1][1]) / 2;
-        const scale = Math.max(1, Math.min(8, 0.75 / Math.max(dx / this.width, dy / this.height)));
+        const scale = Math.max(0.5, Math.min(8, fillRate / Math.max(dx / this.width, dy / this.height)));
         const translate = [this.width / 2 - scale * x, this.height / 2 - scale * y];
 
-        this.svg.transition()
-            .duration(750)
+        this.svg
+            .transition().duration(750)
             .call(this.zoom.transform, d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale));
     }
 }
