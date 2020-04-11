@@ -11,14 +11,23 @@
 <div class="container-fluid">
     <div class="d-flex flex-column" id="inner-container">
         <header class="border-bottom pt-2 pb-2 mb-3 dropdown">
-            <h1 class="dropdown-toggle text-center" data-toggle="dropdown" type="button" data-display="static">
-                COVID-19 Dashboard: <span id="current-location"></span>
+            <h1
+                    class="dropdown-toggle text-center"
+                    data-toggle="dropdown"
+                    type="button"
+                    data-display="static"
+                    style="white-space: normal"
+            >
+                <span class="text-nowrap">COVID-19 Dashboard:</span>
+                <span id="current-location" class="text-nowrap"></span>
             </h1>
             <div class="dropdown-menu country-select">
                 <div class="pl-2 pr-2">
                     <input class="form-control" id="country-filter"/>
                 </div>
-                <div class="country"></div>
+                <div class="countries">
+                    <div class="country"></div>
+                </div>
             </div>
 
         </header>

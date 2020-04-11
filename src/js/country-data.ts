@@ -10,10 +10,42 @@ export class CountryData
     {
     }
 
+    static newLoad()
+    {
+        const sparql = `
+        SELECT DISTINCT ?x ?xLabel ?iso3166alpha2 ?population ?area ?hostCountryIso3166alpha2 ?isSouvereignState ?isDisputedTerritory
+        WHERE
+        {
+            ?x wdt:P297 ?iso3166alpha2 .
+            OPTIONAL { ?x wdt:P1082 ?population } .
+            OPTIONAL { ?x wdt:P2046 ?area } .
+            OPTIONAL { ?x wdt:P17 ?hostCountry . ?hostCountry wdt:P297 ?hostCountryIso3166alpha2  } .
+            # not a former country
+            FILTER NOT EXISTS {?x wdt:P31 wd:Q3024240} .
+            BIND( EXISTS { ?x wdt:P31 wd:Q3624078 } as ?isSouvereignState ) .
+            BIND( EXISTS { ?x wdt:P31 wd:Q15239622 } as ?isDisputedTerritory ) .
+
+            SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+        }
+        ORDER BY ?iso3166alpha2`.trim();
+        const url = "https://query.wikidata.org/sparql?format=json&query=" + encodeURIComponent(sparql);
+        return d3.json(url).then(response => {
+            const seen = new Set<string>();
+            const results = response.results.bindings as Array<any>;
+            results.forEach(result => {
+                const code = result.iso3166alpha2.value;
+                if (seen.has(code)) console.log('Duplicate', code);
+                seen.add(code);
+            });
+        });
+    }
+
     static load(): Promise<CountryData>
     {
+        // this.newLoad();
+
         // const sparql = `
-        // SELECT DISTINCT ?x ?xLabel ?iso3166alpha2 ?population ?area ?claimedByIso3166alpha2 ?hostCountryIso3166alpha2 ?iso3166alpha3 ?iso31662 isSouvereignState
+        // SELECT DISTINCT ?x ?xLabel ?iso3166alpha2 ?population ?area ?claimedByIso3166alpha2 ?hostCountryIso3166alpha2 ?iso3166alpha3 ?iso31662 ?isSouvereignState
         // WHERE
         // {
         //   ?x wdt:P297 ?iso3166alpha2 ;
