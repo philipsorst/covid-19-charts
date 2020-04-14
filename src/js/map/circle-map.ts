@@ -142,7 +142,7 @@ export class CircleMap
         }
 
 
-        console.log('bounds', bounds);
+        // console.log('bounds', bounds);
         const dx = bounds[1][0] - bounds[0][0];
         const dy = bounds[1][1] - bounds[0][1];
         const x = (bounds[0][0] + bounds[1][0]) / 2;

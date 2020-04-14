@@ -79,7 +79,7 @@ class Dashboard
                 });
         }
 
-        d3.select('#country-filter').on('input', d => {
+        d3.select('#country-filter').on('input', () => {
             const filterText: string = d3.select('#country-filter').property('value');
             filter(filterText);
         });

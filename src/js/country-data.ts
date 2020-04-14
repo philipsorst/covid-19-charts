@@ -1,5 +1,6 @@
 import * as d3 from 'd3';
 import {Country} from "./country";
+import * as country_data from '../data/country-data.json';
 
 export class CountryData
 {
@@ -79,35 +80,35 @@ export class CountryData
         // }
         // ORDER BY ?iso3166alpha2`.trim();
 
-        const sparql = `
-        SELECT DISTINCT ?x ?xLabel ?iso3166alpha2 ?population ?area ?hostCountryCode ?isSovereign ?isDisputed
-        WHERE
-        {
-            ?x wdt:P297 ?iso3166alpha2 .
-            OPTIONAL { ?x wdt:P1082 ?population } .
-            OPTIONAL { ?x wdt:P2046 ?area } .
-            OPTIONAL { ?x wdt:P17 ?hostCountry . ?hostCountry wdt:P297 ?hostCountryCode  } .
-            # not a former country
-            FILTER NOT EXISTS {?x wdt:P31 wd:Q3024240} .
-            BIND( EXISTS { ?x wdt:P31 wd:Q3624078 } as ?isSovereign ) .
-            BIND( EXISTS { ?x wdt:P31 wd:Q15239622 } as ?isDisputed ) .
-
-            SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
-        }
-        ORDER BY ?iso3166alpha2`.trim();
-
-        const url = "https://query.wikidata.org/sparql?format=json&query=" + encodeURIComponent(sparql);
-        return d3.json(url).then(response => {
-            const countryData = new CountryData();
-            const results = response.results.bindings as Array<any>;
-            results.forEach(result => {
-                const name = result.xLabel.value;
-                const code = result.iso3166alpha2.value;
-                const population = (result.population != null) ? +result.population.value : null;
-                const area = (result.area != null) ? +result.area.value : null;
-                const isSovereign = result.isSovereign.value;
-                const isDisputed = result.isDisputed.value;
-                const hostCountryCode = (result.hostCountryCode != null) ? result.hostCountryCode.value : null;
+        // const sparql = `
+        // SELECT DISTINCT ?x ?xLabel ?iso3166alpha2 ?population ?area ?hostCountryCode ?isSovereign ?isDisputed
+        // WHERE
+        // {
+        //     ?x wdt:P297 ?iso3166alpha2 .
+        //     OPTIONAL { ?x wdt:P1082 ?population } .
+        //     OPTIONAL { ?x wdt:P2046 ?area } .
+        //     OPTIONAL { ?x wdt:P17 ?hostCountry . ?hostCountry wdt:P297 ?hostCountryCode  } .
+        //     # not a former country
+        //     FILTER NOT EXISTS {?x wdt:P31 wd:Q3024240} .
+        //     BIND( EXISTS { ?x wdt:P31 wd:Q3624078 } as ?isSovereign ) .
+        //     BIND( EXISTS { ?x wdt:P31 wd:Q15239622 } as ?isDisputed ) .
+        //
+        //     SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+        // }
+        // ORDER BY ?iso3166alpha2`.trim();
+        //
+        // const url = "https://query.wikidata.org/sparql?format=json&query=" + encodeURIComponent(sparql);
+        // return d3.json(url).then(response => {
+        const countryData = new CountryData();
+        const results = country_data.results.bindings as Array<any>;
+        results.forEach(result => {
+            const name = result.xLabel.value;
+            const code = result.iso3166alpha2.value;
+            const population = (result.population != null) ? +result.population.value : null;
+            const area = (result.area != null) ? +result.area.value : null;
+            const isSovereign = result.isSovereign.value;
+            const isDisputed = result.isDisputed.value;
+            const hostCountryCode = (result.hostCountryCode != null) ? result.hostCountryCode.value : null;
                 const country = new Country(
                     code,
                     name,
@@ -117,11 +118,11 @@ export class CountryData
                     isSovereign,
                     isDisputed
                 );
-                countryData.addCodeToCountry(code, country);
-                countryData.addNameToCode(name, code);
-            });
-            return countryData;
+            countryData.addCodeToCountry(code, country);
+            countryData.addNameToCode(name, code);
         });
+        return Promise.resolve(countryData);
+        // });
     }
 
     private addNameToCode(country: string, abbreviation: string)
