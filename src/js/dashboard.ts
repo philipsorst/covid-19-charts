@@ -346,25 +346,42 @@ class Dashboard
 
 class DashboardLoader
 {
-    public static load(): Promise<{ covidData: CovidData, countryData: CountryData, worldData: any }>
+    public static load(parentSelection: d3.Selection<HTMLElement, unknown, HTMLElement, any>): Promise<{ covidData: CovidData; countryData: CountryData; worldData: any }>
     {
+        const loaderSelection = parentSelection
+            .append('div')
+            .classed('text-center col-12 mb-4', true);
+
+        const textSelection = loaderSelection
+            .append('div')
+            .classed('mb-2', true)
+            .html('Loading...');
+
+        const progressSelection = loaderSelection
+            .append('div')
+            .classed('progress', true)
+            .style('height', '2px');
+        const progressBarSelection = progressSelection
+            .append('div')
+            .classed('progress-bar progress-bar-striped progress-bar-animated', true)
+            .style('width', '33%');
+
+        textSelection.html('Loading country data');
         return CountryData.load().then(countryData => {
+            textSelection.html('Loading COVID data');
+            progressBarSelection.style('width', '66%');
             return Promise.all([
                 CovidData.load(countryData),
                 d3.json('./build/world-atlas/countries-50m.json')
             ]).then(([covidData, worldData]) => {
+                parentSelection.selectAll('*').remove();
                 return {covidData, countryData, worldData};
             })
         });
     }
 }
 
-d3.select('#content')
-    .append('div')
-    .classed('text-center col-12', true)
-    .html('Loading...');
-DashboardLoader.load().then(data => {
-    d3.select('#content').selectAll('*').remove();
+DashboardLoader.load(d3.select('#content')).then(data => {
     const dashboard = new Dashboard(data.covidData, data.countryData, data.worldData);
     let pathMatchEx = /.*\/(.*)$/;
     let country = null;

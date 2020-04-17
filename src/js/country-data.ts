@@ -121,6 +121,7 @@ export class CountryData
             countryData.addCodeToCountry(code, country);
             countryData.addNameToCode(name, code);
         });
+
         return Promise.resolve(countryData);
         // });
     }
