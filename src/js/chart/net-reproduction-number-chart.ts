@@ -67,11 +67,11 @@ export class NetReproductionNumberChart extends AxisChart
         this.pathRolling
             .datum(entries
                 .filter(entry => entry.confirmed > this.minNumConfirmed)
-                .filter(entry => entry.getMovingAverageCentered(entry.getNetReproductionNumber) != null))
+                .filter(entry => entry.getMovingAverageCentered(entry.getNetReproductionNumber, 3) != null))
             .transition(this.transition)
             .attr('d', d3.line<DayDatum>()
                 .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getMovingAverageCentered(d.getNetReproductionNumber) as number))
+                .y(d => this.yScale(d.getMovingAverageCentered(d.getNetReproductionNumber, 3) as number))
             );
     }
 
@@ -98,9 +98,10 @@ export class NetReproductionNumberChart extends AxisChart
      */
     protected createYScale(initialYDomain: [number, number]): d3.ScaleContinuousNumeric<number, number>
     {
-        return d3.scaleSymlog()
+        return d3.scaleSymlog().constant(0.125)
             // return d3.scaleLinear()
+            // return d3.scaleLog().base(100)
             .domain(initialYDomain)
-            .range([this.getInnerHeight(), 0])
+            .range([this.getInnerHeight(), 0]);
     }
 }
