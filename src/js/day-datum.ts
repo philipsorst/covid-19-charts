@@ -199,7 +199,7 @@ export class DayDatum
         const incubationDaysAgo = this.getPrevious(incubationDays);
         if (null == yesterday || null == incubationDaysAgo) return null;
 
-        if (0 === incubationDaysAgo.getPending()) {
+        if (0 === yesterday.getPending()) {
             return 0;
         }
 

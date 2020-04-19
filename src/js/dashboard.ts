@@ -220,7 +220,7 @@ class Dashboard
             netReproductionNumberChartBounds.height < 150 ? 150 : netReproductionNumberChartBounds.height,
             this.plotMargin,
             d3.extent(this.covidData.getGlobalDayData(), d => d.date) as [Date, Date],
-            [0, 3]
+            // [0, 3]
             // [0, d3.max(this.covidData.getGlobalDayData(), d => d.getNetReproductionNumber()) as number]
         );
 
