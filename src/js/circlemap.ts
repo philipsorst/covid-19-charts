@@ -158,7 +158,7 @@ function plotMap(
 
 CountryData.load().then((countryData) => {
     CovidData.load(countryData).then(covidData => {
-        d3.json('./build/world-atlas/countries-110m.json').then(worldData => {
+        d3.json('./build/world-atlas/countries-110m.json').then((worldData: any) => {
 
             // const mapPlot = pendingPercentagePlot;
 
