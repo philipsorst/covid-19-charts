@@ -28,7 +28,7 @@ export class NetReproductionNumberChart extends AxisChart
      */
     protected addPlots()
     {
-        console.log(this.xScale.range()[0], this.xScale.range()[0], this.yScale(1))
+        // console.log(this.xScale.range()[0], this.xScale.range()[0], this.yScale(1))
 
         this.linearLine = this.plotContainer.append('line')
             .attr('stroke', Colors.gray["500"])
@@ -93,7 +93,7 @@ export class NetReproductionNumberChart extends AxisChart
         let extend: [number, number] = [this.minVal, max];
 
         if (null == extend[0] || null == extend[1]) extend = [this.minVal, 1];
-        console.log('extend', extend);
+        // console.log('extend', extend);
 
         return extend;
     }

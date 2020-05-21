@@ -16,6 +16,9 @@ html {
     #inner-container {
         height: 100vh;
     }
+    body {
+        overflow: hidden;
+    }
 }
 
 section {
@@ -28,4 +31,8 @@ section {
 
 .card-header {
     background-color: transparent;
+}
+
+.dropdown-toggle {
+    cursor: pointer;
 }
