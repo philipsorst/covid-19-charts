@@ -12,8 +12,8 @@ export class CasesChart extends AxisChart
     protected deathsRollingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected pendingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected pendingRollingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected recoveredPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
-    protected recoveredRollingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    // protected recoveredPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
+    // protected recoveredRollingPath!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
 
     constructor(
         parent: d3.Selection<any, any, any, any>,
@@ -21,7 +21,8 @@ export class CasesChart extends AxisChart
         height: number,
         margin: Margin,
         initialXDomain: [Date, Date] = [new Date(), new Date()],
-        initialYDomain: [number, number] = [0, 1])
+        initialYDomain: [number, number] = [0, 1]
+    )
     {
         super(parent, width, height, margin, initialXDomain, initialYDomain);
     }
@@ -62,15 +63,15 @@ export class CasesChart extends AxisChart
             .attr("stroke", Colors.blue["700"])
             .attr("stroke-width", 1.5);
 
-        this.recoveredPath = this.plotContainer.append("path")
-            .attr("fill", "none")
-            .attr("stroke", Colors.green["100"])
-            .attr("stroke-width", 1.5);
-
-        this.recoveredRollingPath = this.plotContainer.append("path")
-            .attr("fill", "none")
-            .attr("stroke", Colors.green["700"])
-            .attr("stroke-width", 1.5);
+        // this.recoveredPath = this.plotContainer.append("path")
+        //     .attr("fill", "none")
+        //     .attr("stroke", Colors.green["100"])
+        //     .attr("stroke-width", 1.5);
+        //
+        // this.recoveredRollingPath = this.plotContainer.append("path")
+        //     .attr("fill", "none")
+        //     .attr("stroke", Colors.green["700"])
+        //     .attr("stroke-width", 1.5);
     }
 
     public update(entries: DayDatum[])
@@ -133,24 +134,24 @@ export class CasesChart extends AxisChart
                 .y(d => this.yScale(d.getMovingAverageCentered(d.getPending) as number))
             );
 
-        this.recoveredPath
-            .datum(entries.filter(d => d.getRecovered() > 0))
-            .transition(this.transition)
-            .attr('d', d3.line<DayDatum>()
-                .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getRecovered()))
-            );
-
-        this.recoveredRollingPath
-            .datum(entries.filter(entry => {
-                const d = entry.getMovingAverageCentered(entry.getRecovered, 1, true);
-                return d != null && d > 0;
-            }))
-            .transition(this.transition)
-            .attr('d', d3.line<DayDatum>()
-                .x(d => this.xScale(d.date))
-                .y(d => this.yScale(d.getMovingAverageCentered(d.getRecovered) as number))
-            );
+        // this.recoveredPath
+        //     .datum(entries.filter(d => d.getRecovered() > 0))
+        //     .transition(this.transition)
+        //     .attr('d', d3.line<DayDatum>()
+        //         .x(d => this.xScale(d.date))
+        //         .y(d => this.yScale(d.getRecovered()))
+        //     );
+        //
+        // this.recoveredRollingPath
+        //     .datum(entries.filter(entry => {
+        //         const d = entry.getMovingAverageCentered(entry.getRecovered, 1, true);
+        //         return d != null && d > 0;
+        //     }))
+        //     .transition(this.transition)
+        //     .attr('d', d3.line<DayDatum>()
+        //         .x(d => this.xScale(d.date))
+        //         .y(d => this.yScale(d.getMovingAverageCentered(d.getRecovered) as number))
+        //     );
     }
 
     /**
@@ -158,7 +159,7 @@ export class CasesChart extends AxisChart
      */
     protected getYDomain(entries: DayDatum[]): [number, number]
     {
-        return [1, d3.max(entries, d => Math.max(d.getPending(), d.getRecovered(), d.getDeaths())) as number]
+        return [1, d3.max(entries, d => Math.max(d.getPending(), /*d.getRecovered(),*/ d.getDeaths())) as number]
     }
 
     /**

@@ -7,6 +7,7 @@ import {Colors} from "./colors";
 export class NetReproductionNumberChart extends AxisChart
 {
     private linearLine!: d3.Selection<SVGLineElement, unknown, HTMLElement, any>;
+    protected paths!: Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>;
     protected path!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     protected pathRolling!: d3.Selection<SVGPathElement, unknown, HTMLElement, any>;
     private minNumConfirmed = 100;
@@ -36,14 +37,28 @@ export class NetReproductionNumberChart extends AxisChart
             .attr('x2', this.xScale.range()[1])
             .attr('y1', this.yScale(1))
             .attr('y2', this.yScale(1));
-        this.path = this.plotContainer.append('path')
-            .attr('fill', 'none')
-            .attr('stroke', Colors.blue["100"])
-            .attr('stroke-width', 1.5);
-        this.pathRolling = this.plotContainer.append('path')
-            .attr('fill', 'none')
-            .attr('stroke', Colors.blue["700"])
-            .attr('stroke-width', 1.5);
+
+        this.paths = new Array<d3.Selection<SVGPathElement, unknown, HTMLElement, any>>(7);
+        const colorScaleBlue = d3.scaleLinear<string, string>()
+            .domain([0, 6])
+            .range(['rgba(13,71,161,0.1)', 'rgba(13,71,161,0.75)']);
+        for (let i = 6; i >= 0; i--) {
+            this.paths[i] = (
+                this.plotContainer.append('path')
+                    .attr('fill', 'none')
+                    .attr('stroke', colorScaleBlue(i))
+                    .attr('stroke-width', 1.5)
+            );
+        }
+
+        // this.path = this.plotContainer.append('path')
+        //     .attr('fill', 'none')
+        //     .attr('stroke', Colors.blue["100"])
+        //     .attr('stroke-width', 1.5);
+        // this.pathRolling = this.plotContainer.append('path')
+        //     .attr('fill', 'none')
+        //     .attr('stroke', Colors.blue["700"])
+        //     .attr('stroke-width', 1.5);
     }
 
     /**
@@ -58,24 +73,37 @@ export class NetReproductionNumberChart extends AxisChart
             .attr('x2', this.xScale.range()[1])
             .attr('y1', this.yScale(1))
             .attr('y2', this.yScale(1));
-        this.path
-            .datum(entries
-                .filter(entry => entry.confirmed > this.minNumConfirmed)
-                .filter(entry => entry.getNetReproductionNumber() != null))
-            .transition(this.transition)
-            .attr('d', d3.line<DayDatum>()
-                .x(d => this.xScale(d.date))
-                .y(d => this.yScale(Math.max(this.minVal, d.getNetReproductionNumber() as number)))
-            );
-        this.pathRolling
-            .datum(entries
-                .filter(entry => entry.confirmed > this.minNumConfirmed)
-                .filter(entry => entry.getMovingAverageCentered(entry.getNetReproductionNumber, 3) != null))
-            .transition(this.transition)
-            .attr('d', d3.line<DayDatum>()
-                .x(d => this.xScale(d.date))
-                .y(d => this.yScale(Math.max(this.minVal, d.getMovingAverageCentered(d.getNetReproductionNumber, 3) as number)))
-            );
+
+        for (let i = 6; i >= 0; i--) {
+            this.paths[i]
+                .datum(entries
+                    .filter(entry => entry.confirmed > this.minNumConfirmed)
+                    .filter(entry => entry.getMovingAverageCentered(entry.getNetReproductionNumber, i) != null))
+                .transition(this.transition)
+                .attr('d', d3.line<DayDatum>()
+                    .x(d => this.xScale(d.date))
+                    .y(d => this.yScale(d.getMovingAverageCentered(d.getNetReproductionNumber, i) as number))
+                );
+        }
+
+        // this.path
+        //     .datum(entries
+        //         .filter(entry => entry.confirmed > this.minNumConfirmed)
+        //         .filter(entry => entry.getNetReproductionNumber() != null))
+        //     .transition(this.transition)
+        //     .attr('d', d3.line<DayDatum>()
+        //         .x(d => this.xScale(d.date))
+        //         .y(d => this.yScale(Math.max(this.minVal, d.getNetReproductionNumber() as number)))
+        //     );
+        // this.pathRolling
+        //     .datum(entries
+        //         .filter(entry => entry.confirmed > this.minNumConfirmed)
+        //         .filter(entry => entry.getMovingAverageCentered(entry.getNetReproductionNumber, 3) != null))
+        //     .transition(this.transition)
+        //     .attr('d', d3.line<DayDatum>()
+        //         .x(d => this.xScale(d.date))
+        //         .y(d => this.yScale(Math.max(this.minVal, d.getMovingAverageCentered(d.getNetReproductionNumber, 3) as number)))
+        //     );
     }
 
     /**
