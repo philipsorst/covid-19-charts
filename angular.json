@@ -27,11 +27,10 @@
                         "tsConfig": "tsconfig.app.json",
                         "aot": true,
                         "assets": [
-                            "src/favicon.ico",
                             "src/assets"
                         ],
                         "styles": [
-                            "src/styles.scss"
+                            "src/scss/style.scss"
                         ],
                         "scripts": []
                     },
@@ -91,11 +90,10 @@
                         "tsConfig": "tsconfig.spec.json",
                         "karmaConfig": "karma.conf.js",
                         "assets": [
-                            "src/favicon.ico",
                             "src/assets"
                         ],
                         "styles": [
-                            "src/styles.scss"
+                            "src/scss/style.scss"
                         ],
                         "scripts": []
                     }
