@@ -4,6 +4,8 @@ import {NgModule} from '@angular/core';
 import {AppRoutingModule} from './app-routing.module';
 import {AppComponent} from './app.component';
 import {DashboardComponent} from "./dashboard.component";
+import {BsDropdownModule} from "ngx-bootstrap/dropdown";
+import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 
 @NgModule({
     declarations: [
@@ -12,7 +14,9 @@ import {DashboardComponent} from "./dashboard.component";
     ],
     imports: [
         BrowserModule,
-        AppRoutingModule
+        BrowserAnimationsModule,
+        AppRoutingModule,
+        BsDropdownModule.forRoot()
     ],
     providers: [],
     bootstrap: [AppComponent]
