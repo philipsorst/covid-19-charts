@@ -30,7 +30,7 @@ jobs:
             -   name: Install dependencies
                 run: yarn install
             -   name: Build Prod
-                run: yarn encore prod
+                run: yarn run ng build --prod --aot
             -   name: Archive build
                 if: success()
                 uses: actions/upload-artifact@v1
