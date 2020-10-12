@@ -1,8 +1,7 @@
-import {CountryData} from "./country-data";
-import {DayDatum} from "./day-datum";
 import * as d3_time_format from "d3-time-format"
 import * as d3_fetch from "d3-fetch"
-import {Location} from "./location";
+import {DayDatum} from './day-datum';
+import {Location} from './location';
 
 export class CovidData
 {
@@ -12,7 +11,8 @@ export class CovidData
         private countryMap: Map<string, Map<string, DayDatum>>,
         private globalMap: Map<string, DayDatum>,
         private dates: Date[],
-        private dateStrings: string[])
+        private dateStrings: string[]
+    )
     {
     }
 

@@ -12,12 +12,16 @@
                 <span id="current-location"></span>
             </h1>
             <div class="dropdown-menu country-select" *dropdownMenu>
-                <div class="pl-2 pr-2">
-                    <input class="form-control" id="country-filter"/>
-                </div>
-                <div class="countries">
-                    <div class="country"></div>
-                </div>
+                <ng-container *ngIf="(countries$|async) as countries">
+                    <a class="dropdown-item" *ngFor="let country of countries">{{country.name}}</a>
+                </ng-container>
+                <!--                <div class="pl-2 pr-2">-->
+                <!--                    <input class="form-control" id="country-filter"/>-->
+                <!--                </div>-->
+                <!--                <div class="countries">-->
+                <!--                    <div class="country"></div>-->
+                <!--                </div>-->
+
             </div>
 
         </header>
