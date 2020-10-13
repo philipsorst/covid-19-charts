@@ -1,6 +1,5 @@
 import * as d3 from 'd3';
 import {Country} from "./country";
-import * as country_data from '../data/country-data.json';
 
 export class CountryData
 {
@@ -100,7 +99,8 @@ export class CountryData
         // const url = "https://query.wikidata.org/sparql?format=json&query=" + encodeURIComponent(sparql);
         // return d3.json(url).then(response => {
         const countryData = new CountryData();
-        const results = country_data.results.bindings as Array<any>;
+        // const results = country_data.results.bindings as Array<any>;
+        const results = [];
         results.forEach(result => {
             const name = result.xLabel.value;
             const code = result.iso3166alpha2.value;
@@ -109,8 +109,8 @@ export class CountryData
             const isSovereign = result.isSovereign.value;
             const isDisputed = result.isDisputed.value;
             const hostCountryCode = (result.hostCountryCode != null) ? result.hostCountryCode.value : null;
-                const country = new Country(
-                    code,
+            const country = new Country(
+                code,
                     name,
                     population,
                     area,

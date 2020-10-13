@@ -7,11 +7,15 @@ import {BsDropdownModule} from "ngx-bootstrap/dropdown";
 import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {HttpClientModule} from '@angular/common/http';
 import {DashboardComponent} from './dashboard/dashboard.component';
+import {CasesCardComponent} from './chart/cases-card.component';
+import {MapCardComponent} from './chart/map-card.component';
 
 @NgModule({
     declarations: [
         AppComponent,
-        DashboardComponent
+        DashboardComponent,
+        CasesCardComponent,
+        MapCardComponent
     ],
     imports: [
         BrowserModule,
