@@ -5,8 +5,14 @@ $h1-font-size: 1rem * 2.5 !default;
 $h2-font-size: 1rem * 1.5 !default;
 $h3-font-size: 1rem * 1.25 !default;
 $h4-font-size: 1rem !default;
-$display4-size: 2rem;
+
+$display4-size: 1.5rem;
+
+$fa-font-path: '~@fortawesome/fontawesome-free/webfonts';
+
 @import "~bootstrap/scss/bootstrap";
+@import '~@fortawesome/fontawesome-free/scss/fontawesome';
+@import '~@fortawesome/fontawesome-free/scss/solid';
 
 html {
     font-size: 14px;
@@ -31,6 +37,10 @@ section {
 
 .card-header {
     background-color: transparent;
+}
+
+h2.card-header {
+    font-size: 1rem;
 }
 
 .dropdown-toggle, a.dropdown-item {

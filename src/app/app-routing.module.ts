@@ -9,6 +9,11 @@ const routes: Routes = [
         pathMatch: 'full'
     },
     {
+        path: 'dashboard',
+        redirectTo: 'dashboard/',
+        pathMatch: 'full'
+    },
+    {
         path: 'dashboard/:countryCode',
         component: DashboardComponent
     }

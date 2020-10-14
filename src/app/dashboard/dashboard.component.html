@@ -1,73 +1,92 @@
 <div class="container-fluid">
-    <div class="d-flex flex-column" id="inner-container">
-        <header class="border-bottom pt-2 pb-2 mb-3 dropdown" dropdown>
-            <h1
-                    dropdownToggle
-                    class="dropdown-toggle"
-                    data-toggle="dropdown"
-                    data-display="static"
-                    style="white-space: normal"
-            >
-                <ng-container *ngIf="(selectedCountry$|async) as selectedCountry; else globalSelected">
-                    <span>{{selectedCountry.name}}</span>
-                </ng-container>
-                <ng-template #globalSelected>
-                    <span>Global</span>
-                </ng-template>
-            </h1>
-            <div class="dropdown-menu country-select" *dropdownMenu>
-                <div class="countries">
-                    <a class="dropdown-item" (click)="selectCountry(null)">Global</a>
-                    <ng-container *ngIf="(countries$|async) as countries">
-                        <a class="dropdown-item" *ngFor="let country of countries" (click)="selectCountry(country)">
+    <ng-template #loading>
+        <div id="loader" class="vh-100 d-flex justify-content-center">
+            <div class="text-center align-self-center">
+                <div class="fa-3x">
+                    <span class="fas fa-spinner fa-pulse"></span>
+                </div>
+                <div>
+                    Loading Data
+                </div>
+            </div>
+        </div>
+    </ng-template>
+    <ng-container *ngIf="(loaded$|async); else loading">
+        <div class="d-flex flex-column" id="inner-container">
+            <header class="border-bottom pt-2 pb-2 mb-3 dropdown" dropdown [insideClick]="true">
+                <h1
+                        dropdownToggle
+                        class="dropdown-toggle"
+                        data-toggle="dropdown"
+                        data-display="static"
+                        style="white-space: normal"
+                >
+                    <ng-container *ngIf="(selectedCountry$|async) as selectedCountry; else globalSelected">
+                        <span>{{selectedCountry.name}}</span>
+                    </ng-container>
+                    <ng-template #globalSelected>
+                        <span>Global</span>
+                    </ng-template>
+                </h1>
+                <div class="dropdown-menu country-select" *dropdownMenu>
+
+                    <div class="pl-2 pr-2 mb-2">
+                        <input class="form-control" [formControl]="countryFilterControl" />
+                    </div>
+
+                    <div class="countries">
+                        <a class="dropdown-item" [routerLink]="['/dashboard']">Global</a>
+                        <a class="dropdown-item"
+                           *ngFor="let country of (filteredCountries$|async)"
+                           [routerLink]="['/dashboard', country.code]">
                             {{country.name}}
                         </a>
-                    </ng-container>
+                    </div>
                 </div>
-            </div>
 
-        </header>
-        <main class="flex-grow-1 row" id="content">
-            <div class="col-lg-6 d-lg-flex flex-lg-column">
-                <section ddr-covid-map-card class="flex-lg-fill d-lg-flex flex-lg-column"></section>
-                <section ddr-covid-cases-card
-                         class="flex-lg-fill d-lg-flex flex-lg-column"
-                         [country]="(selectedCountry$|async)"></section>
-            </div>
-
-            <div class="col-lg-6 d-lg-flex flex-lg-column">
-
-                <section class="card flex-lg-fill d-lg-flex flex-lg-column">
-                    <h2 class="h4 card-header">Net Reproduction Number</h2>
-                    <div class="flex-lg-grow-1"></div>
-                </section>
-
-                <section class="card flex-lg-fill d-lg-flex flex-lg-column">
-                    <h2 class="h4 card-header">Growth</h2>
-                    <div class="flex-lg-grow-1"></div>
-                </section>
-
-                <section class="card flex-lg-fill d-lg-flex flex-lg-column">
-                    <h2 class="h4 card-header">Death Rate</h2>
-                    <div class="flex-lg-grow-1"></div>
-                </section>
-
-            </div>
-        </main>
-        <footer class="text-center text-muted pt-2 pb-2 border-top">
-            <div class="d-lg-inline ml-lg-2 mr-lg-2">
-                <div class="d-lg-inline">Data Sources:</div>
-                <ul class="list-inline mb-0 d-lg-inline">
-                    <li class="list-inline-item"><a href="https://systems.jhu.edu/">Johns Hopkins CSSE</a></li>
-                    <li class="list-inline-item"><a href="https://www.wikidata.org">Wikidata</a></li>
-                </ul>
-            </div>
-            <div class="d-lg-inline ml-lg-2 mr-lg-2">
-                <div class="d-lg-inline">Visualization:</div>
-                <div class="d-lg-inline">
-                    <a href="https://sorst.net">Philip Washington Sorst</a>
+            </header>
+            <main class="flex-grow-1 row" id="content">
+                <div class="col-lg-6 d-lg-flex flex-lg-column">
+                    <section ddr-covid-map-card class="flex-lg-fill d-lg-flex flex-lg-column"></section>
+                    <section ddr-covid-cases-card
+                             class="flex-lg-fill d-lg-flex flex-lg-column"
+                             [country]="(selectedCountry$|async)"></section>
                 </div>
-            </div>
-        </footer>
-    </div>
+
+                <div class="col-lg-6 d-lg-flex flex-lg-column">
+
+                    <section class="card flex-lg-fill d-lg-flex flex-lg-column">
+                        <h2 class="h4 card-header">Net Reproduction Number</h2>
+                        <div class="flex-lg-grow-1"></div>
+                    </section>
+
+                    <section class="card flex-lg-fill d-lg-flex flex-lg-column">
+                        <h2 class="h4 card-header">Growth</h2>
+                        <div class="flex-lg-grow-1"></div>
+                    </section>
+
+                    <section class="card flex-lg-fill d-lg-flex flex-lg-column">
+                        <h2 class="h4 card-header">Death Rate</h2>
+                        <div class="flex-lg-grow-1"></div>
+                    </section>
+
+                </div>
+            </main>
+            <footer class="text-center text-muted pt-2 pb-2 border-top">
+                <div class="d-lg-inline ml-lg-2 mr-lg-2">
+                    <div class="d-lg-inline">Data Sources:</div>
+                    <ul class="list-inline mb-0 d-lg-inline">
+                        <li class="list-inline-item"><a href="https://systems.jhu.edu/">Johns Hopkins CSSE</a></li>
+                        <li class="list-inline-item"><a href="https://www.wikidata.org">Wikidata</a></li>
+                    </ul>
+                </div>
+                <div class="d-lg-inline ml-lg-2 mr-lg-2">
+                    <div class="d-lg-inline">Visualization:</div>
+                    <div class="d-lg-inline">
+                        <a href="https://sorst.net">Philip Washington Sorst</a>
+                    </div>
+                </div>
+            </footer>
+        </div>
+    </ng-container>
 </div>

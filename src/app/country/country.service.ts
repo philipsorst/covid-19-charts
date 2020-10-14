@@ -7,11 +7,15 @@ import {map, shareReplay, tap} from 'rxjs/operators';
 @Injectable({providedIn: 'root'})
 export class CountryService
 {
+    private nameToCodeMap = new Map<string, string>();
+    private codeToCountryMap = new Map<string, Country>();
+    private loader$ = null;
+
     constructor(private httpClient: HttpClient)
     {
     }
 
-    public list(): Observable<Country[]>
+    public load(): Observable<CountryService>
     {
         const query = `
             SELECT DISTINCT ?x ?xLabel ?iso3166alpha2 ?population ?area ?hostCountryCode ?isSovereign ?isDisputed
@@ -30,28 +34,72 @@ export class CountryService
             }
             ORDER BY ?iso3166alpha2`.trim();
         // const url = "https://query.wikidata.org/sparql?format=json&query=" + encodeURIComponent(sparql);
-        return this.httpClient.get('https://query.wikidata.org/sparql', {params: {format: 'json', query}}).pipe(
-            tap(console.log),
-            map(sparqlResult => sparqlResult.results.bindings.map(result => {
-                console.log(result);
-                const name = result.xLabel.value;
-                const code = result.iso3166alpha2.value;
-                const population = (result.population != null) ? +result.population.value : null;
-                const area = (result.area != null) ? +result.area.value : null;
-                const isSovereign = result.isSovereign.value;
-                const isDisputed = result.isDisputed.value;
-                const hostCountryCode = (result.hostCountryCode != null) ? result.hostCountryCode.value : null;
-                return new Country(
-                    code,
-                    name,
-                    population,
-                    area,
-                    hostCountryCode,
-                    isSovereign,
-                    isDisputed
-                );
-            })),
-            shareReplay(1)
-        );
+
+        if (null == this.loader$) {
+            this.loader$ = this.httpClient.get<any>('https://query.wikidata.org/sparql', {
+                params: {
+                    format: 'json',
+                    query
+                }
+            }).pipe(
+                map(sparqlResult => sparqlResult.results.bindings.map(result => {
+                    const name = result.xLabel.value;
+                    const code = result.iso3166alpha2.value;
+                    const population = (result.population != null) ? +result.population.value : null;
+                    const area = (result.area != null) ? +result.area.value : null;
+                    const isSovereign = result.isSovereign.value;
+                    const isDisputed = result.isDisputed.value;
+                    const hostCountryCode = (result.hostCountryCode != null) ? result.hostCountryCode.value : null;
+                    return new Country(
+                        code,
+                        name,
+                        population,
+                        area,
+                        hostCountryCode,
+                        isSovereign,
+                        isDisputed
+                    );
+                })),
+                tap(countries => {
+                    countries.forEach(country => {
+                        this.addCodeToCountry(country.code, country);
+                        this.addNameToCode(country.name, country.code);
+                    })
+                }),
+                map(() => this),
+                shareReplay(1)
+            );
+        }
+
+        return this.loader$;
+    }
+
+    public getCountry(code: string): Country | null
+    {
+        const country = this.codeToCountryMap.get(code);
+        if (null == country) return null;
+
+        return country;
+    }
+
+    public getCode(name: string): string | null
+    {
+        let code: string | null | undefined = this.nameToCodeMap.get(name);
+        if (null == code) {
+            console.warn(`Code not found for ${name}`);
+            code = null;
+        }
+
+        return code;
+    }
+
+    private addNameToCode(country: string, abbreviation: string)
+    {
+        this.nameToCodeMap.set(country, abbreviation);
+    }
+
+    private addCodeToCountry(code: string, country: Country)
+    {
+        this.codeToCountryMap.set(code, country);
     }
 }

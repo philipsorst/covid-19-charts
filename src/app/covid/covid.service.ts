@@ -2,9 +2,11 @@ import * as d3_time_format from "d3-time-format"
 import {DayDatum} from './day-datum';
 import {Location} from './location';
 import {Injectable} from '@angular/core';
-import {CountryData} from '../country/country-data';
 import {CountryService} from '../country/country.service';
 import {HttpClient} from '@angular/common/http';
+import {combineLatest, Observable} from 'rxjs';
+import {map, shareReplay} from 'rxjs/operators';
+import * as d3_dsv from 'd3-dsv';
 
 @Injectable({providedIn: 'root'})
 export class CovidService
@@ -15,28 +17,33 @@ export class CovidService
     private globalMap: Map<string, DayDatum>;
     private dates: Date[];
     private dateStrings: string[];
-
-    private readonly URL_CONFIRMED = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv';
-    private readonly URL_RECOVERED = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv';
-    private readonly URL_DEATHS = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv';
-
+    private loader$ = null;
 
     constructor(private countryService: CountryService, private httpClient: HttpClient)
     {
     }
 
-    // public testCsv()
-    // {
-    //     this.httpClient.get(this.URL_GLOBAL, {responseType: 'text'}).pipe(
-    //         map(csvText => d3_dsv.csvParse(csvText))
-    //     ).subscribe({next: data => console.log(typeof data, data)});
-    // }
+    public load(): Observable<CovidService>
+    {
+        if (null == this.loader$) {
+            const covidDataLoader = new CovidDataLoader(this.countryService, this.httpClient);
+            this.loader$ = covidDataLoader.load().pipe(
+                map(result => {
+                    this.locationNameLocationMap = result.locationNameLocationMap;
+                    this.locationNameDayDataMap = result.locationNameDayDataArrayMap;
+                    this.countryMap = result.countryMap;
+                    this.globalMap = result.globalMap;
+                    this.dates = result.dates;
+                    this.dateStrings = result.dateStrings;
 
-    // public static load(countryData: CountryData): Promise<CovidService>
-    // {
-    //     const covidDataLoader = new CovidDataLoader(countryData);
-    //     return covidDataLoader.load();
-    // }
+                    return this;
+                }),
+                shareReplay(1)
+            )
+        }
+
+        return this.loader$;
+    }
 
     public hasCountryCode(countryCode: string | null): boolean
     {
@@ -70,6 +77,10 @@ export class CovidService
 
     public getDayData(countryCode: string): DayDatum[]
     {
+        if (null == countryCode) {
+            return this.getGlobalDayData();
+        }
+
         const countryData = this.countryMap.get(countryCode);
         if (null == countryData) throw 'No data found for ' + countryCode;
         const arr = Array.from(countryData.values());
@@ -116,6 +127,10 @@ export class CovidService
 
 class CovidDataLoader
 {
+    private readonly URL_CONFIRMED = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv';
+    private readonly URL_RECOVERED = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv';
+    private readonly URL_DEATHS = 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv';
+
     private locationNameLocationMap = new Map<string, Location>();
     private locationNameDayDataMap = new Map<string, Map<string, DayDatum>>();
     private countryMap = new Map<string, Map<string, DayDatum>>();
@@ -126,7 +141,7 @@ class CovidDataLoader
     private dateFormat = d3_time_format.timeFormat('%Y-%m-%d');
     private countryNameToCountryCodeMap = new Map<string, string>();
 
-    constructor(private countryData: CountryData)
+    constructor(private countryService: CountryService, private httpClient: HttpClient)
     {
         this.countryNameToCountryCodeMap.set('Burma', 'MM');
         this.countryNameToCountryCodeMap.set('Cabo Verde', 'CV');
@@ -161,7 +176,7 @@ class CovidDataLoader
             return;
         }
 
-        const country = this.countryData.getCountry(countryCode);
+        const country = this.countryService.getCountry(countryCode);
         if (null == country) {
             console.log('Country not found', countryCode);
             return;
@@ -244,7 +259,7 @@ class CovidDataLoader
             return this.countryNameToCountryCodeMap.get(countryName) as string;
         }
 
-        return this.countryData.getCode(countryName);
+        return this.countryService.getCode(countryName);
     }
 
     private postProcess(entries: Map<string, DayDatum>)
@@ -277,41 +292,46 @@ class CovidDataLoader
         return arr;
     }
 
-    // public load(): Promise<CovidService>
-    // {
-    //     const urls = {
-    //         confirmed: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_confirmed_global.csv',
-    //         recovered: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_recovered_global.csv',
-    //         deaths: 'https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv',
-    //     };
-    //
-    //     return Promise.all([d3_fetch.csv(urls.confirmed), d3_fetch.csv(urls.recovered), d3_fetch.csv(urls.deaths)])
-    //         .then(([confirmed, recovered, deaths]) => {
-    //
-    //             confirmed.forEach((entry: any) => this.addEntry(entry, 'confirmed'));
-    //             recovered.forEach((entry: any) => this.addEntry(entry, 'recovered'));
-    //             deaths.forEach((entry: any) => this.addEntry(entry, 'deaths'));
-    //
-    //             this.countryMap.forEach((entries) => this.postProcess(entries));
-    //             this.postProcess(this.globalMap);
-    //
-    //             const dates = new Array<Date>();
-    //             const dateStrings = new Array<string>();
-    //             const parser = d3_time_format.timeParse('%Y-%m-%d');
-    //             this.dateStringSet.forEach(dateString => {
-    //                 dateStrings.push(dateString);
-    //                 const date = parser(dateString);
-    //                 if (null != date) {
-    //                     dates.push(date);
-    //                 }
-    //             });
-    //
-    //             const locationNameDayDataArrayMap = new Map<string, DayDatum[]>();
-    //             this.locationNameDayDataMap.forEach((value, key) => {
-    //                 locationNameDayDataArrayMap.set(key, this.linkEntries(Array.from(value.values()) as DayDatum[]))
-    //             });
-    //
-    //             return new CovidService(this.locationNameLocationMap, locationNameDayDataArrayMap, this.countryMap, this.globalMap, dates, dateStrings);
-    //         });
-    // }
+    public load()
+    {
+        return combineLatest([
+            this.httpClient.get(this.URL_CONFIRMED, {responseType: 'text'}).pipe(map(csvString => d3_dsv.csvParse(csvString))),
+            this.httpClient.get(this.URL_RECOVERED, {responseType: 'text'}).pipe(map(csvString => d3_dsv.csvParse(csvString))),
+            this.httpClient.get(this.URL_DEATHS, {responseType: 'text'}).pipe(map(csvString => d3_dsv.csvParse(csvString))),
+            this.countryService.load()
+        ]).pipe(
+            map(([confirmed, recovered, deaths]) => {
+                confirmed.forEach((entry: any) => this.addEntry(entry, 'confirmed'));
+                recovered.forEach((entry: any) => this.addEntry(entry, 'recovered'));
+                deaths.forEach((entry: any) => this.addEntry(entry, 'deaths'));
+
+                this.countryMap.forEach((entries) => this.postProcess(entries));
+                this.postProcess(this.globalMap);
+
+                const dates = new Array<Date>();
+                const dateStrings = new Array<string>();
+                const parser = d3_time_format.timeParse('%Y-%m-%d');
+                this.dateStringSet.forEach(dateString => {
+                    dateStrings.push(dateString);
+                    const date = parser(dateString);
+                    if (null != date) {
+                        dates.push(date);
+                    }
+                });
+
+                const locationNameDayDataArrayMap = new Map<string, DayDatum[]>();
+                this.locationNameDayDataMap.forEach((value, key) => {
+                    locationNameDayDataArrayMap.set(key, this.linkEntries(Array.from(value.values()) as DayDatum[]))
+                });
+                return {
+                    locationNameLocationMap: this.locationNameLocationMap,
+                    locationNameDayDataArrayMap,
+                    countryMap: this.countryMap,
+                    globalMap: this.globalMap,
+                    dates,
+                    dateStrings
+                }
+            })
+        )
+    }
 }

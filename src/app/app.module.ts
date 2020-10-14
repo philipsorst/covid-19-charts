@@ -9,6 +9,7 @@ import {HttpClientModule} from '@angular/common/http';
 import {DashboardComponent} from './dashboard/dashboard.component';
 import {CasesCardComponent} from './chart/cases-card.component';
 import {MapCardComponent} from './chart/map-card.component';
+import {ReactiveFormsModule} from '@angular/forms';
 
 @NgModule({
     declarations: [
@@ -22,7 +23,8 @@ import {MapCardComponent} from './chart/map-card.component';
         BrowserAnimationsModule,
         AppRoutingModule,
         HttpClientModule,
-        BsDropdownModule.forRoot()
+        BsDropdownModule.forRoot(),
+        ReactiveFormsModule
     ],
     providers: [],
     bootstrap: [AppComponent]
