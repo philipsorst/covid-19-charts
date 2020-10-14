@@ -4,7 +4,7 @@ import {Country} from '../country/country';
 import * as d3 from 'd3';
 
 @Component({
-    selector: '[ddr-covid-cases-card]',
+    selector: '[id=ddr-covid-cases-card]',
     templateUrl: './cases-card.component.html',
     host: {'class': 'card'}
 })
