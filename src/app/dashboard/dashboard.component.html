@@ -48,6 +48,7 @@
             <main class="flex-grow-1 row" id="content">
                 <div class="col-lg-6 d-lg-flex flex-lg-column">
                     <section id="ddr-covid-map-card" class="flex-lg-fill d-lg-flex flex-lg-column"></section>
+                    <section id="ddr-covid-cases-info-card" class="d-lg-flex flex-lg-column" [country]="(selectedCountry$|async)"></section>
                     <section id="ddr-covid-cases-card"
                              class="flex-lg-fill d-lg-flex flex-lg-column"
                              [country]="(selectedCountry$|async)"></section>

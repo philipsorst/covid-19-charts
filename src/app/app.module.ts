@@ -11,11 +11,13 @@ import {MapCardComponent} from './card/map-card.component';
 import {ReactiveFormsModule} from '@angular/forms';
 import {CasesChartComponent} from './chart/cases-chart.component';
 import {CasesCardComponent} from './card/cases-card.component';
+import {CasesInfoCardComponent} from "./card/cases-info-card.component";
 
 @NgModule({
     declarations: [
         AppComponent,
         DashboardComponent,
+        CasesInfoCardComponent,
         CasesCardComponent,
         MapCardComponent,
         CasesChartComponent
